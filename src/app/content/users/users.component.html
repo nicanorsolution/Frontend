@@ -1,0 +1,175 @@
+<div class="main-content slit-in-vertical">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="header">
+            <h4 class="title">User Management</h4>
+          </div>
+
+          <div class="content">
+            <p-fieldset legend="Menu">
+              <div class="grid">
+                <div class="col-8">
+                  <form [formGroup]="searchForm" (ngSubmit)="searchUsers()" class="flex gap-2">
+                    <span class="p-input-icon-left flex-grow-1">
+                      <i class="pi pi-search"></i>
+                      <input
+                        type="text"
+                        pInputText
+                        formControlName="searchTerm"
+                        placeholder="Search users..."
+                        class="w-full"
+                      />
+                    </span>
+                    <button
+                      pButton
+                      type="submit"
+                      label="Search"
+                      icon="pi pi-search"
+                      class="p-button-outlined"
+                    ></button>
+                  </form>
+                </div>
+                <div class="col-4">
+                  <div class="flex justify-content-end">
+                    <button
+                      pButton
+                      label="New User"
+                      class="p-button-outlined p-button-success"
+                      (click)="openAddUserDialog()"
+                      icon="pi pi-plus"
+                      iconPos="left">
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </p-fieldset>
+
+            <br />
+            <hr />
+            <p-table
+              [value]="users"
+              selectionMode="single"
+              styleClass="p-datatable-striped p-datatable-gridlines"
+              [totalRecords]="totalRows"
+              [rows]="pageSize"
+              [paginator]="true"
+              [showCurrentPageReport]="true"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+              (onPage)="onPageChange($event)"
+              [lazy]="true"
+              [first]="(currentPage-1) * pageSize">
+
+            <ng-template pTemplate="header">
+              <tr>
+                <th>User Name</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Creation</th>
+                <th>Last Modified</th>
+                <th>Action</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-user let-expanded="expanded">
+              <tr>
+
+                <td>{{ user.userName }}</td>
+                <td>{{ getRoleName(user.role) }}</td>
+                <td> <p-tag [value]="user.status" [severity]="colorStatus(user.status)"></p-tag></td>
+                <td>{{ user.createdAt | date:'medium' }}  {{ user.createdBy }} </td>
+                <td>{{ user.updatedAt  | date:'medium'}}  {{ user.updatedBy }} </td>
+                <td>
+
+                  <button    pButton   type="button"   label="Approve"   class="p-button-outlined p-button-success"
+                  *ngIf="user.status == 'Created'"
+                     [appRole]="['SuperAdmin']"
+                  icon="pi pi-check" iconPos="left" (click)="checkerDecision(user,CheckerDecision.ApprovedCurrentAction)" >
+                  </button>
+
+                  <button    pButton   type="button"   label="Cancel"   class="p-button-outlined p-button-danger ml-1"
+                  *ngIf="user.status == 'Created'"
+                    [appRole]="['SuperAdmin']"
+                  icon="pi pi-times" iconPos="left" (click)="checkerDecision(user,CheckerDecision.CanceledCurrentAction)" >
+                  </button>
+
+                  <button    pButton   type="button"   label="Delete"   class="p-button-outlined p-button-danger"
+                  *ngIf="user.status == 'Approved'"
+                    [appRole]="['SuperAdmin']"
+                  icon="pi pi-trash" iconPos="left" (click)="deleteUser(user)" >
+                  </button>
+
+                </td>
+              </tr>
+            </ng-template>
+
+            </p-table>
+
+          </div>
+
+          <p-dialog  [(visible)]="userDialog" [style]="{width: '50vw'}">
+            <ng-template pTemplate="header">
+              <div class="text-center">
+                <h3 class="title">Create User</h3>
+              </div>
+            </ng-template>
+
+            <form [formGroup]="createUserForm" (ngSubmit)="createUser()">
+             <div class="grid p-fluid mt-3">
+
+              <div class="field col-12">
+                <span class="p-float-label p-input-filled">
+
+                  <input formControlName="userName"  type="text" id="inputtext" pInputText />
+
+                  <label for="inputtext">User Name</label>
+                  <small *ngIf=" createUserForm.get('userName')?.touched && createUserForm.get('userName')?.hasError('noOnlyDigits')" class="p-error">Username is required. and can't be only digit</small>
+              </span>
+              </div>
+
+              <div class="field col-12">
+                <span class="p-float-label p-input-filled">
+
+                  <p-dropdown
+                  formControlName="role"
+                  [options]="roles"
+                  optionLabel="roleName"
+                  [showClear]="true"
+                  placeholder="Select a role" />
+
+                  <label for="role">User Role</label>
+                  <small *ngIf="createUserForm.get('role')?.invalid && (createUserForm.get('role')?.dirty
+                              || createUserForm.get('role')?.touched)" class="p-error">Role is required.</small>
+              </span>
+              </div>
+
+
+              <div class="field col-9" ></div>
+              <div class="field col-3">
+                <br/>
+                <button    pButton   type="submit"  class="p-button-outlined p-button-success"  style="float: right; margin-right: 25px; "
+                 [label]="isSubmitted ? 'Submiting...' : 'Save'" [icon]="isSubmitted ? 'pi pi-spinner pi-spin' : 'pi pi-save'"  iconPos="left"
+                 [disabled]="createUserForm.invalid" >
+                </button>
+              </div>
+             </div>
+
+            </form>
+         </p-dialog>
+
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<swal
+  #dialog_operation_swal
+  title="Delete ?"
+  text="This cannot be undone"
+  icon="question"
+  [showCloseButton]="true" >
+</swal>
+

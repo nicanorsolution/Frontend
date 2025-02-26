@@ -1,0 +1,208 @@
+<div class="main-content slit-in-vertical">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="header">
+            <h4 class="title">Standard Transfer Rates</h4>
+          </div>
+
+          <div class="content">
+            <p-table [value]="rates"
+              styleClass="p-datatable-striped p-datatable-gridlines"
+              [expandedRowKeys]="expandedRows"
+              dataKey="id"
+              [loading]="loading"
+              [showCurrentPageReport]="true">
+
+              <ng-template pTemplate="header">
+                <tr>
+                  <th scope="col" style="width: 3rem"></th>
+                  <th scope="col">Base Currency</th>
+                  <th scope="col">Quote Currency</th>
+                  <th scope="col">Base Sell Rate</th>
+                  <th scope="col">Base Buy Rate</th>
+                  <th scope="col">Transfer Rate Date</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-rate let-expanded="expanded">
+                <tr>
+                  <td>
+                    <button type="button" pButton pRipple [pRowToggler]="rate"
+                      class="p-button-text p-button-rounded p-button-plain"
+                      [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+                    </button>
+                  </td>
+                  <td>{{rate.baseCurrency}}</td>
+                  <td>{{rate.quoteCurrency}}</td>
+                  <td>{{rate.baseSellRate | number:'1.4-4'}}</td>
+                  <td>{{rate.baseBuyRate | number:'1.4-4'}}</td>
+                  <td>{{rate.transferRateDate | date:'medium'}}</td>
+                  <td>
+                    <p-tag [severity]="isCurrentRate(rate.transferRateDate) ? 'success' : 'danger'"
+                           [value]="isCurrentRate(rate.transferRateDate) ? 'Current' : 'Old'">
+                    </p-tag>
+                  </td>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="rowexpansion" let-rate>
+                <tr>
+                  <td colspan="7">
+                    <div class="p-grid p-nogutter">
+                      <div class="p-col-12">
+                        <div class="grid">
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">ID</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{rate.id}}</div>
+                          </div>
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">History Version</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{rate.historyVersion}}</div>
+                          </div>
+
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">Maximum Sell Rate</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{rate.maximunSellRate | number:'1.4-4'}}</div>
+                          </div>
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">Spread (%)</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{rate.spreadInPercentage | number:'1.2-2'}}%</div>
+                          </div>
+
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">Non-Finance Commission</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{rate.commissionInPercentageForNonFinanceTransfer | number:'1.2-2'}}%</div>
+                          </div>
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">Finance Commission</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{rate.commissionInPercentageForFinanceTransfer | number:'1.2-2'}}%</div>
+                          </div>
+                        </div>
+                      </div>
+                           <div class="p-col-12">
+                        <hr/>
+                        <div class="flex flex-row-reverse flex-wrap">
+                          <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-pencil" iconPos="left"
+                            label="Edit"
+                            (click)="openEditStandardRateDialog(rate)"
+                            style="margin-right: 10px">
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Standard Rate Dialog -->
+<p-dialog [(visible)]="editStandardRateDialog" [style]="{width: '40vw'}" header="Update Daily Standard Rate">
+  <form [formGroup]="editStandardRateForm" (ngSubmit)="updateStandardRate()">
+    <div class="grid p-fluid mt-3">
+      <div class="field col-12">
+        <span class="p-float-label">
+          <p-inputNumber formControlName="baseSellRate"
+                        [minFractionDigits]="4"
+                        [maxFractionDigits]="4"
+                        mode="decimal"
+                        [min]="0"
+                        id="baseSellRate">
+          </p-inputNumber>
+          <label for="baseSellRate">Base Sell Rate</label>
+        </span>
+      </div>
+
+      <div class="field col-12">
+        <span class="p-float-label">
+          <p-inputNumber formControlName="spreadInPercentage"
+                        [minFractionDigits]="2"
+                        [maxFractionDigits]="2"
+                        mode="decimal"
+                        [min]="0"
+                        id="spreadInPercentage">
+          </p-inputNumber>
+          <label for="spreadInPercentage">Spread (%)</label>
+        </span>
+      </div>
+
+      <div class="field col-12">
+        <span class="p-float-label">
+          <p-inputNumber formControlName="commissionInPercentageForNonFinanceTransfer"
+                        [minFractionDigits]="2"
+                        [maxFractionDigits]="2"
+                        mode="decimal"
+                        [min]="0"
+                        id="commissionNonFinance">
+          </p-inputNumber>
+          <label for="commissionNonFinance">Non-Finance Commission (%)</label>
+        </span>
+      </div>
+
+      <div class="field col-12">
+        <span class="p-float-label">
+          <p-inputNumber formControlName="commissionInPercentageForFinanceTransfer"
+                        [minFractionDigits]="2"
+                        [maxFractionDigits]="2"
+                        mode="decimal"
+                        [min]="0"
+                        id="commissionFinance">
+          </p-inputNumber>
+          <label for="commissionFinance">Finance Commission (%)</label>
+        </span>
+      </div>
+
+      <div class="field col-12">
+        <span class="p-float-label">
+          <p-inputNumber formControlName="baseBuyRate"
+                        [minFractionDigits]="4"
+                        [maxFractionDigits]="4"
+                        mode="decimal"
+                        [min]="0"
+                        id="baseBuyRate">
+          </p-inputNumber>
+          <label for="baseBuyRate">Base Buy Rate</label>
+        </span>
+      </div>
+
+      <div class="field col-12">
+        <button pButton type="submit"
+          class="p-button-outlined p-button-success"
+          [label]="isSubmitted ? 'Saving...' : 'Save'"
+          [icon]="isSubmitted ? 'pi pi-spinner pi-spin' : 'pi pi-save'"
+          iconPos="left"
+          [disabled]="editStandardRateForm.invalid || isSubmitted">
+        </button>
+      </div>
+    </div>
+  </form>
+</p-dialog>
+
+<swal
+  #dialog_operation_swal
+  title="Operation Successful"
+  text="The rates have been updated successfully"
+  icon="success">
+</swal>

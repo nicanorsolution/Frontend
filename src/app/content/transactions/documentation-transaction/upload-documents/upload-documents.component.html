@@ -1,0 +1,53 @@
+<div class="p-4">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="flex align-items-center justify-content-center" style="height: 200px;">
+        <p-progressSpinner></p-progressSpinner>
+    </div>
+
+    <!-- Documents Table -->
+    <p-table [value]="documents"
+             [loading]="loading"
+             styleClass="p-datatable-striped">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Document Name</th>
+                <th>File Name</th>
+                <th>Status</th>
+                <th>Submission Type</th>
+                <th>Size</th>
+                <th>Actions</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-doc>
+            <tr>
+                <td>{{doc.documentName}}</td>
+                <td>{{doc.documentOriginalName}}</td>
+
+                <td>
+                    <p-tag [value]="getFileStatusLabel(doc.transactionFileStatus)"
+                           [severity]="colorFileStatus(doc.transactionFileStatus)">
+                    </p-tag>
+                </td>
+                <td>
+                  <p-tag [value]="getSubmissionTypeLabel(doc.documentSubmissionOption)"
+                         [severity]="colorSubmissionType(doc.documentSubmissionOption)">
+                  </p-tag>
+                </td>
+                <td>{{doc.documentSize | fileSize}}</td>
+                <td>
+                    <button pButton type="button"
+                            class="p-button-outlined p-button-primary"
+                            icon="pi pi-upload"
+                            (click)="uploadDocument(doc)">
+                    </button>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="7" class="text-center">No documents found</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+

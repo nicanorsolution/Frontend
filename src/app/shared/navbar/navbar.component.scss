@@ -1,0 +1,30 @@
+.navbarSticky {
+  position: sticky;
+  top: 0;
+  width:  100%;
+  z-index: 1000; /* Ensures the navbar stays on top of other content */
+
+}
+
+.container-fluid{
+  display:flex;
+  justify-content: space-between;
+  padding: 1em 1.5em;
+}
+
+.user-info-and-logout
+{
+  display: flex;
+  gap: 3em;
+  align-items: start;
+}
+
+.user-logout
+{
+  p{
+    margin-block: 0;
+    font-size: 1.2em;
+    margin: 0;
+  }
+
+}

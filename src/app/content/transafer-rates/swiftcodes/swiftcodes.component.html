@@ -1,0 +1,66 @@
+<div class="main-content slit-in-vertical">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="header">
+            <h4 class="title">Swift Codes</h4>
+          </div>
+
+          <div class="content">
+            <p-fieldset legend="Search">
+              <div class="grid">
+                <div class="col-12">
+                  <span class="p-input-icon-left w-full">
+                    <i class="pi pi-search"></i>
+                    <input type="text"
+                           pInputText
+                           class="w-full"
+                           placeholder="Search by Swift Code"
+                           (input)="onSearch($event)">
+                  </span>
+                </div>
+              </div>
+            </p-fieldset>
+
+            <br />
+            <hr />
+            <p-table [value]="swiftCodes"
+              styleClass="p-datatable-striped p-datatable-gridlines"
+              [totalRecords]="totalRows"
+              [rows]="pageSize"
+              [paginator]="true"
+              [showCurrentPageReport]="true"
+              [loading]="loading"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Swift Code</th>
+                  <th>Bank Name</th>
+                  <th>Bank Address</th>
+                  <th>Country</th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-swiftCode>
+                <tr>
+                  <td>{{swiftCode.swiftCodeId}}</td>
+                  <td>{{swiftCode.bankName}}</td>
+                  <td>{{swiftCode.bankAddress}}</td>
+                  <td>{{swiftCode.bankCountry}}</td>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="4" class="text-center">No swift codes found</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

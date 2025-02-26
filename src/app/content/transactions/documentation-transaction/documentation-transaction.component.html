@@ -1,0 +1,1348 @@
+<div class="main-content slit-in-vertical">
+ <!--  Transaction Details And Action -->
+<p-confirmDialog></p-confirmDialog>
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="header">
+            <h4 class="title">Transaction </h4>
+          </div>
+          <div class="content">
+           <hr/>
+
+            <!-- Loading State -->
+            <div *ngIf="loading" class="flex align-items-center justify-content-center" style="height: 200px;">
+              <p-progressSpinner></p-progressSpinner>
+            </div>
+
+            <!-- No Transaction Found -->
+            <div *ngIf="!loading && !transaction" class="text-center p-4">
+              <p-message severity="warn" text="Transaction not found"></p-message>
+            </div>
+
+            <!-- Transaction Details -->
+            <div *ngIf="!loading && transaction" class="p-4">
+              <p-fieldset legend="Transaction Details">
+                <div class="grid">
+                  <div class="col-3"><b>Reference:</b></div>
+                  <div class="col-3">{{transaction.transactionReference}}</div>
+                  <div class="col-3"><b>Date:</b></div>
+                  <div class="col-3">{{transaction.transactionDate | date:'medium'}}</div>
+
+                  <div class="col-3"><b>Customer:</b></div>
+                  <div class="col-3">{{transaction.customerAccountName}}</div>
+                  <div class="col-3"><b>Account:</b></div>
+                  <div class="col-3">{{transaction.customerAccountNumber}}</div>
+
+                  <div class="col-3"><b>Amount:</b></div>
+                  <div class="col-3">{{transaction.transactionAmount | number:'1.2-2'}}</div>
+                  <div class="col-3"><b>Currency:</b></div>
+                  <div class="col-3">{{transaction.transactionCurrency}}</div>
+
+                  <div class="col-3"><b>Type:</b></div>
+                  <div class="col-3">{{transaction.transactionTypeName}}</div>
+                  <div class="col-3"><b>Status:</b></div>
+                  <div class="col-3">
+                    <p-tag [value]="getStatusString(transaction.status)"
+                          [severity]="colorStatus(transaction.status)">
+                    </p-tag>
+                  </div>
+
+
+                  <div class="col-3"><b>Initiation Method:</b></div>
+                  <div class="col-3">
+                    <p-tag [value]="getInitiationMethodString(transaction.initiationMethod)"
+                          severity="info">
+                    </p-tag>
+                  </div>
+                </div>
+              </p-fieldset>
+
+              <p-fieldset legend="Financial Details" class="mt-3">
+                <div class="grid">
+                  <div class="col-3"><b>Rate:</b></div>
+                  <div class="col-3">{{transaction.rate | number:'1.2-2'}}</div>
+                  <div class="col-3"><b>Rate Date:</b></div>
+                  <div class="col-3">{{transaction.rateDate | date:'medium'}}</div>
+                   <div class="col-3"><b>Spread:</b></div>
+                  <div class="col-3">{{transaction.spreadInPercentage | number:'1.2-2'}} %</div>
+                   <div class="col-3"><b>Principal Amount:</b></div>
+                  <div class="col-3">{{transaction.principalAmountInBaseCurrency | number:'1.2-2'}} XAF </div>
+                   <div class="col-3"><b>Financial Commission:</b></div>
+                  <div class="col-3">{{transaction.financialCommissionInPercentage | number:'1.2-2'}} %</div>
+                   <div class="col-3"><b>Financial Commission Calculation:</b></div>
+                  <div class="col-3">{{transaction.financialCommission | number:'1.2-2'}} XAF</div>
+                   <div class="col-3"><b>Financial Commission Tax:</b></div>
+                  <div class="col-3">{{transaction.financialCommissionTax | number:'1.2-2'}} XAF</div>
+                   <div class="col-3"><b>Non Financial Commission:</b></div>
+                  <div class="col-3">{{transaction.nonFinancialCommissionInPercentage | number:'1.2-2'}} %</div>
+                  <div class="col-3"><b>Non Financial Commission:</b></div>
+                  <div class="col-3">{{transaction.nonFinancialCommission | number:'1.2-2'}} XAF</div>
+                    <div class="col-3"><b>Non Financial Commission Tax:</b></div>
+                  <div class="col-3">{{transaction.nonFinancialCommissionTax | number:'1.2-2'}} XAF</div>
+                    <div class="col-3"><b>Amount Provision:</b></div>
+                  <div class="col-3">{{transaction.amountToLienLocalCurrency | number:'1.2-2'}} XAF</div>
+                </div>
+              </p-fieldset>
+
+              <p-fieldset legend="Beneficiary Details" class="mt-3">
+                <div class="grid">
+                  <div class="col-3"><b>Account Number:</b></div>
+                  <div class="col-3">{{transaction.beneficiaryAccountNumber}}</div>
+                  <div class="col-3"><b>Name:</b></div>
+                  <div class="col-3">{{transaction.beneficiaryAccountName}}</div>
+
+                  <div class="col-3"><b>Bank SWIFT:</b></div>
+                  <div class="col-3">{{transaction.bankSwift}}</div>
+                  <div class="col-3"><b>Bank Name:</b></div>
+                  <div class="col-3">{{transaction.bankName}}</div>
+
+                  <div class="col-3"><b>Bank Address:</b></div>
+                  <div class="col-3">{{transaction.bankAddress}}</div>
+
+                  <div class="col-3"><b>Payment Details:</b></div>
+                  <div class="col-3">{{transaction.paymentDetails}}</div>
+                </div>
+              </p-fieldset>
+
+              <p-fieldset legend="Processing Details" class="mt-3">
+                <div class="grid">
+
+                   <div class="col-3"><b>Processing Type:</b></div>
+                  <div class="col-3">
+                    <p-tag [value]="getProcessingTypeString(transaction.processingType)"
+                          [severity]="colorProcessingType(transaction.processingType)">
+                    </p-tag>
+                  </div>
+                    <div class="col-3"><b>Processing Date:</b></div>
+                    <div class="col-3">{{transaction.processingDate | date:'medium'}}</div>
+
+                  <div class="col-3"><b>Amount Provision Status:</b></div>
+                  <div class="col-3">
+                    <p-tag [value]="getTransactionProvisionStatusString(transaction.transactionProvisionStatus)"
+                          [severity]="getTransactionProvisionStatusColor(transaction.transactionProvisionStatus)">
+                    </p-tag>
+                  </div>
+                  <div class="col-3"><b>Apurement Status:</b></div>
+                  <div class="col-3">
+                    <p-tag [value]="getApurementStatusString(transaction.transactionApurementStatus)"
+                          [severity]="colorApurementStatus(transaction.transactionApurementStatus)">
+                    </p-tag>
+                  </div>
+                    <div class="col-3"><b>MT228 Reference:</b></div>
+                    <div class="col-3">
+                      {{transaction.referenceMT228}}
+                      <a *ngIf="transaction.referenceMT228" (click)="downloadSwift(ReferenceMT.MT228)" style="cursor: pointer;">Download</a>
+                    </div>
+
+                    <div class="col-3"><b>MT103 Reference:</b></div>
+                    <div class="col-3">
+                      {{transaction.referenceMT103}}
+                      <a *ngIf="transaction.referenceMT103" (click)="downloadSwift(ReferenceMT.MT103)" style="cursor: pointer;">Download</a>
+                    </div>
+
+                    <div class="col-3"><b>MT900 Reference:</b></div>
+                    <div class="col-3">
+                      {{transaction.referenceMT900}}
+                      <a *ngIf="transaction.referenceMT900" (click)="downloadSwift(ReferenceMT.MT900)" style="cursor: pointer;">Download</a>
+                    </div>
+
+                    <div class="col-3"><b>Transaction Exception Count:</b></div>
+                    <div class="col-3">
+                        <a *ngIf="!transaction.transactionExceptionsPendingCount || transaction.transactionExceptionsPendingCount === 0" >
+                          <p-tag value="0 Exception(0) pending" severity="success"></p-tag>
+                        </a>
+                        <a *ngIf="transaction.transactionExceptionsPendingCount > 0">
+                          <p-tag [value]="transaction.transactionExceptionsPendingCount.toString() + ' Exception(s) pending'" severity="danger"></p-tag>
+                        </a>
+                    </div>
+
+                    <div class="col-3"><b>DI Imputation:</b></div>
+                    <div class="col-3">
+                         <p-tag [value]="getTranDIStatusString(transaction.transactionDIStatus)" [severity]="getTranDIStatusColor(transaction.transactionDIStatus)"></p-tag>
+                    </div>
+                </div>
+              </p-fieldset>
+
+              <!--  Transction review and actions : exceptions, swift upload , apurement and DI imputation -->
+
+              <hr/>
+              <div class="flex flex-row flex-wrap" >
+
+                 <div style="float: right; margin-right: 0;">
+                    <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-upload" iconPos="left"
+                            label="Upload Documents"
+                            (click)="openUploadDocuments()"
+                                appAdminRole
+                                [Roles]="[UserRoles.TradeInitiator.toString(),
+                                  UserRoles.TradeDeskAuthorizer.toString()
+                                ]"
+                            style="margin-right: 10px">
+                 </button>
+
+
+                  <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-exclamation-triangle" iconPos="left"
+                            label="Raise Exception"
+                            (click)="openRaiseExceptionDialog()"
+                            style="margin-right: 10px">
+                  </button>
+                   <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-pencil" iconPos="left"
+                            [label]="'View/Update Exceptions ('+transaction.transactionExceptionsCount +')'"
+                            (click)="openViewExceptionsDialog()"
+                            style="margin-right: 10px">
+                 </button>
+
+                  <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-compass" iconPos="left"
+                            label="Processing Options"
+                              (click)="openProcessingOptionsDialog()"
+                             appAdminRole
+                                [Roles]="[
+                                UserRoles.TreasuryAuthorizer.toString()]"
+                            style="margin-right: 10px">
+                 </button>
+                 <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-file" iconPos="left"
+                            label="Apurement"
+                            (click)="openApurementTransactionOptionDialog()"
+                               appAdminRole
+                                [Roles]="[
+                                UserRoles.TradeDeskAuthorizer.toString()]"
+                            style="margin-right: 10px">
+                 </button>
+
+                 <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-upload" iconPos="left"
+                            label="Upload Swift"
+                            (click)="openUploadSwiftDialog()"
+                             appAdminRole
+                                [Roles]="[
+                                UserRoles.TreasuryOperationAuthorizer.toString(),
+                                UserRoles.TradeOperationAuthorizer.toString()
+                                ]"
+                            style="margin-right: 10px">
+                 </button>
+                 <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-pencil" iconPos="left"
+                            (click)="openDIImputationDialog()"
+                            label="DI Imputation"
+                             appAdminRole
+                                [Roles]="[
+                                UserRoles.TradeAuthorizer.toString(),
+                                UserRoles.TradeOperationAuthorizer.toString()
+                                ]"
+                            style="margin-right: 10px">
+                 </button>
+                 <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-align-justify" iconPos="left"
+                            label="List/Delete DI Imputation"
+                            (click)="openDIImputationsDialog()"
+                             appAdminRole
+                                [Roles]="[
+                                UserRoles.TradeAuthorizer.toString(),
+                                UserRoles.TradeOperationAuthorizer.toString()
+                                ]"
+                            style="margin-right: 10px">
+                 </button>
+                  <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-file-edit" iconPos="left"
+                            label="Provision Account"
+                            (click)="provisionAccount()"
+                             appAdminRole
+                                [Roles]="[
+                                UserRoles.TradeOperationAuthorizer.toString()
+                                ]"
+                            style="margin-right: 10px">
+                 </button>
+                 <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-sort-amount-down" iconPos="left"
+                            label="Provision details"
+                            (click)="getProvisionTransfertsDialog()"
+                             appAdminRole
+                                [Roles]="[
+                                UserRoles.TradeOperationAuthorizer.toString()
+                                ]"
+                            style="margin-right: 10px">
+                 </button>
+                 </div>
+
+               </div>
+
+            </div>
+
+            <p-dialog [(visible)]="uploadDocumentsDialog"
+                      [style]="{width: '80vw'}"
+                      [header]="'Upload Documents - ' + transaction?.transactionReference"
+                      [modal]="true">
+                <app-upload-documents
+                    *ngIf="uploadDocumentsDialog"
+                    [transactionId]="transaction?.id">
+                </app-upload-documents>
+            </p-dialog>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+ <!--  Documents Details/Reviews And Actions -->
+   <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="header">
+            <h4 class="title">Documents Review</h4>
+            <hr/>
+          </div>
+
+          <div class="content">
+            <!-- Document lists -->
+            <div *ngIf="loading" class="flex align-items-center justify-content-center" style="height: 100px;">
+              <p-progressSpinner></p-progressSpinner>
+            </div>
+            <div class="grid">
+              <div  [ngClass]="{'col-3':panelNumber==2,'col-2':panelNumber==3}" style="border-radius: 6px; border-color: #c42626; border-style:solid; border-width: 1px;">
+
+                 <h4 class="title"><strong>Required Documents List</strong></h4> <br/>
+
+                <div class="custom-doc-list">
+                  <div *ngFor="let doc of documents"
+                       (click)="onDocumentChange({ value: doc })"
+                       class="doc-item"
+                       style="cursor:pointer; padding: 0.55em 0.75em; margin-bottom: 6px; border: 1px solid #dcdcdc; border-radius: 4px;">
+                    <i class="pi pi-file" style="font-size: medium; margin-right: 0.5em;"></i>
+                    {{doc.documentName}}
+                    <br/>
+                    <span style="color: #444;">
+                      <p-tag [value]="getFileStatusLabel(doc.transactionFileStatus)"
+                             [severity]="getStatusSeverity(doc.transactionFileStatus)">
+                      </p-tag>
+                    </span>
+                  </div>
+                </div>
+
+                <br/><br/>
+
+                <button pButton pRipple type="button"
+                        label="Download  Documents"
+                        icon="pi pi-download"
+                        (click)="downloadZipDocs()"
+                        class="p-button-outlined p-button-rounded p-button-primary">
+                </button>
+
+                <br/><br/>
+
+                <button pButton pRipple type="button"
+                        label="Documents Review Summary"
+                        icon="pi pi-file-pdf"
+                        (click)="openDocumentsReviewSummary()"
+                        class="p-button-outlined p-button-rounded p-button-primary">
+                </button>
+
+                <br/><br/>
+              </div>
+
+              <div  [ngClass]="{'col-9':panelNumber==2,'col-7':panelNumber==3}"   style="border-radius: 6px; border-color: #c42626; border-style:solid; border-width: 1px;">
+                  <h4 class="title" *ngIf="!selectedDocument" style="color: red;">No Document Selected</h4>
+                  <div *ngIf="selectedDocument" class="grid row col-12">
+                    <div class="col-5">
+                      <h4  class="title">
+                       <strong> Document Title</strong> : {{ selectedDocument.documentName }}
+                      </h4>
+                    </div>
+                    <div class="col-5">
+                      <h4 class="title">
+                        <b>Document Status :</b>
+                        <p-tag styleClass="mr-2"
+                               [severity]="getStatusSeverity(selectedDocument.transactionFileStatus)">
+                          {{ getFileStatusLabel(selectedDocument.transactionFileStatus) }}
+                        </p-tag>
+                      </h4>
+                    </div>
+                    <div class="col-2">
+                     <h4 class="title">
+                       <button pButton pRipple type="button" style="float: right;"
+                              label="Track Doc."
+                              (click)="trackDocument()"
+                              icon="pi pi-history"
+                              class="p-button-outlined p-button-rounded p-button-primary">
+                      </button>
+                     </h4>
+                    </div>
+                  </div>
+                  <br/>
+
+                    <ngx-extended-pdf-viewer *ngIf="selectedDocument && fileBLob"
+                     [src]="fileBLob"
+                     [height]="'100vh'"
+                     useBrowserLocale="true">
+                    </ngx-extended-pdf-viewer>
+
+                    <div *ngIf="!fileBLob" >
+                      <h3 style="color: #c42626;" >No file found</h3>
+                    </div>
+
+              </div>
+
+
+             <ng-container *ngIf="panelNumber==3" >
+              <div class="col-3"   style="border-radius: 6px; border-color: #c42626; border-style:solid; border-width: 1px;">
+                      <h4 *ngIf="!selectedDocument" class="title"   style="color: red;">No Document Selected</h4>
+
+                      <div *ngIf="selectedDocument">
+                          <h4  class="title" ><b>Controls On Document :</b> {{selectedDocument.documentName}}</h4>
+
+                          <hr/>
+                          <p *ngIf="documentControls?.length == 0">
+                              <b style="color: red;"> No controls recorded for this document </b>
+                          </p>
+
+                          <h4 *ngIf="documentControls?.length != 0" class="title"  style="color: #D32F2F;">Controls to perform : </h4>
+
+                          <ol>
+                              <li *ngFor="let control of documentControls" style="padding:1rem;font-size:medium">
+                                  <div class="grid">
+                                      <div class="col-8">
+                                          {{control.documentControlName}}
+                                      </div>
+                                      <div class="col-3">
+                                          <p-tag styleClass="mr-2"
+                                                [severity]="colorDocumentControlType(control.documentControlType)"
+                                                [value]="getDocumentControlType(control.documentControlType)">
+                                          </p-tag>
+                                      </div>
+                                      <div class="col-1" style="float: left;">
+                                          <p-checkbox name="groupcontrol" *ngIf="control"
+                                                     [value]="control"
+                                                     [(ngModel)]="selectedControls"
+                                                     (onChange)="onControlPerformed($event.checked)"
+                                                     inputId="document_control_task_id">
+                                          </p-checkbox>
+                                      </div>
+                                  </div>
+                              </li>
+                          </ol>
+
+                          <div class="grid">
+                              <div class="col-3"></div>
+                              <div class="col-6" style="padding:auto;">
+                                  <button pButton pRipple type="button"
+                                          label="Review Document"
+                                          icon="pi pi-check"
+                                          [disabled]="!isCheckDocumentEnabled()"
+                                          (click)="openReviewDialog()"
+                                          class="p-button-outlined p-button-rounded p-button-success">
+                                  </button>
+                              </div>
+                              <div class="col-3"></div>
+                          </div>
+
+                      </div>
+
+                       <hr/>
+
+                      <div style="margin: auto;width: 50%;">
+                          <button pButton pRipple type="button" label="Transaction Audit"  icon="pi pi-history"
+                          (click)="getTransctionMessages()"
+                          class="p-button-outlined p-button-rounded p-button-primary">
+                          </button>
+                      </div>
+                    <div class="container scroller-activity">
+
+                        <div *ngFor="let item of transactionMessages" class="timeline-item">
+                            <div style="position: absolute;left:2em;font-weight: bold;top: 1em;display: block;font-family: 'Roboto', sans-serif;font-weight: 700;font-size: .885rem;color: brown;">
+                                {{item.createdDate | date :'medium'}} - By {{item.createdBy}}
+                            </div>
+                            <h5 style="margin-top: 0;"><p-tag [value]="getTransctionMessageType(item.transactionMessageType)" [severity]="'info'" ></p-tag> -  <p-tag [value]="getTransactionMessageTypeName(item.messageType)" [severity]="getTransactionMessageTypeColor(item.messageType)" ></p-tag></h5>
+                            <p [innerHTML]="item.message">
+                            </p>
+                        </div>
+
+                    </div>
+              </div>
+             </ng-container>
+
+            </div>
+               <hr/>
+              <div class="flex flex-row flex-wrap flex-justify-between flex-align-center">
+                <!-- Approve, Send for correction, Reject, Delete, Submit transaction by initiator -->
+                  <button pButton type="button"
+                            class="p-button-outlined p-button-success"
+                              appTransactionalRole
+                            [roles]="[UserRoles.Verifier.toString(),
+                             UserRoles.TradeAuthorizer.toString(),
+                             UserRoles.TreasuryAuthorizer.toString(),
+                             UserRoles.TreasuryOperationAuthorizer.toString(),
+                             UserRoles.TradeOperationAuthorizer.toString()]"
+                            [currentStatus]="transaction?.status"
+                            icon="pi pi-check" iconPos="left"
+                            label="Approve"
+                            (click)="approvalFlow(TransactionDecisionAction.Approve)"
+                            style="margin-right: 10px;">
+                 </button>
+                  <button pButton type="button"
+                            class="p-button-outlined p-button-danger"
+                            appTransactionalRole
+                            [roles]="[UserRoles.Verifier.toString(),
+                             UserRoles.TradeAuthorizer.toString(),
+                             UserRoles.TreasuryAuthorizer.toString(),
+                             UserRoles.TreasuryOperationAuthorizer.toString(),
+                             UserRoles.TradeOperationAuthorizer.toString()]"
+                            [currentStatus]="transaction?.status"
+                            icon="pi pi-times" iconPos="left"
+                            label="Send For Correction"
+                             (click)="approvalFlow(TransactionDecisionAction.SendForCorrection)"
+                            style="margin-right: 10px;">
+                 </button>
+                  <button pButton type="button"
+                            class="p-button-outlined p-button-danger"
+                             appTransactionalRole
+                            [roles]="[UserRoles.Verifier.toString(),
+                                     UserRoles.TradeAuthorizer.toString(),
+                                     UserRoles.TreasuryAuthorizer.toString(),
+                                     UserRoles.TreasuryOperationAuthorizer.toString(),
+                                     UserRoles.TradeOperationAuthorizer.toString()]"
+                            [currentStatus]="transaction?.status"
+                            icon="pi pi-times" iconPos="left"
+                            label="Reject"
+                             (click)="approvalFlow(TransactionDecisionAction.Reject)"
+                            style="margin-right: 10px;">
+                 </button>
+                 <!-- Delete or submit transaction by initiator-->
+                <button pButton type="button"
+                            class="p-button-outlined  p-button-success"
+                            appPermission
+                            [roles]="[UserRoles.TradeInitiator.toString()]"
+                            [currentStatus]="transaction?.status"
+                            icon="pi pi-send" iconPos="left"
+                            label="Submit"
+                            (click)="submitTransaction()"
+                            style="margin-right: 10px;">
+                 </button>
+                <button pButton type="button"
+                            class="p-button-outlined p-button-danger"
+                            appPermission
+                            [roles]="[UserRoles.TradeInitiator.toString()]"
+                            [currentStatus]="transaction?.status"
+                            icon="pi pi-trash" iconPos="left"
+                            label="Delete"
+                            (click)="deleteTransaction()"
+                            style="margin-right: 25px">
+                 </button>
+              </div>
+          </div>
+            <!-- Review Document Dialog -->
+          <p-dialog [(visible)]="reviewDialog"
+                    [style]="{width: '50vw'}"
+                    [header]="'Review Document - ' + selectedDocument?.documentName"
+                    [modal]="true" >
+            <br/>
+            <br/>
+            <form [formGroup]="reviewForm" (ngSubmit)="submitReview()" class="p-fluid">
+              <div class="grid">
+                <!-- Status -->
+                <div class="col-12 mb-3">
+                  <span class="p-float-label">
+                    <p-dropdown formControlName="transactionFileStatus"
+                              [options]="documentReviewStatus"
+                              [style]="{'width':'100%'}"
+                              optionLabel="label"
+                              optionValue="value"
+                              placeholder="Select Status"
+                              [showClear]="false">
+                    </p-dropdown>
+                    <label>Review Status</label>
+                  </span>
+                </div>
+
+                <!-- Review Note -->
+                <div class="col-12 mb-3">
+                  <span class="p-float-label">
+                    <textarea pInputTextarea
+                             formControlName="reviewerNote"
+                             [rows]="4"
+                             [style]="{'width':'100%','font-size':'1.2em'}"
+                             autoResize="true">
+                    </textarea>
+                    <label>Review Notes</label>
+                  </span>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="col-12">
+                  <button pButton type="submit"
+                          label="Submit Review"
+                          icon="pi pi-check"
+                          [disabled]="reviewForm.invalid"
+                          class="p-button-success">
+                  </button>
+                </div>
+              </div>
+            </form>
+          </p-dialog>
+
+          <!-- Documents Review Summary Dialog -->
+          <p-dialog [(visible)]="documentsReviewDialog"
+                    [style]="{width: '80vw'}"
+                    [header]="'Documents Review Summary - ' + transaction?.transactionReference"
+                    [modal]="true">
+
+            <p-table [value]="documents"
+                     styleClass="p-datatable-gridlines p-datatable-striped"
+                     [paginator]="true"
+                     [rows]="10"
+                     [showCurrentPageReport]="true"
+                     responsiveLayout="scroll">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Document Name</th>
+                  <th>Review Note</th>
+                  <th style="width: 200px">Status</th>
+                  <th style="width: 200px">Document Submission Option </th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-doc>
+                <tr>
+                  <td>{{doc.documentName}}</td>
+                    <td>
+                    <div [style.maxHeight]="'60px'" class="overflow-auto">
+                      {{doc.reviewNote || 'No review note'}}
+                    </div>
+                  </td>
+                  <td>
+                    <p-tag [value]="getFileStatusLabel(doc.transactionFileStatus)"
+                          [severity]="getStatusSeverity(doc.transactionFileStatus)">
+                    </p-tag>
+                  </td>
+
+                  <td>
+                    <p-tag [value]="getDocumentSubmissionStatusLabel(doc.documentSubmissionOption)"
+                          [severity]="colorDocumentSubmissionStatus(doc.documentSubmissionOption)">
+                    </p-tag>
+                  </td>
+
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="5" class="text-center">No documents found</td>
+                </tr>
+              </ng-template>
+            </p-table>
+
+            <ng-template pTemplate="footer">
+              <button pButton type="button"
+                      label="Close"
+                      class="p-button-outlined"
+                      (click)="documentsReviewDialog = false">
+              </button>
+            </ng-template>
+          </p-dialog>
+
+          <!-- Raise Exception Dialog -->
+          <p-dialog [(visible)]="raiseExceptionDialog"
+                    [style]="{width: '60vw'}"
+                    [header]="'Raise Exception - ' + transaction?.transactionReference"
+                    [modal]="true">
+                    <br/><br/>
+            <form [formGroup]="exceptionForm" (ngSubmit)="submitException()" class="p-fluid">
+              <div class="grid">
+                <!-- Exception Directed To -->
+                <div class="col-6 mb-3">
+                  <span class="p-float-label">
+                    <p-dropdown formControlName="exceptionDirectedTo"
+                              [options]="directedToOptions"
+                              [style]="{'width':'100%'}"
+                              optionLabel="label"
+                              optionValue="value"
+                              placeholder="Select Target">
+                    </p-dropdown>
+                    <label>Direct Exception To</label>
+                  </span>
+                </div>
+
+                <!-- Severity -->
+                <div class="col-6 mb-3">
+                  <span class="p-float-label">
+                    <p-dropdown formControlName="severity"
+                              [options]="severityOptions"
+                              [style]="{'width':'100%'}"
+                              optionLabel="label"
+                              optionValue="value"
+                              placeholder="Select Severity">
+                    </p-dropdown>
+                    <label>Severity</label>
+                  </span>
+                </div>
+
+                <!-- Exception Resolver Email -->
+                <div class="col-12 mb-3">
+                  <span class="p-float-label">
+                      <p-multiSelect formControlName="exceptionResolverEmail"
+                                 [options]="contactOfExceptionResolver"
+                                 optionLabel="email"
+                                 optionValue="email"
+                                 [filter]="true"
+                                 (onClick)="getContactOfExceptionResolver()"
+                                 placeholder="Select Exception Resolver">
+                      <ng-template let-contact pTemplate="item">
+                        <div class="flex align-items-center gap-2">
+                          <div>{{contact.email}}</div>
+                          <div>{{contact.contactName}}</div>
+                          <div>{{contact.contactPosition}}</div>
+                        </div>
+                      </ng-template>
+                    </p-multiSelect>
+                    <label>Exception Resolver Email</label>
+                  </span>
+                </div>
+
+                <!-- Related Documents -->
+                <div class="col-9 mb-3">
+                  <span class="p-float-label">
+                    <p-multiSelect formControlName="transactionFileCausingException"
+                                 [options]="documents"
+                                 optionLabel="documentName"
+                                 optionValue="id"
+                                 [filter]="true"
+                                 placeholder="Select Related Documents">
+                      <ng-template let-doc pTemplate="item">
+                        <div class="flex align-items-center gap-2">
+                          <div>{{doc.documentName}}</div>
+                          <p-tag [value]="getFileStatusLabel(doc.transactionFileStatus)"
+                                [severity]="getStatusSeverity(doc.transactionFileStatus)">
+                          </p-tag>
+                        </div>
+                      </ng-template>
+                    </p-multiSelect>
+                    <label>Related Documents</label>
+                  </span>
+                </div>
+                 <div class="col-3 mb-3">
+                  <span class="p-float-label">
+                    <p-checkbox formControlName="isTransactionFileReviewNoteAdded"
+                           [binary]="true" value="true"
+                           inputId="isTransactionFileReviewNoteAdded">
+                    </p-checkbox>
+
+                    <label for="isTransactionFileReviewNoteAdded" class="ml-4">Add Documents Review Notes</label>
+                  </span>
+                </div>
+
+                <!-- Internal Note -->
+                <div class="col-12 mb-3">
+                  <span class="p-float-label">
+                    <textarea pInputTextarea
+                             formControlName="internalNote"
+                             [rows]="3"
+                             [style]="{'width':'100%'}"
+                             autoResize="true">
+                    </textarea>
+                    <label>Internal Note</label>
+                  </span>
+                </div>
+
+                <!-- Client Note -->
+                <div class="col-12 mb-3">
+                  <span class="p-float-label">
+                    <textarea pInputTextarea
+                             formControlName="clientNote"
+                             [rows]="3"
+                              [style]="{'width':'100%'}"
+                             autoResize="true">
+                    </textarea>
+                    <label>Client Note</label>
+                  </span>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="col-12">
+                  <button pButton type="submit"
+                          label="Raise Exception"
+                          icon="pi pi-exclamation-triangle"
+                          class="p-button-danger"
+                          [disabled]="exceptionForm.invalid">
+                  </button>
+                </div>
+              </div>
+            </form>
+          </p-dialog>
+
+          <p-dialog [(visible)]="viewExceptionsDialog"
+                    [style]="{width: '80vw'}"
+                    [header]="'Transaction Exceptions - ' + transaction?.transactionReference"
+                    [modal]="true">
+
+            <p-table [value]="transactionExceptions"
+                    [expandedRowKeys]="expandedRows"
+                    dataKey="id"
+                    styleClass="p-datatable-gridlines"
+                    [paginator]="true"
+                    [rows]="10"
+                    [showCurrentPageReport]="true"
+                    responsiveLayout="scroll">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="width: 3rem"></th>
+                  <th>N°</th>
+                  <th>Directed To</th>
+                  <th>Exception Resolver</th>
+                  <th>Attachement</th>
+                  <th>Status</th>
+                  <th>Severity</th>
+                  <th>RM </th>
+                  <th>Created Date</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-exception let-expanded="expanded">
+                <tr>
+                  <td>
+                    <button type="button" pButton pRipple
+                            [pRowToggler]="exception"
+                            class="p-button-text p-button-rounded p-button-plain"
+                            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+                    </button>
+                  </td>
+                  <td> E- {{exception.exceptionSerialNumber}}</td>
+
+                  <td>
+                    <p-tag [value]="getExceptionDirectedToLabel(exception.exceptionDirectedTo)"
+                          severity="info">
+                    </p-tag>
+                  </td>
+                    <td>
+                    <div class="flex flex-column">
+                      <small *ngFor="let resolver of exception.exceptionResolver">
+                        {{resolver}}
+                      </small>
+                    </div>
+                  </td>
+                  <td>
+                   {{ exception?.attachedEmail == null ||  exception?.attachedEmail == undefined ||  exception?.attachedEmail == '' ? 'No Attachment' : 'File Attached'}}
+                  </td>
+                  <td>
+                    <p-tag [value]="getExceptionStatusLabel(exception.exceptionStatus)"
+                          [severity]="colorExceptionStatus(exception.exceptionStatus)">
+                    </p-tag>
+                  </td>
+                  <td>
+                    <p-tag [value]="getExceptionSeverityToLabel(exception.severity)"
+                          [severity]="colorExceptionSeverity(exception.severity)">
+                    </p-tag>
+                  </td>
+                  <td>{{exception.rm}}</td>
+
+                  <td>{{exception.dateCreated | date:'medium'}}</td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="rowexpansion" let-exception>
+                <tr>
+                  <td colspan="9">
+                    <div class="p-3">
+                      <div class="grid">
+                        <div class="col-6">
+                          <h6>Internal Note</h6>
+                          <p>{{exception.internalNote}}</p>
+                        </div>
+                         <div class="col-6">
+                          <h6>Client Note</h6>
+                          <p>{{exception.clientNote}}</p>
+                        </div>
+                        <div class="col-6">
+                          <h6>Related Documents</h6>
+                          <ul>
+                            <li *ngFor="let docId of exception.transactionFileCausingException">
+                              {{getDocumentName(docId)}}
+                            </li>
+                          </ul>
+                        </div>
+                        <div class="col-12">
+                          <p><strong>Attached Email:</strong> {{exception.attachedEmail}}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <hr/>
+                   <div class="flex flex-row flex-wrap reverse ">
+                     <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-pencil" iconPos="left"
+                            label="Update Exception"
+                            (click)="openUpdateExceptionDialog(exception)"
+                            style="margin-right: 10px">
+                     </button>
+                        <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-history" iconPos="left"
+                            label="View Exceptions Tracking"
+                            (click)="openExceptionsHistoryDialog(exception)"
+                            style="margin-right: 10px">
+                     </button>
+
+                   </div>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="7" class="text-center">No exceptions found</td>
+                </tr>
+              </ng-template>
+            </p-table>
+
+
+          </p-dialog>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p-dialog [(visible)]="updateExceptionDialog"
+          [style]="{width: '50vw'}"
+          [header]="'Update Exception Status'"
+          [modal]="true">
+  <form [formGroup]="updateExceptionForm" (ngSubmit)="submitUpdateException()" class="p-fluid">
+    <br/><br/>
+    <div class="grid">
+      <!-- Status -->
+      <div class="col-12 mb-3">
+        <span class="p-float-label">
+          <p-dropdown formControlName="exceptionStatus"
+                    [options]="exceptionStatusOptions"
+                    [style]="{'width':'100%'}"
+                    optionLabel="label"
+                    optionValue="value"
+                    [showClear]="false">
+          </p-dropdown>
+          <label>Exception Status</label>
+        </span>
+      </div>
+
+      <!-- Internal Note -->
+      <div class="col-12 mb-3">
+        <span class="p-float-label">
+          <textarea pInputTextarea
+                   formControlName="internalNote"
+                   [rows]="4"
+                   [style]="{'width':'100%'}"
+                   autoResize="true">
+          </textarea>
+          <label>Internal Note</label>
+        </span>
+      </div>
+
+      <!-- File Attachment -->
+      <div class="col-12 mb-3">
+        <div class="p-field">
+          <label class="mb-2">Attach File (optional)</label>
+          <input type="file"
+                 class="p-inputtext w-full"
+                 (change)="onFileSelected($event)"
+                 accept=".pdf,.doc,.docx,.xls,.xlsx">
+          <small class="p-error block mt-1" *ngIf="selectedFile">
+            Selected file: {{selectedFile.name}}
+          </small>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="col-12">
+        <button pButton type="submit"
+                label="Update Exception"
+                icon="pi pi-save"
+                [disabled]="updateExceptionForm.invalid"
+                class="p-button-success">
+        </button>
+      </div>
+    </div>
+  </form>
+</p-dialog>
+
+<p-dialog [(visible)]="uploadSwiftDialog"
+          [style]="{width: '40vw'}"
+          [header]="'Upload Swift File'"
+          [modal]="true">
+  <br/><br/>
+  <form [formGroup]="uploadSwiftForm" (ngSubmit)="submitSwiftUpload()" class="p-fluid">
+    <div class="grid">
+      <!-- MT Type -->
+      <div class="col-12 mb-3">
+        <span class="p-float-label">
+          <p-dropdown formControlName="referenceMT"
+                    [options]="mtTypeOptions"
+                    [style]="{'width':'100%'}"
+                    optionLabel="label"
+                    optionValue="value"
+                    [showClear]="false">
+          </p-dropdown>
+          <label>MT Type</label>
+        </span>
+      </div>
+
+      <!-- Reference -->
+      <div class="col-12 mb-3">
+        <span class="p-float-label">
+          <input pInputText
+                 formControlName="reference"
+                 [style]="{'width':'100%'}"
+                 type="text">
+          <label>Reference</label>
+        </span>
+      </div>
+
+      <!-- File Upload -->
+      <div class="col-12 mb-3">
+        <div class="p-field">
+          <label class="mb-2">Swift File *</label>
+          <input type="file"
+                 class="p-inputtext w-full"
+                 (change)="onSwiftFileSelected($event)"
+                 accept=".mt,.swift,.txt">
+          <small class="p-error block mt-1" *ngIf="selectedSwiftFile">
+            Selected file: {{selectedSwiftFile.name}}
+          </small>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="col-12">
+        <button pButton type="submit"
+                label="Upload Swift"
+                icon="pi pi-upload"
+                [disabled]="uploadSwiftForm.invalid || !selectedSwiftFile"
+                class="p-button-success">
+        </button>
+      </div>
+    </div>
+  </form>
+</p-dialog>
+
+<p-dialog [(visible)]="diImputationDialog"
+          [style]="{width: '50vw'}"
+          [header]="'DI Imputation'"
+          [modal]="true">
+           <br/><br/>
+  <div class="p-fluid">
+    <div class="grid">
+
+      <!-- DI Selection -->
+      <div class="col-12 mb-3">
+        <span class="p-float-label">
+          <p-dropdown [options]="clientDIs"
+                     [(ngModel)]="selectedDI"
+                     [style]="{'width':'100%'}"
+                     optionLabel="referenceDi"
+                     placeholder="Select DI"
+                     (onChange)="onDISelect($event)">
+            <ng-template let-di pTemplate="item">
+              <div>{{di.referenceDi}} - {{di.diAmount}} {{di.diCurrency}}</div>
+            </ng-template>
+          </p-dropdown>
+          <label>Select DI</label>
+        </span>
+      </div>
+
+      <!-- DI Details -->
+      <div class="col-12" *ngIf="selectedDI">
+        <p-fieldset legend="DI Details">
+          <div class="grid">
+            <div class="col-6"><b>Reference:</b> {{selectedDI.referenceDi}}</div>
+            <div class="col-6"><b>Status:</b>  <p-tag [value]="getDIStatusString(selectedDI.diStatus)"
+                                                      [severity]="colorDIStatus(selectedDI.diStatus)">
+                                              </p-tag></div>
+
+            <div class="col-6"><b>Amount:</b> {{selectedDI.diAmount}}</div>
+            <div class="col-6"><b>Currency:</b> {{selectedDI.diCurrency}}</div>
+
+            <div class="col-6"><b>Bank Reference:</b> {{selectedDI.domiciliationNumberInBank || 'N/A'}}</div>
+            <div class="col-6"><b>SGS Reference:</b> {{selectedDI.referenceSgs || 'N/A'}}</div>
+
+            <div class="col-12"><b>Provider:</b> {{selectedDI.providerName || 'N/A'}}</div>
+          </div>
+        </p-fieldset>
+      </div>
+
+      <!-- Transaction Details -->
+      <div class="col-12 mt-3" *ngIf="selectedDI && transaction">
+        <p-fieldset legend="Transaction Details">
+          <div class="grid">
+            <div class="col-6"><b>Amount:</b> {{transaction.transactionAmount}}</div>
+            <div class="col-6"><b>Currency:</b> {{transaction.transactionCurrency}}</div>
+          </div>
+        </p-fieldset>
+      </div>
+
+      <!-- Action Button -->
+      <div class="col-12 mt-3 flex justify-content-end">
+        <button pButton type="button"
+                label="Impute"
+                icon="pi pi-check"
+                (click)="imputeDI()"
+                [disabled]="!selectedDI"
+                class="p-button-success">
+        </button>
+      </div>
+    </div>
+  </div>
+</p-dialog>
+
+<p-dialog [(visible)]="diImputationsDialog"
+          [style]="{width: '70vw'}"
+          [header]="'DI Imputations List'"
+          [modal]="true">
+  <p-table [value]="diImputations" styleClass="p-datatable-gridlines">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>DI Reference</th>
+        <th>Transaction Reference</th>
+        <th>Imputation Amount</th>
+        <th>Imputation Currency</th>
+        <th>Status</th>
+        <th>Date</th>
+        <th>Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-imputation>
+      <tr>
+        <td>{{imputation.referenceDI}}</td>
+        <td>{{imputation.transactionReference}}</td>
+        <td>{{imputation.imputationAmount}}</td>
+        <td>{{imputation.imputationCurrency}}</td>
+        <td>
+          <p-tag [value]="getDIImputationStatusString(imputation.imputationStatus)"
+                [severity]="colorDISImputationtatus(imputation.imputationStatus)">
+          </p-tag>
+        </td>
+        <td>{{imputation.imputationDate | date:'medium'  }}</td>
+
+        <td>
+          <button pButton pRipple type="button"
+                  *ngIf="imputation.imputationStatus == ImputationStatus.DIImputed"
+                  icon="pi pi-undo"
+                  class="p-button-rounded p-button-warning"
+                  (click)="reverseImputation(imputation)">
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6">No DI Imputations found.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-dialog>
+
+<p-dialog [(visible)]="exceptionHistoryDialog"
+          [style]="{width: '50vw'}"
+          [header]="'Exception History'"
+          [modal]="true">
+    <div class="container scroller-activity">
+        <div *ngFor="let item of transactionExceptionHistory" class="timeline-item">
+            <div style="position: absolute;left:2em;font-weight: bold;top: 1em;display: block;font-family: 'Roboto', sans-serif;font-weight: 700;font-size: .885rem;color: brown;">
+                {{item.lastUpdatedDate | date :'medium'}} - {{item.lastUpdatedBy}}
+            </div>
+            <h5 style="margin-top: 0;">
+                <p-tag [value]="getExceptionStatusLabel(item.exceptionStatus)"
+                      [severity]="colorExceptionStatus(item.exceptionStatus)">
+                </p-tag>
+            </h5>
+            <p>
+                <strong>Internal Note:</strong><br/>
+                {{item.internalNote || 'No internal note'}}
+            </p>
+            <p *ngIf="item.attachedEmail">
+                <strong>Attached Email:</strong><br/>
+                {{item.attachedEmail}}
+            </p>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton type="button"
+                label="Close"
+                class="p-button-outlined"
+                (click)="exceptionHistoryDialog = false">
+        </button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="documentHistoryDialog"
+          [style]="{width: '50vw'}"
+          [header]="'Document History'"
+          [modal]="true">
+    <div class="container scroller-activity">
+        <div *ngFor="let item of documentHistory" class="timeline-item">
+            <div style="position: absolute;left:2em;font-weight: bold;top: 1em;display: block;font-family: 'Roboto', sans-serif;font-weight: 700;font-size: .885rem;color: brown;">
+                {{item.lastUpdatedDate | date :'medium'}} - {{item.lastUpdateBy}}
+            </div>
+            <h5 style="margin-top: 0;">
+                <p-tag [value]="getDocumentHistoryStatus(item.transactionFileStatus)"
+                      [severity]="colorDocumentHistoryStatus(item.transactionFileStatus)">
+                </p-tag>
+            </h5>
+            <p>
+                <strong>Document Name:</strong><br/>
+                {{item.documentName}}
+            </p>
+            <p>
+                <strong>Review Note:</strong><br/>
+                {{item.reviewNote}}
+            </p>
+            <p *ngIf="item.documentPath && item.documentPath.length > 0">
+                <strong>Attached Document :</strong><br/>
+                <a (click)="downloadHistoryDocument(item.transactionId, item.id, item.history, item.documentName)"
+                   style="cursor: pointer;" >Download</a>
+            </p>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton type="button"
+                label="Close"
+                class="p-button-outlined"
+                (click)="exceptionHistoryDialog = false">
+        </button>
+    </ng-template>
+</p-dialog>
+
+
+<p-dialog [(visible)]="processingOptionsDialog"
+          [style]="{width: '50vw'}"
+          [header]="'Set Processing Option'"
+          [modal]="true">
+          <br/>
+          <br/>
+    <div class="grid">
+
+      <div class="col-12">
+                <span class="p-float-label">
+                    <p-dropdown [(ngModel)]="selectedProcessingOption"
+                                [options]="processingOptionsDrop"
+                                [style]="{'width':'100%'}"
+                                optionLabel="label"
+                                optionValue="value"
+                                placeholder="Select Processing Option"
+                                [showClear]="false">
+                    </p-dropdown>
+                    <label>Processing Option</label>
+                </span>
+      </div>
+    </div>
+    <br/> <br/> <br/> <br/>
+    <ng-template pTemplate="footer">
+       <button pButton type="button"
+                label="Submit"
+                class="p-button-outlined"
+                (click)="submitProcessingOption()">
+        </button>
+        <button pButton type="button"
+                label="Close"
+                class="p-button-outlined"
+                (click)="processingOptionsDialog = false">
+        </button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="apurementTransactionOptionDialog"
+          [style]="{width: '50vw'}"
+          [header]="'Set Apurement Status'"
+          [modal]="true">
+     <br/> <br/> <br/> <br/>
+  <div class="grid">
+
+      <div class="col-12">
+                <span class="p-float-label">
+                    <p-dropdown [(ngModel)]="selectedApurementTransactionOption"
+                                [options]="apurementTransactionOption"
+                                [style]="{'width':'100%'}"
+                                optionLabel="label"
+                                optionValue="value"
+                                placeholder="Select Apurement Status"
+                                [showClear]="false">
+                    </p-dropdown>
+                    <label>Apurement Status</label>
+                </span>
+      </div>
+    </div>
+    <br/> <br/> <br/> <br/>
+
+    <ng-template pTemplate="footer">
+        <button pButton type="button"
+                label="Submit"
+                class="p-button-outlined"
+                (click)="submitApurementTransactionOption()">
+        </button>
+        <button pButton type="button"
+                label="Close"
+                class="p-button-outlined"
+                (click)="apurementTransactionOptionDialog = false">
+        </button>
+    </ng-template>
+</p-dialog>
+
+
+<p-dialog [(visible)]="provisionTransfertsDialog"
+          [style]="{width: '70vw'}"
+          [header]="'Provision Details'"
+          [modal]="true">
+     <br/> <br/> 
+  <div class="row">
+  <p-table [value]="transactionProvisionTransferResponse" styleClass="p-datatable-gridlines">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Reference</th>
+        <th>Operation Account</th> 
+        <th>Type</th>
+        <th>Amount</th>
+        <th>Creation Date</th>
+        <th>Status</th>
+        <th>Processing Date</th>
+        <th>Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-provision>
+      <tr>
+        <td>{{provision.transactionReference}}</td>
+        <td>{{provision.provisionAccountNumber}}-{{provision.provisionAccountName}}</td>
+        <td>{{provision.provisionType}}</td>
+        <td>{{provision.amount | number:'1.2-2'}}</td>
+        <td>{{provision.dateCreated | date:'medium'}}</td>
+        <td>
+          <p-tag [value]="getProvisionTransferStatusString(provision.provisionTransferStatus)"
+                 [severity]="getProvisionTransferStatusColor(provision.provisionTransferStatus)">
+          </p-tag>
+        </td>
+        <td>{{provision.dateProcessed | date:'medium'}}</td>
+        <td>
+          <button pButton pRipple type="button"
+                  icon="pi pi-refresh" 
+                  class="p-button-rounded p-button-warning"
+                  (click)="retryProvisionAccount(provision.id)">
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="10" class="text-center">No provision transfers found</td>
+      </tr>
+    </ng-template>
+  </p-table>
+    
+  </div>    
+</p-dialog> 

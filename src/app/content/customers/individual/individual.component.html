@@ -1,0 +1,360 @@
+<div class="main-content slit-in-vertical">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="header">
+            <h4 class="title">Individual Management</h4>
+          </div>
+
+          <div class="content">
+            <p-fieldset legend="Menu">
+              <div class="inline-block m-2" style="float: right;">
+                <button pButton label="New Individual"
+                  class="p-button-outlined p-button-success"
+                  (click)="openAddIndividualDialog()"
+                  icon="pi pi-plus" iconPos="left">
+                </button>
+              </div>
+            </p-fieldset>
+            <br />
+            <hr />
+            <!-- Individual Table -->
+            <p-table [value]="individuals"
+              styleClass="p-datatable-striped p-datatable-gridlines"
+              [expandedRowKeys]="expandedRows"
+              dataKey="id"
+              [totalRecords]="totalRows"
+              [rows]="pageSize"
+              [paginator]="true"
+              [showCurrentPageReport]="true"
+              [loading]="loading"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="width: 3rem"></th>
+                  <th>Name</th>
+                  <th>NIU</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>City</th>
+                  <th>Last Updated By</th>
+                  <th>Last Updated</th>
+                  <th>Status</th>
+                  <th>Relationship Manager</th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-individual let-expanded="expanded">
+                <tr>
+                  <td>
+                    <button type="button" pButton pRipple [pRowToggler]="individual"
+                      class="p-button-text p-button-rounded p-button-plain"
+                      [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+                    </button>
+                  </td>
+                  <td>{{individual.name}}</td>
+                  <td>{{individual.niu}}</td>
+                  <td>{{individual.email}}</td>
+                  <td>{{individual.phone}}</td>
+                  <td>{{individual.city}}</td>
+                  <td>{{individual.lastUpdatedBy}}</td>
+                  <td>{{individual.lastUpdatedDate | date:'medium'}}</td>
+                  <td>
+                    <p-tag
+                      [value]="getStatusString(individual.individualStatus)"
+                      [severity]="colorStatus(individual.individualStatus)">
+                    </p-tag>
+                  </td>
+                  <td>{{ individual.relationshipManagerName || 'Not Assigned' }}</td>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="rowexpansion" let-individual>
+                <tr>
+                  <td colspan="10">
+                    <div class="p-grid p-nogutter">
+                      <div class="p-col-12">
+                        <div class="grid">
+                          <div class="col-12">
+                            <p-fieldset legend="Individual Details">
+                              <div class="grid">
+                              <div class="col-2">
+                                <div class="text-left p-3 font-bold">ID</div>
+                              </div>
+                              <div class="col-4">
+                                <div class="text-left p-3">{{individual.id}}</div>
+                              </div>
+                              <div class="col-2">
+                                <div class="text-left p-3 font-bold">Name</div>
+                              </div>
+                              <div class="col-4">
+                                <div class="text-left p-3">{{individual.name}}</div>
+                              </div>
+
+                              <div class="col-2">
+                                <div class="text-left p-3 font-bold">NIU</div>
+                              </div>
+                              <div class="col-4">
+                                <div class="text-left p-3">{{individual.niu}}</div>
+                              </div>
+                              <div class="col-2">
+                                <div class="text-left p-3 font-bold">Address</div>
+                              </div>
+                              <div class="col-4">
+                                <div class="text-left p-3">{{individual.address}}</div>
+                              </div>
+
+                              <div class="col-2">
+                                <div class="text-left p-3 font-bold">Email</div>
+                              </div>
+                              <div class="col-4">
+                                <div class="text-left p-3">{{individual.email}}</div>
+                              </div>
+                              <div class="col-2">
+                                <div class="text-left p-3 font-bold">Phone</div>
+                              </div>
+                              <div class="col-4">
+                                <div class="text-left p-3">{{individual.phone}}</div>
+                              </div>
+
+                              <div class="col-2">
+                                <div class="text-left p-3 font-bold">Bank Account</div>
+                              </div>
+                              <div class="col-4">
+                                <div class="text-left p-3">{{individual.bankAccount?.accountNumber}}</div>
+                              </div>
+                              <div class="col-2">
+                                <div class="text-left p-3 font-bold">Branch</div>
+                              </div>
+                              <div class="col-4">
+                                <div class="text-left p-3">{{individual.bankAccount?.branchCode}}</div>
+                              </div>
+
+                              <div class="col-2">
+                                <div class="text-left p-3 font-bold">Created By</div>
+                              </div>
+                              <div class="col-4">
+                                <div class="text-left p-3">{{individual.createdBy}}</div>
+                              </div>
+                              <div class="col-2">
+                                <div class="text-left p-3 font-bold">Created Date</div>
+                              </div>
+                              <div class="col-4">
+                                <div class="text-left p-3">{{individual.createdDate | date:'medium'}}</div>
+                              </div>
+                                 <div class="col-4">
+                                  <div class="text-left p-3 font-bold">Mise En Demeure</div>
+                                </div>
+                                <div class="col-2">
+                                  <div class="text-left p-3">
+                                    <p-tag
+                                      [value]="getMiseEndemeureStatusString(individual.miseEnDemeureStatus)"
+                                      [severity]="colorMiseEnDemeureStatus(individual.miseEnDemeureStatus)">
+                                    </p-tag>
+                                  </div>
+                                </div>
+                                  <div class="col-4">
+                                  <div class="text-left p-3 font-bold">Attestation Non Default Apurement</div>
+                                </div>
+                                <div class="col-2">
+                                  <div class="text-left p-3">
+                                    <p-tag
+                                      [value]="getadnaReportStatusString(individual.adnaReportStatus)"
+                                      [severity]="coloradnaReportStatus(individual.adnaReportStatus)">
+                                    </p-tag>
+                                  </div>
+                                </div>
+                              </div>
+                            </p-fieldset>
+                          </div>
+                        </div>
+                      </div>
+                       <div class="p-col-12">
+                        <hr/>
+                        <div class="flex flex-row-reverse flex-wrap">
+                          <button pButton type="button"
+                            class="p-button-outlined p-button-danger"
+
+                            icon="pi pi-trash" iconPos="left"
+                            label="Delete"
+                            (click)="deleteIndividual(individual.id)"
+                            style="margin-right: 25px">
+                          </button>
+                            <button pButton type="button"
+                            class="p-button-outlined p-button-info"
+                            icon="pi pi-download" iconPos="left"
+                            label="Download ADNA"
+                            (click)="downloadADNA(individual)"
+                            [disabled]="individual.adnaReportStatus!=ADNAReportStatus.Available"
+                            style="margin-right: 10px">
+                          </button>
+                             <button pButton type="button"
+                            class="p-button-outlined p-button-info"
+                            icon="pi pi-chevron-down" iconPos="left"
+                            label="Request ADNA"
+                            (click)="requestADNA(individual)"
+                            style="margin-right: 10px">
+                          </button>
+                          <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-pencil" iconPos="left"
+                            label="Edit"
+                            (click)="openEditIndividualDialog(individual)"
+                            style="margin-right: 10px">
+                          </button>
+                          <ng-container [ngSwitch]="individual.individualStatus">
+                            <button *ngSwitchCase="1" pButton type="button"
+                              class="p-button-outlined p-button-warning"
+                              icon="pi pi-pause" iconPos="left"
+                              label="Suspend"
+                              (click)="suspendIndividual(individual.id)"
+                              style="margin-right: 10px">
+                            </button>
+                            <button *ngSwitchCase="2" pButton type="button"
+                              class="p-button-outlined p-button-success"
+                              icon="pi pi-play" iconPos="left"
+                              label="Activate"
+                              (click)="activateIndividual(individual.id)"
+                              style="margin-right: 10px">
+                            </button>
+                          </ng-container>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+
+            <!-- Add Individual Dialog -->
+            <p-dialog [(visible)]="individualDialog" [style]="{width: '50vw'}">
+              <ng-template pTemplate="header">
+                <div class="text-center">
+                  <h3 class="title">Create Individual</h3>
+                </div>
+              </ng-template>
+
+              <form [formGroup]="createIndividualForm" (ngSubmit)="createIndividual()">
+                <div class="grid p-fluid mt-3">
+                  <!-- Individual ID Autocomplete -->
+                  <div class="field col-12">
+                    <span class="p-float-label">
+                      <p-autoComplete formControlName="individualId"
+                        [suggestions]="filteredCustomers"
+                        (completeMethod)="searchCustomer($event)"
+                        (onSelect)="onCustomerSelect($event)"
+                        (onClear)="clearCustomerSelection()"
+                        [dropdown]="true"
+                        [forceSelection]="true"
+                        [field]="'clientId'"
+                        [style]="{'width':'100%'}"
+                        inputId="individualId">
+                        <ng-template let-customer pTemplate="item">
+                          <div>{{customer.clientId}} - {{customer.name}}</div>
+                        </ng-template>
+                      </p-autoComplete>
+                      <label for="individualId">Search Existing Individual ID</label>
+                    </span>
+                  </div>
+
+                  <!-- Form Fields -->
+                  <div class="field col-12">
+                    <span class="p-float-label p-input-filled">
+                      <input formControlName="name" type="text" id="name" pInputText />
+                      <label for="name">Name</label>
+                    </span>
+                  </div>
+
+                  <div class="field col-12">
+                    <span class="p-float-label p-input-filled">
+                      <input formControlName="niu" type="text" id="niu" pInputText />
+                      <label for="niu">NIU</label>
+                    </span>
+                  </div>
+
+                  <div class="field col-12">
+                    <span class="p-float-label p-input-filled">
+                      <input formControlName="email" type="email" id="email" pInputText />
+                      <label for="email">Email</label>
+                    </span>
+                  </div>
+
+                  <div class="field col-12">
+                    <span class="p-float-label p-input-filled">
+                      <input formControlName="phone" type="text" id="phone" pInputText />
+                      <label for="phone">Phone</label>
+                    </span>
+                  </div>
+
+                  <div class="field col-12">
+                    <span class="p-float-label p-input-filled">
+                      <input formControlName="address" type="text" id="address" pInputText />
+                      <label for="address">Address</label>
+                    </span>
+                  </div>
+
+                  <div class="field col-12">
+                    <span class="p-float-label p-input-filled">
+                      <input formControlName="city" type="text" id="city" pInputText />
+                      <label for="city">City</label>
+                    </span>
+                  </div>
+
+                  <!-- Add account fields after existing form fields -->
+                  <div class="field col-12">
+                    <span class="p-float-label">
+                      <p-autoComplete formControlName="accountNumber"
+                        [suggestions]="filteredAccounts"
+                        (completeMethod)="searchAccount($event)"
+                        (onSelect)="onAccountSelect($event)"
+                        (onClear)="clearAccountSelection()"
+                        [dropdown]="true"
+                        [forceSelection]="true"
+                        [field]="'accountNumber'"
+                        [style]="{'width':'100%'}"
+                        [disabled]="!canSearchAccount"
+                        inputId="accountNumber">
+                        <ng-template let-account pTemplate="item">
+                          <div>{{account.accountNumber}} - {{account.accountName}}</div>
+                        </ng-template>
+                      </p-autoComplete>
+                      <label for="accountNumber">Account Number</label>
+                    </span>
+                  </div>
+
+                  <div class="field col-12">
+                    <span class="p-float-label p-input-filled">
+                      <input formControlName="branch" type="text" id="branch" pInputText readonly />
+                      <label for="branch">Branch</label>
+                    </span>
+                  </div>
+
+                  <!-- Submit Button -->
+                  <div class="field col-12">
+                    <button pButton type="submit"
+                      class="p-button-outlined p-button-success"
+                      [label]="isSubmitted ? 'Submitting...' : 'Save'"
+                      [icon]="isSubmitted ? 'pi pi-spinner pi-spin' : 'pi pi-save'"
+                      iconPos="left"
+                      [disabled]="createIndividualForm.invalid || isSubmitted">
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </p-dialog>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<swal
+  #dialog_operation_swal
+  title="Success"
+  text="Operation completed successfully"
+  icon="success"
+  [showConfirmButton]="true">
+</swal>

@@ -1,0 +1,176 @@
+<div class="main-content slit-in-vertical">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="header">
+            <h4 class="title">Reports Management</h4>
+          </div>
+
+          <div class="content">
+            <p-fieldset legend="Menu">
+              <div class="flex justify-content-end">
+                <button
+                  pButton
+                  label="New Report"
+                  class="p-button-outlined p-button-success"
+                  (click)="openNewReportDialog()"
+                  icon="pi pi-plus"
+                  iconPos="left"
+                ></button>
+              </div>
+            </p-fieldset>
+
+            <br />
+            <hr />
+            <p-table
+              [value]="reports"
+              styleClass="p-datatable-striped p-datatable-gridlines"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Report Name</th>
+                  <th>Type</th>
+                  <th>Format</th>
+                  <th>Status</th>
+                  <th>Date Requested</th>
+                  <th>Date Generated</th>
+                  <th>Action</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-report>
+                <tr>
+                  <td>{{ report.reportName }}</td>
+                  <td>{{ ReportType[report.reportType] }}</td>
+                  <td>{{ ReportFormat[report.reportFormat] }}</td>
+                  <td>
+                    <p-tag [severity]="report.reportStatus == ReportStatus.Success ? 'success' : report.reportStatus == ReportStatus.Failed ? 'danger' : 'warning' "
+                          [value]="ReportStatus[report.reportStatus]"  class="p-mr-2">
+                    </p-tag>
+                  </td>
+                  <td>{{ report.reportDateRequested | date : "medium" }}</td>
+                  <td>{{ report.reportDateGenerated | date : "medium" }}</td>
+                  <td>
+                    <button
+                      pButton
+                      type="button"
+                      label="Download"
+                      class="p-button-outlined p-button-primary"
+                      [disabled]="report.reportStatus !== ReportStatus.Success"
+                      icon="pi pi-download"
+                      iconPos="left"
+                      (click)="downloadReport(report)"
+                    ></button>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+
+          <p-dialog
+            [(visible)]="reportDialog"
+            [style]="{ width: '50vw' }"
+            [modal]="true"
+          >
+            <ng-template pTemplate="header">
+              <div class="text-center">
+                <h3 class="title">Create Report</h3>
+              </div>
+            </ng-template>
+
+            <form [formGroup]="createReportForm" (ngSubmit)="createReport()">
+              <div class="grid p-fluid mt-3">
+                <div class="field col-12">
+                  <span class="p-float-label">
+                    <input
+                      formControlName="reportName"
+                      type="text"
+                      id="reportName"
+                      pInputText
+                    />
+                    <label for="reportName">Report Name</label>
+                  </span>
+                </div>
+
+                <div class="field col-12">
+                  <span class="p-float-label">
+                    <p-dropdown
+                      formControlName="reportType"
+                      [options]="reportTypes"
+                      optionLabel="name"
+                      optionValue="value"
+                      [showClear]="true"
+                      placeholder="Select Report Type"
+                    >
+                    </p-dropdown>
+                    <label for="reportType">Report Type</label>
+                  </span>
+                </div>
+
+                <div class="field col-12">
+                  <span class="p-float-label">
+                    <p-dropdown
+                      formControlName="reportFormat"
+                      [options]="reportFormats"
+                      optionLabel="name"
+                      optionValue="value"
+                      [showClear]="true"
+                      placeholder="Select Report Format"
+                    >
+                    </p-dropdown>
+                    <label for="reportFormat">Report Format</label>
+                  </span>
+                </div>
+
+                <div class="field col-6">
+                  <span class="p-float-label">
+                    <p-calendar
+                      formControlName="fromDate"
+                      [showIcon]="true"
+                    ></p-calendar>
+                    <label for="fromDate">From Date</label>
+                  </span>
+                </div>
+
+                <div class="field col-6">
+                  <span class="p-float-label">
+                    <p-calendar
+                      formControlName="toDate"
+                      [showIcon]="true"
+                    ></p-calendar>
+                    <label for="toDate">To Date</label>
+                  </span>
+                </div>
+
+                <div class="field col-12">
+                  <button
+                    pButton
+                    type="submit"
+                    class="p-button-outlined p-button-success"
+                    [label]="isSubmitted ? 'Submitting...' : 'Generate Report'"
+                    [icon]="
+                      isSubmitted
+                        ? 'pi pi-spinner pi-spin'
+                        : 'pi pi-file-export'
+                    "
+                    iconPos="left"
+                    [disabled]="createReportForm.invalid || isSubmitted"
+                  ></button>
+                </div>
+              </div>
+            </form>
+          </p-dialog>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<swal
+  #dialog_operation_swal
+  title="Operation Result"
+  text=""
+  icon="success"
+  [showCloseButton]="true"
+>
+</swal>

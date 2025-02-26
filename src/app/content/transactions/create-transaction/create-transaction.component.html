@@ -1,0 +1,346 @@
+<div class="main-content slit-in-vertical">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="header">
+            <h4 class="title">New Transaction</h4>
+          </div>
+
+          <div class="content">
+            <form [formGroup]="createTransactionForm" (ngSubmit)="onSubmit()">
+              <p-fieldset legend="Transaction Details">
+                <div class="grid p-fluid">
+                    <!-- Search Customer -->
+                    <div class="col-10"></div>
+                    <div class="col-2">
+                    <div class="flex justify-content-end">
+                      <button pButton
+                      type="button"
+                      class="ml-auto p-button-outlined p-button-success"
+                      [label]="'Select Customer'"
+                      [icon]="'pi pi-search'"
+                      (click)="openSelectCustomerDialog()">
+                      </button>
+                    </div>
+                    </div>
+                  <!-- Hidden Customer Type - will be set automatically -->
+                  <div class="col-12" style="display: none;">
+                    <span class="p-float-label">
+                      <p-dropdown formControlName="corporateOrIndividual"
+                        [options]="corporateOrIndividualOptions"
+                        [style]="{'width':'100%'}"
+                        inputId="corporateOrIndividual">
+                      </p-dropdown>
+                      <label for="corporateOrIndividual">Customer Type</label>
+                    </span>
+                  </div>
+
+                  <!-- Customer Name -->
+                  <div class="col-6">
+                    <span class="p-float-label p-input-filled">
+                      <input pInputText
+                        formControlName="customerName"
+                        readonly />
+                      <label>Customer Name</label>
+                    </span>
+                  </div>
+
+                  <!-- Customer Account -->
+                  <div class="col-6">
+                    <span class="p-float-label p-input-filled">
+                      <input pInputText formControlName="customerAccount" readonly />
+                      <label>Customer Account</label>
+                    </span>
+                  </div>
+
+                  <!-- Transaction Amount -->
+                  <div class="col-6">
+                    <span class="p-float-label p-input-filled">
+                      <p-inputNumber formControlName="transactionAmount" [minFractionDigits]="2" />
+                      <label>Amount</label>
+                    </span>
+                  </div>
+
+                  <!-- Currency -->
+                  <div class="col-6">
+                    <span class="p-float-label">
+                      <p-dropdown formControlName="transactionCurrency"
+                        [options]="currencies"
+                        [style]="{'width':'100%'}"
+                        [showClear]="true"
+                        placeholder="Select currency">
+                      </p-dropdown>
+                      <label>Currency</label>
+                    </span>
+                  </div>
+
+                  <!-- Transaction Type -->
+                  <div class="col-6">
+                    <span class="p-float-label">
+                      <p-dropdown formControlName="transactionTypeId"
+                        [options]="transactionTypes"
+                        [style]="{'width':'100%'}"
+                        optionLabel="transactionTypeNameEn"
+                        optionValue="transactionTypeId"
+                        [showClear]="true"
+                        placeholder="Select transaction type">
+                        <ng-template let-type pTemplate="item">
+                          <div>{{type.transactionTypeNameFr}} - {{type.transactionTypeNameEn}}</div>
+                        </ng-template>
+                      </p-dropdown>
+                      <label>Transaction Type</label>
+                    </span>
+                  </div>
+                   <!-- Transaction Documents -->
+                  <div class="col-2">
+                   <button pButton
+                      type="button"
+                      class="ml-auto p-button-outlined p-button-success"
+                      [label]="'View Documents'"
+                      [icon]="'pi pi-file'"
+                      (click)="openViewTransactionDocumentsDialog()">
+                      </button>
+                  </div>
+                   <!-- Payment Details -->
+                  <div class="col-12">
+                    <span class="p-float-label w-full">
+                      <textarea id="over_label" pTextarea pSize="large" formControlName="paymentDetails"
+                                 rows="3" [style]="{'width':'100%','font-size':'1.2em'}">
+                      </textarea>
+                      <label for="on_label">Payment Details</label>
+                    </span>
+                  </div>
+                </div>
+              </p-fieldset>
+
+              <br/>
+
+              <p-fieldset legend="Beneficiary Details" class="mt-3">
+                <div class="grid p-fluid">
+                  <!-- Beneficiary Account -->
+                  <div class="col-6">
+                    <span class="p-float-label p-input-filled">
+                      <input pInputText formControlName="beneficiaryAccount" />
+                      <label>Beneficiary Account</label>
+                    </span>
+                  </div>
+
+                  <!-- Beneficiary Name -->
+                  <div class="col-6">
+                    <span class="p-float-label p-input-filled">
+                      <input pInputText formControlName="beneficiaryAccountName" />
+                      <label>Beneficiary Name</label>
+                    </span>
+                  </div>
+
+                  <!-- Bank SWIFT -->
+                  <div class="col-12">
+                    <span class="p-float-label">
+                      <p-autoComplete formControlName="bankSwift"
+                        [suggestions]="filteredSwiftCodes"
+                        (completeMethod)="searchSwiftCode($event)"
+                        (onSelect)="onSwiftCodeSelect($event)"
+                        (onClear)="clearBankDetails()"
+                        [dropdown]="true"
+                        [forceSelection]="true"
+                        [field]="'swiftCodeId'"
+                        [style]="{'width':'100%'}"
+                        [inputStyle]="{'width':'100%'}"
+                        loading="isSearchingSwift">
+                        <ng-template let-bank pTemplate="item">
+                          <div>{{bank.swiftCodeId}} - {{bank.bankName}}</div>
+                        </ng-template>
+                      </p-autoComplete>
+                      <label>Bank SWIFT</label>
+                    </span>
+                  </div>
+
+                  <!-- Bank Name -->
+                  <div class="col-12">
+                    <span class="p-float-label p-input-filled">
+                      <input pInputText formControlName="bankName" readonly />
+                      <label>Bank Name</label>
+                    </span>
+                  </div>
+
+                  <!-- Bank Address -->
+                  <div class="col-12">
+                    <span class="p-float-label p-input-filled">
+                      <input pInputText formControlName="bankAddress" readonly />
+                      <label>Bank Address</label>
+                    </span>
+                  </div>
+
+
+                </div>
+              </p-fieldset>
+
+              <hr/>
+
+              <div class="flex justify-content-end mt-3">
+                <button pButton type="submit"
+                  class="p-button-outlined p-button-success"
+                  [label]="isSubmitting ? 'Submitting...' : 'Create Transaction'"
+                  [icon]="isSubmitting ? 'pi pi-spinner pi-spin' : 'pi pi-check'"
+                  [disabled]="createTransactionForm.invalid || isSubmitting">
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Add Select Customer Dialog -->
+          <p-dialog [(visible)]="selectCustomerDialog"
+            [style]="{width: '50vw', height: '50vh'}"
+            [header]="'Select Customer'"
+            [modal]="true">
+            <br/>
+            <br/>
+            <form [formGroup]="searchCustomerForm">
+              <div class="grid p-fluid">
+                <!-- Customer Type Dropdown -->
+                <div class="col-12">
+                  <span class="p-float-label">
+                    <p-dropdown formControlName="customerType"
+                      [options]="[
+                        {label: 'Corporate', value: 'Corporate'},
+                        {label: 'Individual', value: 'Individual'}
+                      ]"
+                      [style]="{'width':'100%'}"
+                      inputId="customerType">
+                    </p-dropdown>
+                    <label for="customerType">Customer Type</label>
+                  </span>
+                </div>
+
+                <!-- Customer Search -->
+                <div class="col-12 mt-3">
+                  <span class="p-float-label">
+                    <p-autoComplete formControlName="searchTerm"
+                      [suggestions]="filteredCustomers"
+                      (completeMethod)="searchCustomer($event)"
+                      [field]="'name'"
+                      [dropdown]="true"
+                      [style]="{'width':'100%'}"
+                      [inputStyle]="{'width':'100%'}"
+                      loading="isSearching"
+                      (onSelect)="onCustomerSelect($event)">
+                      <ng-template let-customer pTemplate="item">
+                        <div>{{customer.name}} - {{customer.niu}}</div>
+                      </ng-template>
+                    </p-autoComplete>
+                    <label>Search Customer</label>
+                  </span>
+                </div>
+
+                <!-- Customer Accounts -->
+                <div class="col-12 mt-3" *ngIf="selectedCustomer">
+                  <span class="p-float-label">
+                    <p-dropdown formControlName="selectedAccount"
+                      [options]="customerAccounts"
+                      [style]="{'width':'100%'}"
+                      optionLabel="accountName"
+                      [showClear]="true"
+                      placeholder="Select account">
+                      <ng-template let-account pTemplate="item">
+                        <div>{{account.accountNumber}} - {{account.accountName}}</div>
+                      </ng-template>
+                    </p-dropdown>
+                    <label>Select Account</label>
+                  </span>
+                </div>
+              </div>
+            </form>
+
+            <ng-template pTemplate="footer">
+              <button pButton type="button"
+                label="Cancel"
+                class="p-button-outlined p-button-secondary"
+                (click)="selectCustomerDialog = false">
+              </button>
+              <button pButton type="button"
+                label="Select"
+                class="p-button-outlined p-button-success ml-2"
+                [disabled]="!searchCustomerForm.get('selectedAccount')?.value"
+                (click)="confirmCustomerSelection()">
+              </button>
+            </ng-template>
+
+          </p-dialog>
+
+          <!-- Transaction Documents Dialog -->
+          <p-dialog [(visible)]="viewDocumentsDialog"
+            [style]="{width: '80vw'}"
+            [header]="'Required Documents for ' + (selectedTransactionType?.transactionTypeNameEn || '')"
+            [modal]="true">
+
+            <p-table [value]="transactionDocuments" styleClass="p-datatable-striped">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Document Name</th>
+                  <th>Submission</th>
+                  <th>Original Required</th>
+                 <!--  <th>Controls</th> -->
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-doc>
+                <tr>
+                  <td>
+                    <div>{{doc.documentNameFr}}</div>
+                    <div class="text-sm text-gray-500">{{doc.documentNameEn}}</div>
+                  </td>
+                  <td>
+                    <p-tag [value]="getSubmissionOptionLabel(doc.documentSubmissionOption)"
+                      [severity]="colorSubmissionOption(doc.documentSubmissionOption)">
+                    </p-tag>
+                  </td>
+                  <td>
+                    <i [class]="doc.documentOriginalRequired ? 'pi pi-check text-green-500' : 'pi pi-times text-red-500'"></i>
+                  </td>
+                 <!--  <td>
+                    <p-table [value]="doc.documentControls">
+                      <ng-template pTemplate="body" let-control>
+                        <tr>
+                          <td>
+                            <p-tag [value]="control.documentControlName"
+                                  [severity]="control.documentControlType === 1 ? 'danger' :
+                                            control.documentControlType === 2 ? 'warning' : 'info'">
+                            </p-tag>
+                            <div class="text-sm text-gray-500">{{control.documentControlDetail}}</div>
+                          </td>
+                        </tr>
+                      </ng-template>
+                    </p-table>
+                  </td> -->
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="4" class="text-center">No documents found for this transaction type.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+
+            <ng-template pTemplate="footer">
+              <button pButton type="button"
+                label="Close"
+                class="p-button-outlined"
+                (click)="viewDocumentsDialog = false">
+              </button>
+            </ng-template>
+          </p-dialog>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<swal
+  #dialog_operation_swal
+  title="Delete ?"
+  text="This cannot be undone"
+  icon="question"
+  [showCloseButton]="true" >
+</swal>
+

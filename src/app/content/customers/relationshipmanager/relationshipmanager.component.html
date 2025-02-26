@@ -1,0 +1,245 @@
+<div class="main-content slit-in-vertical">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="header">
+            <h4 class="title">Relationship Manager Management</h4>
+          </div>
+
+          <div class="content">
+            <p-fieldset legend="Menu">
+              <div class="inline-block m-2" style="float: right;">
+                <button pButton label="New Manager"
+                  class="p-button-outlined p-button-success"
+                  (click)="openAddManagerDialog()"
+                  icon="pi pi-plus" iconPos="left">
+                </button>
+              </div>
+            </p-fieldset>
+
+            <br />
+            <hr />
+            <p-table [value]="managers"
+              styleClass="p-datatable-striped p-datatable-gridlines"
+              [expandedRowKeys]="expandedRows"
+              dataKey="id"
+              [totalRecords]="totalRows"
+              [rows]="pageSize"
+              [paginator]="true"
+              [showCurrentPageReport]="true"
+              [loading]="loading"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+
+              <ng-template pTemplate="header">
+                <tr>
+                  <th scope="col" style="width: 3rem"></th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Email</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Last Updated By</th>
+                  <th scope="col">Last Updated</th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-manager let-expanded="expanded">
+                <tr>
+                  <td>
+                    <button type="button" pButton pRipple [pRowToggler]="manager"
+                      class="p-button-text p-button-rounded p-button-plain"
+                      [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+                    </button>
+                  </td>
+                  <td>{{manager.name}}</td>
+                  <td>{{manager.email}}</td>
+                  <td>
+                    <p-tag [value]="getStatusString(manager.relationshipManagerStatus)"
+                      [severity]="colorStatus(manager.relationshipManagerStatus)">
+                    </p-tag>
+                  </td>
+                  <td>{{manager.lastUpdatedBy}}</td>
+                  <td>{{manager.lastUpdatedDate | date:'medium'}}</td>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="rowexpansion" let-manager>
+                <tr>
+                  <td colspan="6">
+                    <div class="p-grid p-nogutter">
+                        <div class="p-col-12">
+                        <div class="grid">
+                          <div class="col-2">
+                          <div class="text-left p-3 font-bold">ID</div>
+                          </div>
+                          <div class="col-4">
+                          <div class="text-left p-3">{{manager.id}}</div>
+                          </div>
+                          <div class="col-2">
+                          <div class="text-left p-3 font-bold">Name</div>
+                          </div>
+                          <div class="col-4">
+                          <div class="text-left p-3">{{manager.name}}</div>
+                          </div>
+
+                          <div class="col-2">
+                          <div class="text-left p-3 font-bold">Email</div>
+                          </div>
+                          <div class="col-4">
+                          <div class="text-left p-3">{{manager.email}}</div>
+                          </div>
+                          <div class="col-2">
+                          <div class="text-left p-3 font-bold">Status</div>
+                          </div>
+                          <div class="col-4">
+                          <div class="text-left p-3">
+                            <p-tag [value]="getStatusString(manager.relationshipManagerStatus)"
+                            [severity]="colorStatus(manager.relationshipManagerStatus)">
+                            </p-tag>
+                          </div>
+                          </div>
+
+                          <div class="col-2">
+                          <div class="text-left p-3 font-bold">Created By</div>
+                          </div>
+                          <div class="col-4">
+                          <div class="text-left p-3">{{manager.createdBy}}</div>
+                          </div>
+                          <div class="col-2">
+                          <div class="text-left p-3 font-bold">Created Date</div>
+                          </div>
+                          <div class="col-4">
+                          <div class="text-left p-3">{{manager.createdDate | date:'medium'}}</div>
+                          </div>
+
+                          <div class="col-2">
+                          <div class="text-left p-3 font-bold">Last Updated By</div>
+                          </div>
+                          <div class="col-4">
+                          <div class="text-left p-3">{{manager.lastUpdatedBy}}</div>
+                          </div>
+                          <div class="col-2">
+                          <div class="text-left p-3 font-bold">Last Updated Date</div>
+                          </div>
+                          <div class="col-4">
+                          <div class="text-left p-3">{{manager.lastUpdatedDate | date:'medium'}}</div>
+                          </div>
+                        </div>
+                        </div>
+                      <div class="p-col-12">
+                        <hr/>
+                        <div class="flex flex-row-reverse flex-wrap">
+                          <button pButton type="button"
+                            class="p-button-outlined p-button-danger"
+                            
+                            icon="pi pi-trash" iconPos="left"
+                            label="Delete"
+                            (click)="deleteManager(manager.id)"
+                            style="margin-right: 25px">
+                          </button>
+                          <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-pencil" iconPos="left"
+                            label="Edit"
+                            (click)="openEditManagerDialog(manager)"
+                            style="margin-right: 10px">
+                          </button>
+                          <ng-container [ngSwitch]="manager.relationshipManagerStatus">
+                            <button *ngSwitchCase="1" pButton type="button"
+                              class="p-button-outlined p-button-warning"
+                              icon="pi pi-pause" iconPos="left"
+                              label="Suspend"
+                              (click)="suspendManager(manager.id)"
+                              style="margin-right: 10px">
+                            </button>
+                            <button *ngSwitchCase="2" pButton type="button"
+                              class="p-button-outlined p-button-success"
+                              icon="pi pi-play" iconPos="left"
+                              label="Activate"
+                              (click)="activateManager(manager.id)"
+                              style="margin-right: 10px">
+                            </button>
+                          </ng-container>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+
+          <!-- Add Manager Dialog -->
+          <p-dialog [(visible)]="managerDialog" [style]="{width: '40vw'}" header="Add Relationship Manager">
+            <form [formGroup]="createManagerForm" (ngSubmit)="createManager()">
+              <div class="grid p-fluid mt-3">
+                <div class="field col-12">
+                  <span class="p-float-label">
+                    <input formControlName="name" type="text" id="name" pInputText />
+                    <label for="name">Manager Name</label>
+                  </span>
+                </div>
+
+                <div class="field col-12">
+                  <span class="p-float-label">
+                    <input formControlName="email" type="email" id="email" pInputText />
+                    <label for="email">Email</label>
+                  </span>
+                </div>
+
+                <div class="field col-12">
+                  <button pButton type="submit"
+                    class="p-button-outlined p-button-success"
+                    [label]="isSubmitted ? 'Saving...' : 'Save'"
+                    [icon]="isSubmitted ? 'pi pi-spinner pi-spin' : 'pi pi-save'"
+                    iconPos="left"
+                    [disabled]="createManagerForm.invalid || isSubmitted">
+                  </button>
+                </div>
+              </div>
+            </form>
+          </p-dialog>
+
+          <!-- Edit Manager Dialog -->
+          <p-dialog [(visible)]="editManagerDialog" [style]="{width: '40vw'}" header="Edit Relationship Manager">
+            <form [formGroup]="editManagerForm" (ngSubmit)="updateManager()">
+              <div class="grid p-fluid mt-3">
+                <div class="field col-12">
+                  <span class="p-float-label">
+                    <input formControlName="name" type="text" id="editName" pInputText />
+                    <label for="editName">Manager Name</label>
+                  </span>
+                </div>
+
+                <div class="field col-12">
+                  <span class="p-float-label">
+                    <input formControlName="email" type="email" id="editEmail" pInputText />
+                    <label for="editEmail">Email</label>
+                  </span>
+                </div>
+
+                <div class="field col-12">
+                  <button pButton type="submit"
+                    class="p-button-outlined p-button-success"
+                    [label]="isSubmitted ? 'Saving...' : 'Save'"
+                    [icon]="isSubmitted ? 'pi pi-spinner pi-spin' : 'pi pi-save'"
+                    iconPos="left"
+                    [disabled]="editManagerForm.invalid || isSubmitted">
+                  </button>
+                </div>
+              </div>
+            </form>
+          </p-dialog>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<swal
+  #dialog_operation_swal
+  [title]="'Are you sure?'"
+  [text]="'This action cannot be undone'"
+  [icon]="'question'"
+  [showCancelButton]="true"
+  [confirmButtonText]="'Yes, proceed'">
+</swal>

@@ -1,0 +1,467 @@
+<div class="main-content slit-in-vertical">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="header">
+            <h4 class="title">Import Domiciliation Management</h4>
+          </div>
+
+          <div class="content">
+            <p-fieldset legend="Menu">
+              <div class="inline-block m-2 p-2">
+             
+                <p-fileUpload
+                  mode="basic"
+                  chooseLabel="Import DI"
+                  [auto]="true"
+                  accept=".xlsx,.xls"
+                  [maxFileSize]="1000000"
+                  (onSelect)="handleFileInput($event)"
+                  styleClass="p-button-outlined p-button-success"
+                >
+                </p-fileUpload>
+
+              </div>
+            </p-fieldset>
+
+            <br />
+            <hr />
+            <p-table
+              [value]="dis"
+              styleClass="p-datatable-striped p-datatable-gridlines"
+              [expandedRowKeys]="expandedRows"
+              dataKey="id"
+              [totalRecords]="totalRows"
+              [rows]="pageSize"
+              [paginator]="true"
+              [showCurrentPageReport]="true"
+              [loading]="loading"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th scope="col" style="width: 3rem"></th>
+                  <th scope="col">Reference DI</th>
+                  <th scope="col">Client Name</th>
+                  <th scope="col">Provider Name</th>
+                  <th scope="col">SGS Reference</th>
+                  <th scope="col">Domiciliation Date</th>
+                  <th scope="col">Amount</th>
+                  <th scope="col">Currency</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-di let-expanded="expanded">
+                <tr>
+                  <td>
+                    <button
+                      type="button"
+                      pButton
+                      pRipple
+                      [pRowToggler]="di"
+                      class="p-button-text p-button-rounded p-button-plain"
+                      [icon]="
+                        expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'
+                      "
+                    ></button>
+                  </td>
+                  <td>{{ di.referenceDi }}</td>
+                  <td>{{ di.clientName }}</td>
+                  <td>{{ di.providerName }}</td>
+                  <td>{{ di.referenceSgs }}</td>
+                  <td>
+                    {{ di.dateDomiciliationDiInBank | date : "mediumDate" }}
+                  </td>
+                  <td>{{ di.amountInCurrency }}</td>
+                  <td>{{ di.currency }}</td>
+                  <td>
+                    <p-tag
+                      [value]="getDIStatusString(di.diStatus)"
+                      [severity]="colorStatus(di.diStatus)"
+                    >
+                    </p-tag>
+                  </td>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="rowexpansion" let-di>
+                <tr>
+                  <td colspan="9">
+                    <div class="p-grid p-nogutter">
+                      <div class="p-col-12">
+                        <div class="grid">
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">ID</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{ di.id }}</div>
+                          </div>
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">
+                              SGS Reference
+                            </div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">
+                              {{ di.referenceSgs }}
+                            </div>
+                          </div>
+
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">
+                              Creation Date
+                            </div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">
+                              {{ di.dateCreationDiInEforce | date : "medium" }}
+                            </div>
+                          </div>
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">
+                              Domiciliation Date
+                            </div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">
+                              {{
+                                di.dateDomiciliationDiInBank | date : "medium"
+                              }}
+                            </div>
+                          </div>
+
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">
+                              Client NIU
+                            </div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{ di.clientNiu }}</div>
+                          </div>
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">
+                              Client Folder
+                            </div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">
+                              {{ di.clientFolderPath }}
+                            </div>
+                          </div>
+
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">
+                              Transportation
+                            </div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">
+                              {{ di.transportationMode }}
+                            </div>
+                          </div>
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">
+                              Terme Vente
+                            </div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{ di.termeVente }}</div>
+                          </div>
+
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">Balance</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">
+                              {{ di.soldeInCurrency }} {{ di.currency }}
+                            </div>
+                          </div>
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">
+                              Amount (XAF)
+                            </div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">
+                              {{ di.amountInXaf }}
+                            </div>
+                          </div>
+
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">
+                              Expiry Date
+                            </div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">
+                              {{ di.dateDiExpired | date : "medium" }}
+                            </div>
+                          </div>
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">
+                              Bill Reference
+                            </div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">
+                              {{ di.billReference }}
+                            </div>
+                          </div>
+                        </div>
+                        <hr />
+                        <div class="flex flex-row-reverse flex-wrap mt-3">
+                          <button
+                            pButton
+                            type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-pencil"
+                            iconPos="left"
+                            label="Update Description"
+                            (click)="openUpdateDescriptionDialog(di)"
+                            style="margin-right: 10px"
+                          ></button>
+                          <button
+                            pButton
+                            type="button"
+                            class="p-button-outlined p-button-info"
+                            icon="pi pi-info"
+                            iconPos="left"
+                            label="Request Attestation"
+                            (click)="requestDIAttestation(di.id)"
+                            style="margin-right: 10px"
+                          ></button>
+                          <button
+                            pButton
+                            type="button"
+                            class="p-button-outlined p-button-info"
+                            icon="pi pi-file-pdf"
+                            iconPos="left"
+                            label="View Attestations Generated"
+                            (click)="viewDIAttestations(di.id)"
+                            style="margin-right: 10px"
+                          ></button>
+                          <button
+                            pButton
+                            type="button"
+                            class="p-button-outlined p-button-info"
+                            icon="pi pi-arrow-down"
+                            iconPos="left"
+                            label="View Imputations"
+                            (click)="viewImputations(di.id)"
+                            style="margin-right: 10px"
+                          ></button>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<swal
+  #dialog_operation_swal
+  title="Success"
+  text="Operation completed successfully"
+  icon="success"
+>
+</swal>
+
+<p-dialog
+  [(visible)]="updateDescriptionDialog"
+  [style]="{ width: '50vw' }"
+  header="Update DI Description"
+>
+  <form [formGroup]="updateDescriptionForm" (ngSubmit)="updateDescription()">
+    <div class="grid p-fluid mt-3">
+      <div class="field col-12">
+        <span class="p-float-label">
+          <textarea
+            formControlName="goodsDescription"
+            id="goodsDescription"
+            rows="3"
+            pInputTextarea
+          ></textarea>
+          <label for="goodsDescription">Goods Description</label>
+        </span>
+      </div>
+
+      <div class="field col-6">
+        <span class="p-float-label">
+          <input
+            formControlName="goodQuantity"
+            type="number"
+            id="goodQuantity"
+            pInputNumber
+          />
+          <label for="goodQuantity">Quantity</label>
+        </span>
+      </div>
+
+      <div class="field col-6">
+        <span class="p-float-label">
+          <input
+            formControlName="goodsUnit"
+            type="text"
+            id="goodsUnit"
+            pInputText
+          />
+          <label for="goodsUnit">Unit</label>
+        </span>
+      </div>
+
+      <div class="field col-6">
+        <span class="p-float-label">
+          <input
+            formControlName="valeurTotalInDevise"
+            type="number"
+            id="valeurTotalInDevise"
+            pInputNumber
+          />
+          <label for="valeurTotalInDevise">Total Value in Currency</label>
+        </span>
+      </div>
+
+      <div class="field col-6">
+        <span class="p-float-label">
+          <input
+            formControlName="valeurTotalInXaf"
+            type="number"
+            id="valeurTotalInXaf"
+            pInputNumber
+          />
+          <label for="valeurTotalInXaf">Total Value in XAF</label>
+        </span>
+      </div>
+    </div>
+
+    <div class="flex flex-row-reverse flex-wrap mt-3">
+      <button
+        pButton
+        type="submit"
+        class="p-button-outlined p-button-success"
+        label="Update"
+      ></button>
+    </div>
+  </form>
+</p-dialog>
+
+<p-dialog
+  [(visible)]="attestationsDialog"
+  [style]="{ width: '70vw' }"
+  header="DI Attestations"
+>
+  <p-table
+    [value]="attestations"
+    styleClass="p-datatable-striped p-datatable-sm"
+    [scrollable]="true"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Reference DI</th>
+        <th>SGS Reference</th>
+        <th>Reference Letter</th>
+        <th>Type</th>
+        <th>Status</th>
+        <th>Date Generated</th>
+        <th>Action</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-attestation>
+      <tr>
+        <td>{{ attestation.referenceDI }}</td>
+        <td>{{ attestation.sgsReference }}</td>
+        <td>{{ attestation.referenceLetter }}</td>
+        <td>{{ getAttestationTypeString(attestation.typeAttestation) }}</td>
+        <td>
+          <p-tag
+            [value]="
+              getAttestationStatusString(
+                attestation.diAttestationGenerationStatus
+              )
+            "
+            [severity]="
+              attestation.diAttestationGenerationStatus == 1
+                ? 'success'
+                : 'danger'
+            "
+          >
+          </p-tag>
+        </td>
+        <td>{{ attestation.dateGenerated | date : "medium" }}</td>
+        <td>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-download"
+            class="p-button-rounded p-button-text"
+            [disabled]="attestation.diAttestationGenerationStatus != 1"
+            (click)="downloadAttestation(attestation)"
+          ></button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7" class="text-center">No attestations found</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-dialog>
+
+<p-dialog
+  [(visible)]="imputationsDialog"
+  [style]="{ width: '60vw' }"
+  header="DI Imputations"
+>
+  <p-table
+    [value]="imputations"
+    styleClass="p-datatable-striped p-datatable-sm"
+    [scrollable]="true"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Reference DI</th>
+        <th>SGS Reference</th>
+        <th>Transaction ID</th>
+        <th>Transaction Reference</th>
+        <th>Amount</th>
+        <th>Currency</th>
+        <th>Imputation Date</th>
+        <th>Status</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-imputation>
+      <tr>
+        <td>{{ imputation.referenceDI }}</td>
+        <td>{{ imputation.sgsReference }}</td>
+        <td>{{ imputation.transactionId }}</td>
+        <td>{{ imputation.transactionReference }}</td>
+        <td>{{ imputation.imputationAmount }}</td>
+        <td>{{ imputation.imputationCurrency }}</td>
+        <td>{{ imputation.imputationDate | date:'medium'  }}</td>
+        <td>
+          <p-tag
+            [value]="getImputationStatusString(imputation.imputationStatus)"
+            [severity]="
+              imputation.imputationStatus === 0 ? 'success' : 'warning'
+            "
+          >
+          </p-tag>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7" class="text-center">No imputations found</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-dialog>
