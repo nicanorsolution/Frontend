@@ -38,5 +38,7 @@ export enum ReportType {
   DISSummariesReport,
   DIImputaionReport,
   DFXReport,
-  TurnAroundTimeReport
+  TurnAroundTimeReport,
+  ExportationReport,
+  IncomingReport
 }

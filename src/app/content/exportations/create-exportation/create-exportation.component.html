@@ -1,0 +1,303 @@
+<div class="main-content slit-in-vertical">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="header">
+            <h4 class="title">New Exportation</h4>
+          </div>
+
+          <div class="content">
+            <form [formGroup]="createExportationForm" (ngSubmit)="onSubmit()">
+              <p-fieldset legend="Customer Details">
+                <div class="grid p-fluid">
+                  <!-- Search Customer Button -->
+                  <div class="col-10"></div>
+                  <div class="col-2">
+                    <div class="flex justify-content-end">
+                      <button pButton
+                        type="button"
+                        class="ml-auto p-button-outlined p-button-success"
+                        label="Select Customer"
+                        icon="pi pi-search"
+                        (click)="openSelectCustomerDialog()">
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Hidden Customer Type -->
+                  <div class="col-12" style="display: none;">
+                    <span class="p-float-label">
+                      <input pInputText formControlName="corporateOrIndividual" />
+                    </span>
+                  </div>
+
+                  <!-- Customer Name -->
+                  <div class="col-6">
+                    <span class="p-float-label p-input-filled">
+                      <input pInputText formControlName="customerName" readonly />
+                      <label>Customer Name</label>
+                    </span>
+                  </div>
+
+                  <!-- Customer NIU -->
+                  <div class="col-6">
+                    <span class="p-float-label p-input-filled">
+                      <input pInputText formControlName="customerNiu" readonly />
+                      <label>NIU</label>
+                    </span>
+                  </div>
+
+                  <!-- Customer Address -->
+                  <div class="col-6">
+                    <span class="p-float-label p-input-filled">
+                      <input pInputText formControlName="customerAddress" readonly />
+                      <label>Address</label>
+                    </span>
+                  </div>
+
+                  <!-- Registration Number -->
+                  <div class="col-6">
+                    <span class="p-float-label p-input-filled">
+                      <input pInputText formControlName="registrationNumber" readonly />
+                      <label>Registration Number</label>
+                    </span>
+                  </div>
+                </div>
+              </p-fieldset>
+
+              <p-fieldset legend="DE Details" class="mt-3">
+                <div class="grid p-fluid">
+                  <!-- Search DE Button -->
+                  <div class="col-10"></div>
+                  <div class="col-2">
+                    <div class="flex justify-content-end">
+                      <button pButton
+                        type="button"
+                        class="ml-auto p-button-outlined p-button-success"
+                        label="Search DE"
+                        icon="pi pi-search"
+                        (click)="openSearchDEDialog()">
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- DE Reference -->
+                  <div class="col-6">
+                    <span class="p-float-label p-input-filled">
+                      <input pInputText formControlName="eForceReference" readonly />
+                      <label>eForce Reference</label>
+                    </span>
+                  </div>
+
+                  <!-- File Number -->
+                  <div class="col-6">
+                    <span class="p-float-label p-input-filled">
+                      <input pInputText formControlName="fileNumber" readonly />
+                      <label>File Number</label>
+                    </span>
+                  </div>
+
+                  <!-- Request Date -->
+                  <div class="col-6">
+                    <span class="p-float-label p-input-filled">
+                      <input pInputText [value]="createExportationForm.get('requestDate')?.value | date" readonly />
+                      <label>Request Date</label>
+                    </span>
+                  </div>
+
+                  <!-- Domiciliation Reference -->
+                  <div class="col-6">
+                    <span class="p-float-label p-input-filled">
+                      <input pInputText formControlName="domiciliationReference" readonly />
+                      <label>Domiciliation Reference</label>
+                    </span>
+                  </div>
+
+                  <!-- Domiciliation Date -->
+                  <div class="col-6">
+                    <span class="p-float-label p-input-filled">
+                      <input pInputText [value]="createExportationForm.get('domiciliationDate')?.value | date" readonly />
+                      <label>Domiciliation Date</label>
+                    </span>
+                  </div>
+
+                  <!-- Provider -->
+                  <div class="col-6">
+                    <span class="p-float-label p-input-filled">
+                      <input pInputText formControlName="provider" readonly />
+                      <label>Provider</label>
+                    </span>
+                  </div>
+
+                  <!-- Buyer -->
+                  <div class="col-6">
+                    <span class="p-float-label p-input-filled">
+                      <input pInputText formControlName="buyer" readonly />
+                      <label>Buyer</label>
+                    </span>
+                  </div>
+
+                  <!-- Place of Destination -->
+                  <div class="col-6">
+                    <span class="p-float-label p-input-filled">
+                      <input pInputText formControlName="placeOfDestination" readonly />
+                      <label>Place of Destination</label>
+                    </span>
+                  </div>
+
+                  <!-- Bank -->
+                  <div class="col-6">
+                    <span class="p-float-label p-input-filled">
+                      <input pInputText formControlName="bank" readonly />
+                      <label>Bank</label>
+                    </span>
+                  </div>
+
+                  <!-- FOB Value -->
+                  <div class="col-6">
+                    <span class="p-float-label p-input-filled">
+                      <input pInputText [value]="createExportationForm.get('fobValueCfa')?.value | number" readonly />
+                      <label>FOB Value (CFA)</label>
+                    </span>
+                  </div>
+                </div>
+              </p-fieldset>
+
+              <div class="flex justify-content-end mt-3">
+                <button pButton type="submit"
+                  class="p-button-outlined p-button-success"
+                  [label]="isSubmitting ? 'Submitting...' : 'Create Exportation'"
+                  [icon]="isSubmitting ? 'pi pi-spinner pi-spin' : 'pi pi-check'"
+                  [disabled]="createExportationForm.invalid || isSubmitting">
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Select Customer Dialog -->
+          <p-dialog [(visible)]="selectCustomerDialog"
+            [style]="{width: '50vw', height: '50vh'}"
+            header="Select Customer"
+            [modal]="true">
+            <form [formGroup]="searchCustomerForm">
+              <div class="grid p-fluid">
+                <!-- Customer Type -->
+                <div class="col-12">
+                <br/> <br/>
+
+                  <span class="p-float-label">
+                    <p-dropdown formControlName="customerType"
+                      [options]="[
+                        {label: 'Corporate', value: 'Corporate'},
+                        {label: 'Individual', value: 'Individual'}
+                      ]"
+                      [style]="{'width':'100%'}"
+                      inputId="customerType">
+                    </p-dropdown>
+                    <label for="customerType">Customer Type</label>
+                  </span>
+                </div>
+
+                <!-- Customer Search -->
+                <div class="col-12 mt-3">
+                  <span class="p-float-label">
+                    <p-autoComplete formControlName="searchTerm"
+                      [suggestions]="filteredCustomers"
+                      (completeMethod)="searchCustomer($event)"
+                      [field]="'name'"
+                      [dropdown]="true"
+                      [style]="{'width':'100%'}"
+                      [inputStyle]="{'width':'100%'}"
+                      loading="isSearching"
+                      (onSelect)="onCustomerSelect($event)">
+                      <ng-template let-customer pTemplate="item">
+                        <div>{{customer.name}} - {{customer.niu}}</div>
+                      </ng-template>
+                    </p-autoComplete>
+                    <label>Search Customer</label>
+                  </span>
+                </div>
+              </div>
+            </form>
+
+            <ng-template pTemplate="footer">
+              <button pButton type="button"
+                label="Cancel"
+                class="p-button-outlined p-button-secondary"
+                (click)="selectCustomerDialog = false">
+              </button>
+              <button pButton type="button"
+                label="Select"
+                class="p-button-outlined p-button-success ml-2"
+                [disabled]="!selectedCustomer"
+                (click)="confirmCustomerSelection()">
+              </button>
+            </ng-template>
+          </p-dialog>
+
+          <!-- Search DE Dialog -->
+          <p-dialog [(visible)]="searchDEDialog"
+            [style]="{width: '50vw', height: '60vh'}"
+            header="Search DE"
+            [modal]="true">
+            <form [formGroup]="searchDEForm">
+              <div class="grid p-fluid">
+                <!-- DE Reference Search -->
+                <div class="col-12">
+                <br/> <br/>
+                  <span class="p-float-label">
+                    <input pInputText formControlName="eForceReference" />
+                    <label>eForce Reference</label>
+                  </span>
+                </div>
+
+                <!-- Search Button -->
+                <div class="col-12 mt-3">
+                  <button pButton type="button"
+                    label="Search"
+                    class="p-button-outlined"
+                    (click)="searchDE()"
+                    [disabled]="!searchDEForm.valid">
+                  </button>
+                </div>
+
+                <!-- DE Details Display -->
+                <div class="col-12 mt-3" *ngIf="selectedDEDetails">
+                  <p-fieldset header="DE Details">
+                    <div class="grid">
+                      <div class="col-6"><strong>Docmiciliation Number:</strong> {{selectedDEDetails.domiciliationReference}}</div>
+                      <div class="col-6"><strong>Docmiciliation Date:</strong> {{selectedDEDetails.domiciliationDate | date}}</div>
+                      <div class="col-6"><strong>File Number:</strong> {{selectedDEDetails.fileNumber}}</div>
+                      <div class="col-6"><strong>Place of Destination:</strong> {{selectedDEDetails.placeOfDestination}}</div>
+                      <div class="col-6"><strong>Provider:</strong> {{selectedDEDetails.provider}}</div>
+                      <div class="col-6"><strong>Buyer:</strong> {{selectedDEDetails.buyer}}</div>
+                      <div class="col-6"><strong>Request Date:</strong> {{selectedDEDetails.requestDate | date}}</div>
+                      <div class="col-6"><strong>Bank:</strong> {{selectedDEDetails.bank}}</div>
+                      <div class="col-6"><strong>FOB Value:</strong> {{selectedDEDetails.fobValueCfa | number}} CFA</div>
+                    </div>
+                  </p-fieldset>
+                </div>
+              </div>
+            </form>
+
+            <ng-template pTemplate="footer">
+              <button pButton type="button"
+                label="Cancel"
+                class="p-button-outlined p-button-secondary"
+                (click)="searchDEDialog = false">
+              </button>
+              <button pButton type="button"
+                label="Select"
+                class="p-button-outlined p-button-success ml-2"
+                [disabled]="!selectedDEDetails"
+                (click)="confirmDESelection()">
+              </button>
+            </ng-template>
+          </p-dialog>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

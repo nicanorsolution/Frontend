@@ -17,6 +17,12 @@ export interface UpdateGoodsDescriptionCommand {
   billExpiringDate?: Date;
 }
 
+export interface DIGoodsUnit {
+  diGoodsUnitId: number;
+  diGoodsUnitName: string;
+}
+
+
 export interface DI {
   id: string;
   referenceDi: string;

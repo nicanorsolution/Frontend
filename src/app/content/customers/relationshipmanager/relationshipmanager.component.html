@@ -9,12 +9,29 @@
 
           <div class="content">
             <p-fieldset legend="Menu">
-              <div class="inline-block m-2" style="float: right;">
-                <button pButton label="New Manager"
-                  class="p-button-outlined p-button-success"
-                  (click)="openAddManagerDialog()"
-                  icon="pi pi-plus" iconPos="left">
-                </button>
+              <div class="grid">
+                <div class="col-8">
+                  <span class="p-input-icon-left flex-grow-1 mr-3">
+                  <i class="pi pi-search"></i>
+                  <input type="text" pInputText [(ngModel)]="searchText"
+                     class="w-full"
+                     placeholder="Search by name" [ngModelOptions]="{standalone: true}"/>
+                  </span>
+                  <button pButton label="Search"
+                  class="p-button-outlined w-8rem"
+                  (click)="searchManagers()"
+                  icon="pi pi-search" iconPos="left">
+                  </button>
+                </div>
+                <div class="col-4">
+                  <div class="flex justify-content-end">
+                    <button pButton label="New Manager"
+                      class="p-button-outlined p-button-success"
+                      (click)="openAddManagerDialog()"
+                      icon="pi pi-plus" iconPos="left">
+                    </button>
+                  </div>
+                </div>
               </div>
             </p-fieldset>
 
@@ -29,6 +46,9 @@
               [paginator]="true"
               [showCurrentPageReport]="true"
               [loading]="loading"
+              (onPage)="onPageChange($event)"
+              [lazy]="true"
+              [first]="(pageNumber-1) * pageSize"
               currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
 
               <ng-template pTemplate="header">
@@ -128,21 +148,22 @@
                       <div class="p-col-12">
                         <hr/>
                         <div class="flex flex-row-reverse flex-wrap">
-                          <button pButton type="button"
-                            class="p-button-outlined p-button-danger"
-                            
-                            icon="pi pi-trash" iconPos="left"
-                            label="Delete"
-                            (click)="deleteManager(manager.id)"
-                            style="margin-right: 25px">
-                          </button>
-                          <button pButton type="button"
-                            class="p-button-outlined"
-                            icon="pi pi-pencil" iconPos="left"
-                            label="Edit"
-                            (click)="openEditManagerDialog(manager)"
-                            style="margin-right: 10px">
-                          </button>
+                          <ng-container *ngIf="manager.relationshipManagerStatus !== 3">
+                            <button pButton type="button"
+                              class="p-button-outlined p-button-danger"
+                              icon="pi pi-trash" iconPos="left"
+                              label="Delete"
+                              (click)="deleteManager(manager.id)"
+                              style="margin-right: 25px">
+                            </button>
+                            <button pButton type="button"
+                              class="p-button-outlined"
+                              icon="pi pi-pencil" iconPos="left"
+                              label="Edit"
+                              (click)="openEditManagerDialog(manager)"
+                              style="margin-right: 10px">
+                            </button>
+                          </ng-container>
                           <ng-container [ngSwitch]="manager.relationshipManagerStatus">
                             <button *ngSwitchCase="1" pButton type="button"
                               class="p-button-outlined p-button-warning"

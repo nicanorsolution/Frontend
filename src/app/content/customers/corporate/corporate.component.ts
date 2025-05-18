@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CustomersService } from '../services/customers.services';
 import {
@@ -22,20 +22,22 @@ import { AutoCompleteOnSelectEvent } from 'primeng/autocomplete';
 import { ApiErrorResponse } from '../../../helpers/response-error';
 import Swal from 'sweetalert2';
 import { CorporateOrIndividual } from '../../transactions/models/transactions.model';
+import { interval, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-corporate',
   templateUrl: './corporate.component.html'
 })
-export class CorporateComponent implements OnInit {
+export class CorporateComponent implements OnInit, OnDestroy {
   corporates: CorporateResponse[] = [];
   loading = false;
   corporateDialog = false;
   createCorporateForm!: FormGroup;
   isSubmitted = false;
 
+  
   totalRows = 0;
-  pageSize = 10;
+  pageSize = 2;
   pageNumber = 1;
   expandedRows: { [key: string]: boolean } = {};
 
@@ -58,6 +60,11 @@ export class CorporateComponent implements OnInit {
   assignManagerForm!: FormGroup;
   filteredManagers: RelationshipManagerResponse[] = [];
 
+  private refreshSubscription?: Subscription;
+  private readonly POLLING_INTERVAL = 5000; // 5 seconds
+
+  searchForm!: FormGroup;
+
   constructor(
     private customerService: CustomersService,
     private fb: FormBuilder
@@ -66,6 +73,10 @@ export class CorporateComponent implements OnInit {
   }
 
   private initializeForms() {
+    this.searchForm = this.fb.group({
+      searchTerm: ['']
+    });
+
     this.createCorporateForm = this.fb.group({
       corporateId: [''], // Add this new control
       name: ['', Validators.required],
@@ -95,6 +106,36 @@ export class CorporateComponent implements OnInit {
 
   ngOnInit() {
     this.loadCorporates();
+    this.startAutoRefresh();
+  }
+
+  ngOnDestroy(): void {
+    this.stopPolling();
+  }
+
+  private stopPolling(): void {
+    if (this.refreshSubscription) {
+      this.refreshSubscription.unsubscribe();
+      this.refreshSubscription = undefined;
+    }
+  }
+
+  private hasRunningReports(): boolean {
+    return this.corporates.some(corporate => corporate.adnaReportStatus === ADNAReportStatus.Running);
+  }
+
+  private startAutoRefresh(): void {
+    if (this.refreshSubscription) {
+      this.refreshSubscription.unsubscribe();
+    }
+
+    this.refreshSubscription = interval(this.POLLING_INTERVAL).subscribe(() => {
+      if (this.hasRunningReports()) {
+        this.loadCorporates();
+      } else {
+        this.stopPolling();
+      }
+    });
   }
 
   private handleError(error: any) {
@@ -115,7 +156,16 @@ export class CorporateComponent implements OnInit {
     }
   }
 
+  searchCorporates(){
+    const searchTerm = this.searchForm.get('searchTerm')?.value;
+    this.loadCorporates(searchTerm);
+  }
+  
   loadCorporates(name?: string, niu?: string) {
+    if (name || niu) {
+      this.pageNumber = 1; // Reset to first page when searching
+    }
+    
     this.loading = true;
     const query = {
       name,
@@ -129,6 +179,11 @@ export class CorporateComponent implements OnInit {
         this.corporates = response.items;
         this.totalRows = response.totalCount;
         this.loading = false;
+        
+        // Start auto-refresh if there are running reports
+        if (this.hasRunningReports() && !this.refreshSubscription) {
+          this.startAutoRefresh();
+        }
       },
       error: (error) => {
         this.loading = false;
@@ -167,9 +222,19 @@ export class CorporateComponent implements OnInit {
     }
   }
 
-  onPageChange(page: number) {
-    this.pageNumber = page;
-    this.loadCorporates();
+  // Update onPageChange method to handle pagination events from PrimeNG
+  onPageChange(event: any) {
+   
+    this.pageNumber = event.first / event.rows + 1;
+    this.pageSize = event.rows;
+    console.log(event);
+
+    const searchTerm = this.searchForm.get('searchTerm')?.value;
+    if (searchTerm) {
+      this.loadCorporates(searchTerm);
+    } else {
+      this.loadCorporates();
+    }
   }
 
   openAddBankAccountDialog(corporate: CorporateResponse) {
@@ -246,6 +311,14 @@ export class CorporateComponent implements OnInit {
         next: () => {
           this.assignManagerDialog = false;
           this.loadCorporates();
+
+          this.dialogOperationSwal.update({
+            
+            title: 'Success',
+            text: 'Relationship Manager assigned successfully!',
+            icon: 'success'
+          });
+
           this.dialogOperationSwal.fire();
         },
         error: (error) => {
@@ -260,7 +333,7 @@ export class CorporateComponent implements OnInit {
       corporateId,
       corporateContactId
     };
-
+    console.log(command);
     this.customerService.removeCorporateContact(command).subscribe({
       next: () => {
         this.loadCorporates();
@@ -340,7 +413,7 @@ export class CorporateComponent implements OnInit {
 
   searchAccount(event: { query: string }) {
     if (event.query) {
-      this.customerService.getCustomerAccountByNumber(event.query)
+      this.customerService.getCustomerAccountByNumber(event.query, this.selectedCorporate?.id)
         .subscribe({
           next: (response) => {
             if (response) {
@@ -390,7 +463,7 @@ export class CorporateComponent implements OnInit {
       branch: ''
     });
   }
-
+  corporateStatus = CorporateStatus;
   getStatusString(status: CorporateStatus): string {
     switch (status) {
       case CorporateStatus.Active:
@@ -417,6 +490,7 @@ export class CorporateComponent implements OnInit {
     }
   }
 
+  //miseEnDemeureStatus = MiseEnDemeureStatus;
   getMiseEndemeureStatusString(status: MiseEnDemeureStatus): string {
     switch (status) {
       case MiseEnDemeureStatus.No:
@@ -464,6 +538,48 @@ export class CorporateComponent implements OnInit {
     this.customerService.requestCorporateAnda(corporate.id).subscribe({
       next: () => {
         this.loadCorporates();
+        this.dialogOperationSwal.update({
+          
+          title: 'Request Successful',
+          text: 'The ADNA request has been sent successfully.'
+        })
+        this.dialogOperationSwal.fire();
+       // this.startAutoRefresh(); // Use startAutoRefresh instead of startPolling
+      },
+      error: (error) => {
+        this.handleError(error);
+      }
+    });
+  }
+
+  confirmDeleteCorporate(corporate: CorporateResponse) {
+    this.dialogOperationSwal.update({
+      title: 'Are you sure?',
+      text: `This will delete corporate ${corporate.name}. This action cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it',
+      cancelButtonText: 'Cancel'
+    });
+    
+    this.dialogOperationSwal.fire().then((result) => {
+      if (result.isConfirmed) {
+        this.deleteCorporate(corporate.id);
+      }
+    });
+  }
+  
+  deleteCorporate(corporateId: string) {
+    this.customerService.deleteCorporate(corporateId).subscribe({
+      next: () => {
+        this.loadCorporates();
+        this.dialogOperationSwal.update({
+          title: 'Success',
+          text: 'Corporate deleted successfully',
+          icon: 'success',
+          showCancelButton: false,
+          confirmButtonText: 'OK'
+        });
         this.dialogOperationSwal.fire();
       },
       error: (error) => {

@@ -36,6 +36,14 @@ export class CustomersService {
 
   constructor(private http: HttpClient) {}
 
+  //* Corporate
+  createCorporate(command: CreateCorporateCommand): Observable<void> {
+    return this.http.post<void>(
+      `${this.baseUrl}/corporate`,
+      command
+    );
+  }
+
   getCorporates(query: CorporateQuery): Observable<PaginatedList<CorporateResponse>> {
     let params = new HttpParams()
       .append('pageNumber', query.pageNumber.toString())
@@ -51,21 +59,54 @@ export class CustomersService {
     return this.http.get<PaginatedList<CorporateResponse>>(`${this.baseUrl}/corporates`, { params });
   }
 
-  getIndividuals(query: IndividualQuery): Observable<PaginatedList<IndividualResponse>> {
-    let params = new HttpParams()
-      .append('pageNumber', query.pageNumber.toString())
-      .append('pageSize', query.pageSize.toString());
-
-    if (query.name) {
-      params = params.append('name', query.name);
-    }
-    if (query.niu) {
-      params = params.append('niu', query.niu);
-    }
-
-    return this.http.get<PaginatedList<IndividualResponse>>(`${this.baseUrl}/individuals`, { params });
+  addBankAccount(command: AddBankAccountCommand): Observable<void> {
+    return this.http.post<void>(
+      `${this.baseUrl}/corporate/add-bank-account`,
+      command
+    );
+  }
+  
+  removeBankAccount(corporateId: string, accountNumber: string): Observable<void> {
+    return this.http.delete<void>(
+      `${this.baseUrl}/corporate/${corporateId}/remove-bank-account/${accountNumber}`
+    );
   }
 
+  addCorporateContact(command: AddCorporateContactCommand): Observable<void> {
+    return this.http.post<void>(
+      `${this.baseUrl}/corporate/add-contact`,
+      command
+    );
+  }
+  
+  removeCorporateContact(command: RemoveCorporateContactCommand): Observable<void> {
+    return this.http.delete<void>(
+      `${this.baseUrl}/corporate/`+command.corporateId +`/contact/`+command.corporateContactId
+    );
+  }
+
+  assignRelationshipManager(command: AssignRelationshipManagerCommand): Observable<void> {
+    return this.http.post<void>(
+      `${this.baseUrl}/corporate/assign-relationship-manager`,
+      command
+    );
+  }
+
+  updateCorporate(command: UpdateCorporateCommand): Observable<void> {
+    return this.http.put<void>(
+      `${this.baseUrl}/corporate`,
+      command
+    );
+  }
+
+  deleteCorporate(corporateId: string): Observable<void> {
+    return this.http.delete<void>(
+      `${this.baseUrl}/corporate/${corporateId}`
+    );
+  }
+  
+  
+   //* RM
   getRelationshipManagers(query: RelationshipManagerQuery): Observable<PaginatedList<RelationshipManagerResponse>> {
     let params = new HttpParams()
       .append('pageNumber', query.pageNumber.toString())
@@ -76,67 +117,6 @@ export class CustomersService {
     }
 
     return this.http.get<PaginatedList<RelationshipManagerResponse>>(`${this.baseUrl}/relationship-managers`, { params });
-  }
-
-  getCustomerAccountInfo(clientId: string, customerType: CustomerType): Observable<CustomerInfoResponse> {
-    return this.http.get<CustomerInfoResponse>(
-      `${this.baseUrl}/clientId/${clientId}/customertype/${customerType}`
-    );
-  }
-
-  getCustomerAccountByNumber(accountNumber: string): Observable<CustomerAccountInfo> {
-    return this.http.get<CustomerAccountInfo>(
-      `${this.baseUrl}/account-number/${accountNumber}`
-    );
-  }
-
-  addBankAccount(command: AddBankAccountCommand): Observable<void> {
-    return this.http.post<void>(
-      `${this.baseUrl}/corporate/add-bank-account`,
-      command
-    );
-  }
-  //v1/api/customers/corporate/add-contact
-  addCorporateContact(command: AddCorporateContactCommand): Observable<void> {
-    return this.http.post<void>(
-      `${this.baseUrl}/corporate/add-contact`,
-      command
-    );
-  }
-
-  assignRelationshipManager(command: AssignRelationshipManagerCommand): Observable<void> {
-    return this.http.post<void>(
-      `${this.baseUrl}/corporate/assign-relationship-manager`,
-      command
-    );
-  }
-  //v1/api/customer/corporate
-  //http://localhost:2024/v1/api/customers/clientId/C001187213/customertype/Corporate
-  createCorporate(command: CreateCorporateCommand): Observable<void> {
-    return this.http.post<void>(
-      `${this.baseUrl}/corporate`,
-      command
-    );
-  }
-
-  removeCorporateContact(command: RemoveCorporateContactCommand): Observable<void> {
-    return this.http.delete<void>(
-      `${this.baseUrl}/corporate/`+command.corporateId +`/contact/`+command.corporateContactId
-    );
-  }
-
-  removeRelationshipManager(command: RemoveRelationshipManagerCommand): Observable<void> {
-    return this.http.delete<void>(
-      `${this.baseUrl}/corporate/remove-relationship-manager`,
-      { body: command }
-    );
-  }
-
-  updateCorporate(command: UpdateCorporateCommand): Observable<void> {
-    return this.http.put<void>(
-      `${this.baseUrl}/corporate`,
-      command
-    );
   }
 
   activateRelationshipManager(relationshipManagerId: string): Observable<void> {
@@ -173,9 +153,40 @@ export class CustomersService {
     );
   }
 
-  removeBankAccount(corporateId: string, accountNumber: string): Observable<void> {
+  //* Account data
+  getCustomerAccountInfo(clientId: string, customerType: CustomerType): Observable<CustomerInfoResponse> {
+    return this.http.get<CustomerInfoResponse>(
+      `${this.baseUrl}/clientId/${clientId}/customertype/${customerType}`
+    );
+  }
+
+  getCustomerAccountByNumber(accountNumber: string, customerId : string | undefined): Observable<CustomerAccountInfo> {
+    console.log(accountNumber, customerId);
+    return this.http.get<CustomerAccountInfo>(
+      `${this.baseUrl}/account-number/${accountNumber}/${customerId}`
+    );
+  }
+
+  //* Individual
+  getIndividuals(query: IndividualQuery): Observable<PaginatedList<IndividualResponse>> {
+    let params = new HttpParams()
+      .append('pageNumber', query.pageNumber.toString())
+      .append('pageSize', query.pageSize.toString());
+
+    if (query.name) {
+      params = params.append('name', query.name);
+    }
+    if (query.niu) {
+      params = params.append('niu', query.niu);
+    }
+
+    return this.http.get<PaginatedList<IndividualResponse>>(`${this.baseUrl}/individuals`, { params });
+  }
+
+  removeRelationshipManager(command: RemoveRelationshipManagerCommand): Observable<void> {
     return this.http.delete<void>(
-      `${this.baseUrl}/corporate/${corporateId}/remove-bank-account/${accountNumber}`
+      `${this.baseUrl}/corporate/remove-relationship-manager`,
+      { body: command }
     );
   }
 
@@ -186,7 +197,6 @@ export class CustomersService {
     );
   }
 
-  // Individual endpoints
   activateIndividual(individualId: string): Observable<void> {
     return this.http.put<void>(
       `${this.baseUrl}/individual/${individualId}/activate`,
@@ -227,6 +237,7 @@ export class CustomersService {
     );
   }
 
+  //* ANDA
   requestIndividualAnda(individualId: string): Observable<void> {
     return this.http.put<void>(
       `${this.baseUrl}/individual/${individualId}/anda`,

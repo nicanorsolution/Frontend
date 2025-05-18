@@ -64,12 +64,13 @@
                   <td>{{ type.transactionTypeNameFr }}</td>
                   <td>{{ type.transactionTypeNameEn }}</td>
                   <td>
-                    {{
-                      getTransactionDirectionString(type.transactionDirection)
-                    }}
+                    <p-tag [value]="getTransactionDirectionString(type.transactionDirection)" 
+                    [severity]="colorDirection(type.transactionDirection)">
+                    </p-tag>
                   </td>
                   <td>
-                    {{ getAppurementRequiredString(type.appurementRequired) }}
+                    <p-tag [value]="getAppurementRequiredString(type.appurementRequired)" 
+                    [severity]="colorAppurement(type.appurementRequired)"></p-tag>
                   </td>
                   <td>
                     <p-tag
@@ -90,14 +91,7 @@
                       <br />
                       <div class="p-col-12">
                         <div class="grid">
-                          <div class="col-2">
-                            <div class="text-left p-3 font-bold">ID</div>
-                          </div>
-                          <div class="col-2">
-                            <div class="text-left p-3">
-                              {{ type.transactionTypeId }}
-                            </div>
-                          </div>
+                         
                           <div class="col-2">
                             <div class="text-left p-3 font-bold">Name (FR)</div>
                           </div>
@@ -159,15 +153,18 @@
                           <button
                             pButton
                             type="button"
+                            *ngIf="type.transactionTypeStatus !== TransactionTypeStatus.Delete"
                             class="p-button-outlined p-button-danger"
                             icon="pi pi-trash"
                             iconPos="left"
-                            label="Delete"
+                            (click)="deleteTransactionType(type.transactionTypeId)"
+                            label="Delete Transaction Type"
                             style="margin-right: 25px"
                           ></button>
                           <button
                             pButton
                             type="button"
+                            *ngIf="type.transactionTypeStatus !== TransactionTypeStatus.Delete"
                             class="p-button-outlined p-button-info"
                             icon="pi pi-file"
                             iconPos="left"
@@ -181,9 +178,7 @@
                             class="p-button-outlined p-button-success"
                             icon="pi pi-list"
                             iconPos="left"
-                            (click)="
-                              openViewTransactionDocumentsListDialog(type)
-                            "
+                            (click)="openViewTransactionDocumentsListDialog(type)"
                             label="View Documents"
                             style="margin-right: 25px"
                           ></button>
@@ -196,10 +191,8 @@
             </p-table>
           </div>
 
-          <p-dialog
-            [(visible)]="transactionTypeDialog"
-            [style]="{ width: '50vw' }"
-          >
+           <!-- Create Transaction Type -->
+          <p-dialog  [(visible)]="transactionTypeDialog"[style]="{ width: '50vw' }" [position]="'top'"  [modal]="true"  >
             <ng-template pTemplate="header">
               <div class="text-center">
                 <h3 class="title">Create Transaction Type</h3>
@@ -239,8 +232,7 @@
 
                 <div class="field col-12">
                   <span class="p-float-label p-input-filled">
-                    <input
-                      formControlName="transactionTypeNameEn"
+                    <input    formControlName="transactionTypeNameEn"
                       type="text"
                       id="transactionTypeNameEn"
                       pInputText
@@ -268,34 +260,8 @@
                     <p-dropdown
                       [options]="transactionDirections"
                       formControlName="transactionDirection"
-                      [showClear]="true"
-                      optionLabel="label"
-                      [optionValue]="'value'"
-                      appendTo="body"
-                      [autoDisplayFirst]="false"
-                      styleClass="w-full"
-                      placeholder="Select Direction"
-                    >
-                      <ng-template pTemplate="selectedItem">
-                        <span
-                          *ngIf="
-                            createTransactionTypeForm.get(
-                              'transactionDirection'
-                            )?.value
-                          "
-                        >
-                          {{
-                            getTransactionDirectionString(
-                              createTransactionTypeForm.get(
-                                "transactionDirection"
-                              )?.value
-                            )
-                          }}
-                        </span>
-                      </ng-template>
-                      <ng-template let-direction pTemplate="item">
-                        {{ getTransactionDirectionString(direction) }}
-                      </ng-template>
+                      placeholder="Select Direction">
+                    
                     </p-dropdown>
                     <label for="transactionDirection"
                       >Transaction Direction</label
@@ -308,32 +274,7 @@
                     <p-dropdown
                       [options]="appurementRequiredOptions"
                       formControlName="appurementRequired"
-                      [showClear]="true"
-                      [optionValue]="'value'"
-                      appendTo="body"
-                      [autoDisplayFirst]="false"
-                      styleClass="w-full"
-                      placeholder="Select Appurement Required"
-                    >
-                      <ng-template pTemplate="selectedItem">
-                        <span
-                          *ngIf="
-                            createTransactionTypeForm.get('appurementRequired')
-                              ?.value
-                          "
-                        >
-                          {{
-                            getAppurementRequiredString(
-                              createTransactionTypeForm.get(
-                                "appurementRequired"
-                              )?.value
-                            )
-                          }}
-                        </span>
-                      </ng-template>
-                      <ng-template let-appurement pTemplate="item">
-                        {{ getAppurementRequiredString(appurement) }}
-                      </ng-template>
+                      placeholder="Select Appurement Required">                   
                     </p-dropdown>
                     <label for="appurementRequired">Appurement Required</label>
                   </span>
@@ -359,6 +300,7 @@
             </form>
           </p-dialog>
 
+           <!-- Manage documents for  Transaction -->
           <p-dialog
             [(visible)]="documentsDialog"
             [style]="{ width: '80vw', height: '70vh' }"
@@ -404,7 +346,8 @@
               </div>
             </div>
           </p-dialog>
-
+         
+           <!-- View documents for  Transaction -->
           <p-dialog
             [(visible)]="viewDocumentsDialog"
             [style]="{ width: '70vw' }"
@@ -426,7 +369,7 @@
                   <th>Document Name (FR)</th>
                   <th>Document Name (EN)</th>
                   <th>Submission Option</th>
-                  <th>Original Required</th>
+                  <th>Document Status</th>
                 </tr>
               </ng-template>
               <ng-template pTemplate="body" let-doc>
@@ -436,20 +379,14 @@
                   <td>
                    <p-tag
                       [value]="getSubmissionOptionString(doc.documentSubmissionOption)"
-                      [severity]="
-                        colorSubmissionOption(doc.documentSubmissionOption)
-                      "
-                    >
+                      [severity]="colorSubmissionOption(doc.documentSubmissionOption)">
                     </p-tag>
                   </td>
                   <td>
-                    <i
-                      [class]="
-                        doc.documentOriginalRequired
-                          ? 'pi pi-check text-success'
-                          : 'pi pi-times text-danger'
-                      "
-                    ></i>
+                     <p-tag
+                      [value]="getDocumentStatusString(doc.documentStatus)"
+                      [severity]="colorDocumentStatus(doc.documentStatus)">
+                    </p-tag>
                   </td>
                 </tr>
               </ng-template>

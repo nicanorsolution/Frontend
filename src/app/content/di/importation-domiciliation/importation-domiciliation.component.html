@@ -9,7 +9,57 @@
 
           <div class="content">
             <p-fieldset legend="Menu">
-              <div class="inline-block m-2 p-2">
+              <div class="grid">
+              <div class="col-10">
+                <form [formGroup]="searchForm" (ngSubmit)="onSearch()" class="grid p-fluid">
+                <div class="col-2">
+                  <span class="p-float-label">
+                    <input pInputText formControlName="referenceDi" />
+                    <label>Reference DI</label>
+                  </span>
+                </div>
+                <div class="col-2">
+                  <span class="p-float-label">
+                    <input pInputText formControlName="clientName" />
+                    <label>Client Name</label>
+                  </span>
+                </div>
+                <div class="col-2">
+                  <span class="p-float-label">
+                    <input pInputText formControlName="sgsReference" />
+                    <label>Sgs Reference</label>
+                  </span>
+                </div>
+                <div class="col-2">
+                  <span class="p-float-label">
+                    <p-calendar formControlName="startDate" />
+                    <label>Start Docmiciliation Date</label>
+                  </span>
+                </div>
+                <div class="col-2">
+                  <span class="p-float-label">
+                    <p-calendar formControlName="endDate"/>
+                    <label>End Docmiciliation Date</label>
+                  </span>
+                </div>
+                <div class="col-1">
+                  <button pButton type="submit"
+                    label="Search"
+                    icon="pi pi-search"
+                    class="p-button-outlined">
+                  </button>
+                </div>
+                <div class="col-1">
+                  <button pButton type="button"
+                    label="Reset"
+                    icon="pi pi-refresh"
+                    class="p-button-outlined"
+                    (click)="resetSearch()">
+                  </button>
+                </div>
+              </form>
+              </div>
+              <div class="col-2" style="text-align: right">
              
                 <p-fileUpload
                   mode="basic"
@@ -23,6 +73,7 @@
                 </p-fileUpload>
 
               </div>
+              </div>
             </p-fieldset>
 
             <br />
@@ -32,12 +83,14 @@
               styleClass="p-datatable-striped p-datatable-gridlines"
               [expandedRowKeys]="expandedRows"
               dataKey="id"
-              [totalRecords]="totalRows"
+              [totalRecords]="totalRecords"
               [rows]="pageSize"
               [paginator]="true"
               [showCurrentPageReport]="true"
               [loading]="loading"
+               [lazy]="true"
               currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+              (onPage)="onPageChange($event)"
             >
               <ng-template pTemplate="header">
                 <tr>
@@ -47,9 +100,10 @@
                   <th scope="col">Provider Name</th>
                   <th scope="col">SGS Reference</th>
                   <th scope="col">Domiciliation Date</th>
-                  <th scope="col">Amount</th>
-                  <th scope="col">Currency</th>
+                  <th scope="col">DI Amount</th>
+                  <th scope="col">DI Amount Used</th>
                   <th scope="col">Status</th>
+                  <th scope="col">DI Modified</th>
                 </tr>
               </ng-template>
 
@@ -72,10 +126,10 @@
                   <td>{{ di.providerName }}</td>
                   <td>{{ di.referenceSgs }}</td>
                   <td>
-                    {{ di.dateDomiciliationDiInBank | date : "mediumDate" }}
+                    {{ di.dateDomiciliationDiInBank | date : "medium" }}
                   </td>
-                  <td>{{ di.amountInCurrency }}</td>
-                  <td>{{ di.currency }}</td>
+                  <td>{{ di.currency }} {{ di.amountInCurrency | number:'1.2-2' }} </td>
+                  <td>{{ di.currency }} {{ di.soldeInCurrency | number:'1.2-2' }} </td>
                   <td>
                     <p-tag
                       [value]="getDIStatusString(di.diStatus)"
@@ -83,20 +137,26 @@
                     >
                     </p-tag>
                   </td>
+                  <td>
+                        <p-tag
+                                [value]="di.hasDataBeingModified ? 'Yes' : 'No'"
+                                [severity]="di.hasDataBeingModified ? 'danger' : 'success'"
+                              ></p-tag>
+                  </td>
                 </tr>
               </ng-template>
 
               <ng-template pTemplate="rowexpansion" let-di>
                 <tr>
-                  <td colspan="9">
+                  <td colspan="10">
                     <div class="p-grid p-nogutter">
                       <div class="p-col-12">
                         <div class="grid">
                           <div class="col-2">
-                            <div class="text-left p-3 font-bold">ID</div>
+                            <div class="text-left p-3 font-bold">Client</div>
                           </div>
                           <div class="col-4">
-                            <div class="text-left p-3">{{ di.id }}</div>
+                            <div class="text-left p-3">{{ di.clientName }}</div>
                           </div>
                           <div class="col-2">
                             <div class="text-left p-3 font-bold">
@@ -142,12 +202,12 @@
                           </div>
                           <div class="col-2">
                             <div class="text-left p-3 font-bold">
-                              Client Folder
+                              Domiciliation Number In Bank
                             </div>
                           </div>
                           <div class="col-4">
                             <div class="text-left p-3">
-                              {{ di.clientFolderPath }}
+                              {{ di.domiciliationNumberInBank }}
                             </div>
                           </div>
 
@@ -169,13 +229,20 @@
                           <div class="col-4">
                             <div class="text-left p-3">{{ di.termeVente }}</div>
                           </div>
-
+                         <div class="col-2">
+                            <div class="text-left p-3 font-bold">Amount Of DI</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">
+                              {{ di.amountInCurrency | number:'1.2-2'}} {{ di.currency }}
+                            </div>
+                          </div>
                           <div class="col-2">
                             <div class="text-left p-3 font-bold">Balance</div>
                           </div>
                           <div class="col-4">
                             <div class="text-left p-3">
-                              {{ di.soldeInCurrency }} {{ di.currency }}
+                              {{ di.soldeInCurrency | number:'1.2-2'}} {{ di.currency }}
                             </div>
                           </div>
                           <div class="col-2">
@@ -185,7 +252,7 @@
                           </div>
                           <div class="col-4">
                             <div class="text-left p-3">
-                              {{ di.amountInXaf }}
+                              {{ di.amountInXaf | number:'1.2-2'}}
                             </div>
                           </div>
 
@@ -209,9 +276,90 @@
                               {{ di.billReference }}
                             </div>
                           </div>
+                            <div class="col-2">
+                            <div class="text-left p-3 font-bold">
+                              Bill Expiring Date
+                            </div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">
+                              {{ di.billExpiringDate  | date : "medium" }}
+                            </div>
+                          </div>
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">
+                              Bill Reference
+                            </div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">
+                              {{ di.billReference }}
+                            </div>
+                          </div>
+
+                            <div class="col-2">
+                            <div class="text-left p-3 font-bold">
+                              Goods Quantity
+                            </div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">
+                              {{ di.goodQuantity }}
+                            </div>
+                          </div>
+
+                            <div class="col-2">
+                            <div class="text-left p-3 font-bold">
+                              Goods Unit
+                            </div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">
+                              {{ di.goodsUnit }}
+                            </div>
+                          </div>
+
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">
+                              Goods Description
+                            </div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">
+                              {{ di.goodsDescription }}
+                            </div>
+                          </div>
+
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">
+                             <!-- when DI is uploaded with new data 
+                              particulary a new initial amount then we flag as 
+                              DI has been modified-->
+                              Has Data Being Modified 
+                            </div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">
+                              <p-tag
+                                [value]="di.hasDataBeingModified ? 'Yes' : 'No'"
+                                [severity]="di.hasDataBeingModified ? 'danger' : 'success'"
+                              ></p-tag>
+                            </div>
+                          </div>
+
                         </div>
                         <hr />
                         <div class="flex flex-row-reverse flex-wrap mt-3">
+                           <button
+                            pButton
+                            type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-refresh"
+                            iconPos="left"
+                            label="DI Update History"
+                            (click)="openUpdateDescriptionDialog(di)"
+                            style="margin-right: 10px"
+                          ></button>
                           <button
                             pButton
                             type="button"
@@ -274,90 +422,147 @@
 >
 </swal>
 
-<p-dialog
-  [(visible)]="updateDescriptionDialog"
-  [style]="{ width: '50vw' }"
-  header="Update DI Description"
->
+<p-dialog [(visible)]="updateDescriptionDialog" [style]="{ width: '50vw' }" [position]="'top'" [modal]="true" header="Update DI Description">
   <form [formGroup]="updateDescriptionForm" (ngSubmit)="updateDescription()">
     <div class="grid p-fluid mt-3">
-      <div class="field col-12">
-        <span class="p-float-label">
-          <textarea
-            formControlName="goodsDescription"
-            id="goodsDescription"
-            rows="3"
-            pInputTextarea
-          ></textarea>
-          <label for="goodsDescription">Goods Description</label>
-        </span>
-      </div>
 
-      <div class="field col-6">
-        <span class="p-float-label">
+       <div class="field col-8">
+        <span class="p-float-label p-input-filled">
           <input
-            formControlName="goodQuantity"
-            type="number"
-            id="goodQuantity"
-            pInputNumber
-          />
-          <label for="goodQuantity">Quantity</label>
-        </span>
-      </div>
-
-      <div class="field col-6">
-        <span class="p-float-label">
-          <input
-            formControlName="goodsUnit"
+            formControlName="amountInCurrency"
             type="text"
-            id="goodsUnit"
+            id="amountInCurrency"
+            pInputText  [disabled]="true"
+          />
+          <label for="amountInCurrency">Amount In Currency </label>
+          <small
+            *ngIf="updateDescriptionForm.get('amountInCurrency')?.invalid && 
+                   (updateDescriptionForm.get('amountInCurrency')?.dirty || 
+                    updateDescriptionForm.get('amountInCurrency')?.touched)"
+                class="p-error">Amount reference is required.</small>      </span>
+       </div>
+
+       <div class="field col-4">
+        <span class="p-float-label p-input-filled">
+          <input
+            formControlName="currency"
+            type="text"
+            id="currency"
+            pInputText  [disabled]="true"
+          />
+          <label for="currency">Currency </label>
+          <small
+            *ngIf="updateDescriptionForm.get('currency')?.invalid && 
+                   (updateDescriptionForm.get('currency')?.dirty || 
+                    updateDescriptionForm.get('currency')?.touched)"
+                class="p-error">Currency reference is required.</small>      </span>
+      </div>
+
+     
+      <div class="field col-6">
+        <span class="p-float-label p-input-filled">
+          <input
+            formControlName="billReference"
+            type="text"
+            id="billReference"
             pInputText
           />
-          <label for="goodsUnit">Unit</label>
+          <label for="billReference">Bill Reference</label>
+          <small
+            *ngIf="updateDescriptionForm.get('billReference')?.invalid && 
+                   (updateDescriptionForm.get('billReference')?.dirty || 
+                    updateDescriptionForm.get('billReference')?.touched)"
+            class="p-error">Bill reference is required.</small>
         </span>
       </div>
 
       <div class="field col-6">
         <span class="p-float-label">
+          <p-calendar
+            formControlName="billExpiringDate"
+            [showTime]="true"
+            id="billExpiringDate"
+          ></p-calendar>
+          <label for="billExpiringDate">Bill Expiring Date</label>
+          <small
+            *ngIf="updateDescriptionForm.get('billExpiringDate')?.invalid && 
+                   (updateDescriptionForm.get('billExpiringDate')?.dirty || 
+                    updateDescriptionForm.get('billExpiringDate')?.touched)"
+            class="p-error">Expiring date is required.</small>
+        </span>
+      </div>
+
+      <div class="field col-6">
+        <span class="p-float-label p-input-filled">
           <input
-            formControlName="valeurTotalInDevise"
-            type="number"
-            id="valeurTotalInDevise"
-            pInputNumber
+            formControlName="goodQuantity"
+            type="text"
+            id="goodQuantity"
+            pInputText
           />
-          <label for="valeurTotalInDevise">Total Value in Currency</label>
+          <label for="goodQuantity">Good Quantity</label>  <small
+            *ngIf="updateDescriptionForm.get('goodQuantity')?.invalid && 
+                   (updateDescriptionForm.get('goodQuantity')?.dirty || 
+                    updateDescriptionForm.get('goodQuantity')?.touched)"
+            class="p-error">Good Quantity is required.</small>
         </span>
       </div>
 
       <div class="field col-6">
         <span class="p-float-label">
-          <input
-            formControlName="valeurTotalInXaf"
-            type="number"
-            id="valeurTotalInXaf"
-            pInputNumber
-          />
-          <label for="valeurTotalInXaf">Total Value in XAF</label>
+          <p-dropdown
+            id="goodsUnit"
+            [options]="goodUnits"
+            formControlName="goodsUnit"
+            optionLabel="diGoodsUnitName"
+            optionValue="diGoodsUnitName"
+            [showClear]="true"
+          ></p-dropdown>
+          <label for="goodsUnit">Goods Unit</label>
+          <small
+            *ngIf="updateDescriptionForm.get('goodsUnit')?.invalid && 
+                   (updateDescriptionForm.get('goodsUnit')?.dirty || 
+                    updateDescriptionForm.get('goodsUnit')?.touched)"
+            class="p-error">Goods Unit is required.</small>
         </span>
       </div>
-    </div>
 
-    <div class="flex flex-row-reverse flex-wrap mt-3">
-      <button
-        pButton
-        type="submit"
-        class="p-button-outlined p-button-success"
-        label="Update"
-      ></button>
+          <div class="field col-12">
+        <span class="p-float-label p-input-filled">
+          <input
+            formControlName="goodsDescription"
+            type="text"
+            id="goodsDescription"
+            pInputText
+          />
+          <label for="goodsDescription">Goods Description</label>
+         <!--  <small
+            *ngIf="updateDescriptionForm.get('goodsDescription')?.invalid && 
+                   (updateDescriptionForm.get('goodsDescription')?.dirty || 
+                    updateDescriptionForm.get('goodsDescription')?.touched)"
+            class="p-error">Goods Unit is required.</small> -->
+        </span>
+      </div>
+      
+      <div class="field col-9"></div>
+      <div class="field col-3">
+        <br />
+        <button
+          pButton
+          type="submit"
+          class="p-button-outlined p-button-success"
+          style="float: right; margin-right: 25px"
+          [label]="isSubmitted ? 'Updating...' : 'Update'"
+          [icon]="isSubmitted ? 'pi pi-spinner pi-spin' : 'pi pi-check'"
+          iconPos="left"
+          [disabled]="updateDescriptionForm.invalid || isSubmitted"
+        ></button>
+      </div>
     </div>
   </form>
 </p-dialog>
 
-<p-dialog
-  [(visible)]="attestationsDialog"
-  [style]="{ width: '70vw' }"
-  header="DI Attestations"
->
+<p-dialog  [(visible)]="attestationsDialog"  [style]="{ width: '70vw'}"  header="DI Attestations">
   <p-table
     [value]="attestations"
     styleClass="p-datatable-striped p-datatable-sm"

@@ -9,14 +9,40 @@
 
           <div class="content">
             <p-fieldset legend="Menu">
-              <div class="inline-block m-2" style="float: right;">
-                <button pButton label="New Corporate"
+              <div class="grid">
+                <div class="col-8">
+                  <form [formGroup]="searchForm" (ngSubmit)="searchCorporates()" class="flex gap-2">
+                    <span class="p-input-icon-left flex-grow-1">
+                      <i class="pi pi-search"></i>
+                      <input
+                        type="text"
+                        pInputText
+                        formControlName="searchTerm"
+                        placeholder="Search corporates..."
+                        class="w-full"
+                      />
+                    </span>
+                    <button
+                      pButton
+                      type="submit"
+                      label="Search"
+                      icon="pi pi-search"
+                      class="p-button-outlined"
+                    ></button>
+                  </form>
+                </div>
+                <div class="col-4">
+                   <div class="flex justify-content-end">
+                     <button pButton label="New Corporate"
                   class="p-button-outlined p-button-success"
 
                   (click)="openAddCorporateDialog()"
                   icon="pi pi-plus" iconPos="left">
                 </button>
+                  </div>
+                </div>
               </div>
+            
             </p-fieldset>
 
             <br />
@@ -30,6 +56,8 @@
               [paginator]="true"
               [showCurrentPageReport]="true"
               [loading]="loading"
+              [lazy]="true"
+              (onPage)="onPageChange($event)"
               currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
 
               <ng-template pTemplate="header">
@@ -40,8 +68,7 @@
                   <th>Address</th>
                   <th>Registration Number</th>
                   <th>Relationship Manager</th>
-                  <th>Last Updated By</th>
-                  <th>Last Updated</th>
+                  <th>Status Mise Demeure</th>
                   <th>Status</th>
                 </tr>
               </ng-template>
@@ -58,9 +85,20 @@
                   <td>{{corporate.niu}}</td>
                   <td>{{corporate.address}}</td>
                   <td>{{corporate.registrationNumber}}</td>
-                  <td>{{corporate.relationshipManagerName || 'Not Assigned'}}</td>
-                  <td>{{corporate.lastUpdatedBy}}</td>
-                  <td>{{corporate.lastUpdatedDate | date:'medium'}}</td>
+                  <td>
+                    <p-tag
+                      [value]="corporate.relationshipManagerName || 'Not Assigned'"
+                      severity="info">                      
+                    </p-tag>
+                   
+                  </td>
+                  <td>
+                      <p-tag
+                       [value]="getMiseEndemeureStatusString(corporate.miseEnDemeureStatus)"
+                       [severity]="colorMiseEnDemeureStatus(corporate.miseEnDemeureStatus)">
+                     </p-tag>
+                  </td>
+                 
                   <td>
                     <p-tag
                       [value]="getStatusString(corporate.corporateStatus)"
@@ -116,6 +154,19 @@
                                 <div class="col-2">
                                   <div class="text-left p-3">{{corporate.createdDate | date:'medium'}}</div>
                                 </div>
+                                     <div class="col-2">
+                                  <div class="text-left p-3 font-bold">Last Updated By</div>
+                                </div>
+                                <div class="col-2">
+                                  <div class="text-left p-3">{{corporate.lastUpdatedBy}}</div>
+                                </div>
+                                <div class="col-2">
+                                  <div class="text-left p-3 font-bold">Last Updated Date</div>
+                                </div>
+                                <div class="col-2">
+                                  <div class="text-left p-3">{{corporate.lastUpdatedDate | date:'medium'}}</div>
+                                </div>
+                                
                                 <div class="col-2">
                                   <div class="text-left p-3 font-bold">Mise En Demeure</div>
                                 </div>
@@ -128,7 +179,7 @@
                                   </div>
                                 </div>
                                   <div class="col-2">
-                                  <div class="text-left p-3 font-bold">Attestation Non Default Apurement</div>
+                                  <div class="text-left p-3 font-bold">Attestation Non Default Apurement (Last run status)</div>
                                 </div>
                                 <div class="col-2">
                                   <div class="text-left p-3">
@@ -161,6 +212,7 @@
                                     <td>{{account.branchCode}}</td>
                                     <td>
                                       <button pButton pRipple
+                                        [disabled]="corporate.corporateStatus === corporateStatus.Delete"
                                         type="button"
                                         icon="pi pi-trash"
                                         class="p-button-rounded p-button-danger p-button-text"
@@ -172,6 +224,7 @@
                               </p-table>
                               <div class="flex justify-content-end mt-2">
                                 <button pButton type="button"
+                                  *ngIf="corporate.corporateStatus !== corporateStatus.Delete"
                                   label="Add Account"
                                   icon="pi pi-plus"
                                   class="p-button-outlined p-button-success"
@@ -202,10 +255,11 @@
                                     <td>{{contact.contactPhone}}</td>
                                     <td>
                                       <button pButton pRipple
+                                        [disabled]="corporate.corporateStatus === corporateStatus.Delete"
                                         type="button"
                                         icon="pi pi-trash"
                                         class="p-button-rounded p-button-danger p-button-text"
-                                        (click)="removeContact(corporate.id, contact.corporateContactId)">
+                                        (click)="removeContact(corporate.id, contact.corporateContactId.value)">
                                       </button>
                                     </td>
                                   </tr>
@@ -213,6 +267,7 @@
                               </p-table>
                               <div class="flex justify-content-end mt-2">
                                 <button pButton type="button"
+                                  *ngIf="corporate.corporateStatus !== corporateStatus.Delete"
                                   label="Add Contact"
                                   icon="pi pi-plus"
                                   class="p-button-outlined p-button-success"
@@ -229,11 +284,13 @@
 
                           <button pButton type="button"
                             class="p-button-outlined p-button-danger"
-
                             icon="pi pi-trash" iconPos="left"
-                            label="Delete"
+                            label="Delete Corporate"
+                            *ngIf="corporate.corporateStatus !== corporateStatus.Delete"
+                            (click)="confirmDeleteCorporate(corporate)"
                             style="margin-right: 25px">
                           </button>
+                          
                           <button pButton type="button"
                             class="p-button-outlined p-button-info"
                             icon="pi pi-download" iconPos="left"
@@ -243,6 +300,7 @@
                             style="margin-right: 10px">
                           </button>
                              <button pButton type="button"
+                             *ngIf="corporate.corporateStatus !== corporateStatus.Delete"
                             class="p-button-outlined p-button-info"
                             icon="pi pi-chevron-down" iconPos="left"
                             label="Request ADNA"
@@ -250,9 +308,10 @@
                             style="margin-right: 10px">
                           </button>
                           <button pButton type="button"
+                            *ngIf="corporate.corporateStatus !== corporateStatus.Delete"
                             class="p-button-outlined p-button-info"
                             icon="pi pi-user" iconPos="left"
-                            label="Assign Manager"
+                            label="Assign RM"
                             (click)="openAssignManagerDialog(corporate)"
                             style="margin-right: 10px">
                           </button>
@@ -355,7 +414,9 @@
 
                 <div class="field col-12">
                   <span class="p-float-label p-input-filled">
-                    <input formControlName="contactName" type="text" id="contactName" pInputText />
+                    <input formControlName="contactName" type="text" 
+                           id="contactName" pInputText
+                           />
                     <label for="contactName">Contact Name</label>
                   </span>
                 </div>
@@ -376,7 +437,8 @@
 
                 <div class="field col-12">
                   <span class="p-float-label">
-                    <textarea formControlName="comment" id="comment" rows="3" pInputTextarea></textarea>
+                    <textarea formControlName="comment" id="comment" rows="4"
+                     style="width:100%"  pInputTextarea></textarea>
                     <label for="comment">Comment</label>
                   </span>
                 </div>
@@ -446,7 +508,7 @@
           </p-dialog>
 
           <!-- Add Assign Manager Dialog -->
-          <p-dialog [(visible)]="assignManagerDialog" [style]="{width: '40vw'}" header="Assign Relationship Manager">
+          <p-dialog [(visible)]="assignManagerDialog" [style]="{width: '40vw', height :'40vh'}" header="Assign Relationship Manager">
             <form [formGroup]="assignManagerForm" (ngSubmit)="assignManager()">
               <div class="grid p-fluid mt-3">
                 <div class="field col-12">
@@ -485,3 +547,11 @@
     </div>
   </div>
 </div>
+
+<swal
+  #dialog_operation_swal
+  title="Delete ?"
+  text="This cannot be undone"
+  icon="question"
+  [showCloseButton]="true">
+</swal>

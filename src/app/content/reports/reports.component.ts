@@ -37,7 +37,6 @@ export class ReportsComponent implements OnInit, OnDestroy {
       reportName: ['', Validators.required],
       reportFormat: [null, Validators.required],
       reportType: [null, Validators.required],
-      currency: ['USD', Validators.required],
       fromDate: [null],
       toDate: [null]
     });

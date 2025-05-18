@@ -1,0 +1,649 @@
+<div class="main-content slit-in-vertical">
+  <div class="container-fluid dashboard-container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card main-card shadow-2">
+          <div class="header">
+            <h4 class="title">Dashboard</h4>
+          </div>
+          <div class="content p-3">
+                <!-- Stats Cards -->
+                <div class="grid row">
+                    <div class="col-3">
+                        <div class="surface-card shadow-2 p-3 border-round h-100">
+                            <div class="flex justify-content-between mb-2">
+                                <div>
+                                    <span class="block text-500 font-medium mb-2">Total DIs/DEs</span>
+                                    <div class="text-900 font-medium text-xl">{{stats?.totalActiveDocuments || 0}}</div>
+                                </div>
+                                <div class="flex align-items-center justify-content-center bg-primary-100 border-round" style="width:2.5rem;height:2.5rem">
+                                    <i class="fa fa-file-text text-primary fa-lg"></i>
+                                </div>
+                            </div>
+                            <span class="text-green-500 font-medium">24 new </span>
+                            <span class="text-500">since 48 hours</span>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="surface-card shadow-2 p-3 border-round h-100">
+                            <div class="flex justify-content-between mb-2">
+                                <div>
+                                    <span class="block text-500 font-medium mb-2">Total Customers</span>
+                                    <div class="text-900 font-medium text-xl">{{stats?.totalCustomers || 0}}</div>
+                                </div>
+                                <div class="flex align-items-center justify-content-center bg-success-100 border-round" style="width:2.5rem;height:2.5rem">
+                                    <i class="fa fa-users text-success fa-lg"></i>
+                                </div>
+                            </div>
+                            <span class="text-green-500 font-medium">5 new </span>
+                            <span class="text-500">this week</span>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="surface-card shadow-2 p-3 border-round h-100">
+                            <div class="flex justify-content-between mb-2">
+                                <div>
+                                    <span class="block text-500 font-medium mb-2">Total Imports/Exports Transactions</span>
+                                    <div class="text-900 font-medium text-xl">{{stats?.totalTransactions || 0}}</div>
+                                </div>
+                                <div class="flex align-items-center justify-content-center bg-warning-100 border-round" style="width:2.5rem;height:2.5rem">
+                                    <i class="fa fa-exchange text-warning fa-lg"></i>
+                                </div>
+                            </div>
+                            <span class="text-green-500 font-medium">18 new </span>
+                            <span class="text-500">since last 48 hours</span>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="surface-card shadow-2 p-3 border-round h-100">
+                            <div class="flex justify-content-between mb-2">
+                                <div>
+                                    <span class="block text-500 font-medium mb-2">Total System Users</span>
+                                    <div class="text-900 font-medium text-xl">{{stats?.totalPendingDocuments || 0}}</div>
+                                </div>
+                                <div class="flex align-items-center justify-content-center bg-danger-100 border-round" style="width:2.5rem;height:2.5rem">
+                                    <i class="fa fa-clock-o text-danger fa-lg"></i>
+                                </div>
+                            </div>
+                            <span class="text-danger-500 font-medium">7 deleted </span>
+                            <span class="text-500">users</span>
+                        </div>
+                    </div>                   
+                </div>
+                <!-- End Stats Cards -->
+                <!-- Transaction Cards -->
+                <div class="grid row ">
+                     <div class="col-8">
+                        <div class="surface-card shadow-2 p-3 border-round">
+                            <div class="card-header bg-transparent border-0 pb-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title text-900 font-medium mb-0">Recent Transactions</h5>
+                                </div>
+                            </div>
+                            <div class="card-body px-0 pb-0 pt-3">
+                                <div class="table-container">
+                                    <table class="table table-hover transactions-table mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th width="10%">ID</th>
+                                                <th width="20%">Customer</th>
+                                                <th width="15%">Amount</th>
+                                                <th width="15%">Type</th>
+                                                <th width="20%">Status</th>
+                                                <th width="20%">Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let transaction of recentTransactions">
+                                                <td><span class="fw-medium">#{{transaction.id}}</span></td>
+                                                <td class="text-truncate" style="max-width: 120px;">{{transaction.customerName}}</td>
+                                                <td><span class="fw-medium">{{transaction.amount | currency}}</span></td>
+                                                <td>{{transaction.type}}</td>
+                                                <td>
+                                                    <span class="badge rounded-pill px-3 py-2"
+                                                        [ngClass]="{
+                                                            'bg-success-subtle text-success': transaction.status === 'Completed',
+                                                            'bg-warning-subtle text-warning': transaction.status === 'Processing',
+                                                            'bg-info-subtle text-info': transaction.status === 'Pending'
+                                                        }">
+                                                        {{transaction.status}}
+                                                    </span>
+                                                </td>
+                                                <td>{{transaction.date | date:'short'}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                 <br/>
+                                 <button class="btn btn-sm btn-primary px-3">View All Import transaction</button>
+                                <button class="btn btn-sm btn-primary px-3" style="margin-left: .5rem;">View All Export transaction</button>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="surface-card shadow-2 p-0 border-round overflow-hidden">
+                           <!-- currencies exchanges rates widget -->
+                           <div class="widget-header">
+                               <div class="widget-title">
+                                   <i class="fa fa-money me-2"></i>
+                                   <p style="margin: 5px;">Currencies Exchange Rates</p>
+                               </div>
+                               <div class="widget-controls">
+                                   <button class="control-button" title="Refresh">
+                                       <i class="fa fa-refresh"></i>
+                                   </button>
+                               </div>
+                           </div>
+                           
+                           <div class="widget-body">
+                               <div class="currency-row">
+                                   <div class="currency-pair">
+                                       <div class="currency-flag">
+                                           <span>$</span>
+                                       </div>
+                                       <div class="currency-info">
+                                           <div class="currency-name">US Dollar</div>
+                                           <div class="currency-code">XAF/USD</div>
+                                       </div>
+                                   </div>
+                                   <div class="exchange-info">
+                                       <span class="exchange-rate">621.43</span>
+                                       <span class="rate-change down">
+                                           <i class="fa fa-caret-down"></i>
+                                           0.48%
+                                       </span>
+                                   </div>
+                               </div>
+                               
+                               <div class="currency-row">
+                                   <div class="currency-pair">
+                                       <div class="currency-flag">
+                                           <span>€</span>
+                                       </div>
+                                       <div class="currency-info">
+                                           <div class="currency-name">Euro</div>
+                                           <div class="currency-code">XAF/EUR</div>
+                                       </div>
+                                   </div>
+                                   <div class="exchange-info">
+                                       <span class="exchange-rate">655.96</span>
+                                       <span class="rate-change up">
+                                           <i class="fa fa-caret-up"></i>
+                                           0.12%
+                                       </span>
+                                   </div>
+                               </div>
+                               
+                               <div class="currency-row">
+                                   <div class="currency-pair">
+                                       <div class="currency-flag">
+                                           <span>£</span>
+                                       </div>
+                                       <div class="currency-info">
+                                           <div class="currency-name">British Pound</div>
+                                           <div class="currency-code">XAF/GBP</div>
+                                       </div>
+                                   </div>
+                                   <div class="exchange-info">
+                                       <span class="exchange-rate">788.80</span>
+                                       <span class="rate-change down">
+                                           <i class="fa fa-caret-down"></i>
+                                           0.26%
+                                       </span>
+                                   </div>
+                               </div>
+                               
+                               <div class="currency-row">
+                                   <div class="currency-pair">
+                                       <div class="currency-flag">
+                                           <span>¥</span>
+                                       </div>
+                                       <div class="currency-info">
+                                           <div class="currency-name">Japanese Yen</div>
+                                           <div class="currency-code">XAF/JPY</div>
+                                       </div>
+                                   </div>
+                                   <div class="exchange-info">
+                                       <span class="exchange-rate">4.03</span>
+                                       <span class="rate-change up">
+                                           <i class="fa fa-caret-up"></i>
+                                           0.33%
+                                       </span>
+                                   </div>
+                               </div>
+                               
+                               <div class="currency-row">
+                                   <div class="currency-pair">
+                                       <div class="currency-flag">
+                                           <span>Fr</span>
+                                       </div>
+                                       <div class="currency-info">
+                                           <div class="currency-name">Swiss Franc</div>
+                                           <div class="currency-code">XAF/CHF</div>
+                                       </div>
+                                   </div>
+                                   <div class="exchange-info">
+                                       <span class="exchange-rate">693.60</span>
+                                       <span class="rate-change up">
+                                           <i class="fa fa-caret-up"></i>
+                                           0.15%
+                                       </span>
+                                   </div>
+                               </div>
+                           </div>
+                           
+                           <div class="widget-footer">
+                               <div class="last-updated">Last updated: Apr 25, 2025</div>
+                               <button class="action-button">View All Rates</button>
+                           </div>
+                           <!-- end currencies exchanges rates widget -->
+                        </div>
+                    </div>
+                    
+                </div>
+
+                <!-- Document Status and Recent Transactions -->
+                <div class="grid row">
+                   
+                    <div class="col-8">
+                        <div class="surface-card shadow-2 p-3 border-round">
+                            <div class="card-header bg-transparent border-0 pb-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title text-900 font-medium mb-0">Transactions Trends</h5>
+                                    <div class="chart-actions">
+                                        <button class="btn btn-sm btn-outline-secondary me-2">Weekly</button>
+                                        <button class="btn btn-sm btn-outline-secondary">Monthly</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body pt-3">
+                                <canvas baseChart
+                                    [options]="lineChartOptions"
+                                    [data]="lineChartData"
+                                    [type]="'line'"
+                                    height="300">
+                                </canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="surface-card shadow-2 p-3 border-round">
+                            <div class="card-header bg-transparent border-0 pb-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title text-900 font-medium mb-0">Transactions Status</h5>
+                                    <button class="btn btn-sm btn-light" title="Refresh">
+                                        <i class="fa fa-refresh"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body pt-3">
+                             <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="d-flex align-items-center">
+                                        <span class="text-success  align-items-center" >Import Transactions</span>
+                                </div>    
+                                <canvas baseChart
+                                    [type]="'pie'"
+                                    [data]="documentStatusChartData"
+                                    height="260">
+                                </canvas>
+                            </div>
+                             <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-danger">Export Transactions</span>
+                                <canvas baseChart
+                                    [type]="'pie'"
+                                    [data]="documentStatusChartData"
+                                    height="260">
+                                </canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            
+            
+         </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.dashboard-container {
+  padding: 1.5rem 0;
+}
+
+.main-card {
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.shadow-2 {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
+}
+
+.border-round {
+  border-radius: 0.5rem !important;
+}
+
+.header {
+  padding: 1.25rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.header .title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0;
+}
+
+.surface-card {
+  background: #ffffff;
+  border: none;
+  height: 100%;
+}
+
+.text-500 {
+  color: #6c757d !important;
+}
+
+.text-900 {
+  color: #343a40 !important;
+}
+
+.font-medium {
+  font-weight: 500 !important;
+}
+
+.text-xl {
+  font-size: 1.25rem !important;
+}
+
+.flex {
+  display: flex !important;
+}
+
+.justify-content-between {
+  justify-content: space-between !important;
+}
+
+.align-items-center {
+  align-items: center !important;
+}
+
+.bg-primary-100 {
+  background-color: rgba(13, 110, 253, 0.1) !important;
+}
+
+.bg-success-100 {
+  background-color: rgba(25, 135, 84, 0.1) !important;
+}
+
+.bg-warning-100 {
+  background-color: rgba(255, 193, 7, 0.1) !important;
+}
+
+.bg-danger-100 {
+  background-color: rgba(220, 53, 69, 0.1) !important;
+}
+
+.text-green-500 {
+  color: #10b981 !important;
+}
+
+.text-danger-500 {
+  color: #ef4444 !important;
+}
+
+.card-header {
+  background: transparent;
+  border-bottom: none;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.card-body {
+  padding: 1rem;
+}
+
+.transactions-table th, 
+.transactions-table td {
+  padding: 0.75rem 0.5rem;
+  vertical-align: middle;
+}
+
+.table-light {
+  background-color: #f8f9fa;
+}
+
+.badge.rounded-pill {
+  font-weight: 500;
+}
+
+.bg-success-subtle {
+  background-color: rgba(25, 135, 84, 0.1) !important;
+}
+
+.bg-warning-subtle {
+  background-color: rgba(255, 193, 7, 0.1) !important;
+}
+
+.bg-info-subtle {
+  background-color: rgba(13, 202, 240, 0.1) !important;
+}
+
+.text-success {
+  color: #198754 !important;
+}
+
+.text-warning {
+  color: #ffc107 !important;
+}
+
+.text-info {
+  color: #0dcaf0 !important;
+}
+
+/* Currency Exchange Widget Styles */
+.widget-header {
+  padding: 16px 20px;
+  background-color: var(--bs-primary);
+  color: rgb(26, 22, 22);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.widget-title {
+  font-size: 16px;
+  /* font-weight: 600; */
+  display: flex;
+  align-items: center;
+}
+
+.widget-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.control-button {
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.control-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.widget-body {
+  padding: 0;
+}
+
+.currency-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  transition: background-color 0.15s;
+}
+
+.currency-row:hover {
+  background-color: rgba(0,0,0,0.02);
+}
+
+.currency-pair {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.currency-flag {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0,0,0,0.05);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.currency-flag span {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.currency-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.currency-name {
+  font-weight: 500;
+  color: #343a40;
+  font-size: 14px;
+}
+
+.currency-code {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.exchange-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.exchange-rate {
+  font-weight: 600;
+  font-size: 16px;
+  color: #343a40;
+}
+
+.rate-change {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  border-radius: 12px;
+  padding: 2px 8px;
+  margin-top: 4px;
+}
+
+.up {
+  color: #10b981;
+  background-color: rgba(16, 185, 129, 0.1);
+}
+
+.down {
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.widget-footer {
+  padding: 12px 20px;
+  background-color: rgba(0,0,0,0.02);
+  border-top: 1px solid rgba(0,0,0,0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.last-updated {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.action-button {
+  padding: 6px 12px;
+  background-color: var(--bs-primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.action-button:hover {
+  background-color: #0b5ed7;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+/* Transaction table styling */
+.table-container {
+  max-height: 340px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.table-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.transactions-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.transactions-table th, 
+.transactions-table td {
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+</style>

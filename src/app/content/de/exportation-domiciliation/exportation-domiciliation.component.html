@@ -1,0 +1,191 @@
+<div class="main-content slit-in-vertical">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="header">
+            <h4 class="title">Export Domiciliation Management</h4>
+          </div>
+
+          <div class="content">
+            <p-fieldset legend="Menu">
+              <div class="grid">
+                <div class="col-10">
+                  <form [formGroup]="searchForm" (ngSubmit)="onSearch()" class="grid p-fluid">
+                    <div class="col-2">
+                      <span class="p-float-label">
+                        <input pInputText formControlName="eForceReference" />
+                        <label>eForce Reference</label>
+                      </span>
+                    </div>
+                    <div class="col-2">
+                      <span class="p-float-label">
+                        <input pInputText formControlName="clientName" />
+                        <label>Client Name</label>
+                      </span>
+                    </div>
+                    <div class="col-2">
+                      <span class="p-float-label">
+                        <input pInputText formControlName="domiciliationReference" />
+                        <label>Domiciliation Reference</label>
+                      </span>
+                    </div>
+                    <div class="col-2">
+                      <span class="p-float-label">
+                        <p-calendar formControlName="startDate" [showIcon]="true"></p-calendar>
+                        <label>Start Date</label>
+                      </span>
+                    </div>
+                    <div class="col-2">
+                      <span class="p-float-label">
+                        <p-calendar formControlName="endDate" [showIcon]="true"></p-calendar>
+                        <label>End Date</label>
+                      </span>
+                    </div>
+                    <div class="col-1">
+                      <button pButton type="submit" icon="pi pi-search" [disabled]="loading"></button>
+                    </div>
+                    <div class="col-1">
+                      <button pButton type="button" icon="pi pi-refresh" class="p-button-secondary" (click)="resetSearch()">
+                      </button>
+                    </div>
+                  </form>
+                </div>
+                <div class="col-2" style="text-align: right">
+                  <p-fileUpload mode="basic" chooseLabel="Import DE" [auto]="true" accept=".xlsx,.xls" [maxFileSize]="1000000"
+                    (onSelect)="handleFileInput($event)" styleClass="p-button-outlined p-button-success">
+                  </p-fileUpload>
+                </div>
+              </div>
+            </p-fieldset>
+
+            <br />
+            <hr />
+            <p-table [value]="des" styleClass="p-datatable-striped p-datatable-gridlines"
+              [expandedRowKeys]="expandedRows"
+              dataKey="eForceReference" [totalRecords]="totalRecords" [rows]="pageSize" [paginator]="true" [showCurrentPageReport]="true"
+              [loading]="loading" [lazy]="true"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" (onPage)="onPageChange($event)">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th scope="col" style="width: 3rem"></th>
+                  <th scope="col">eForce Reference</th>
+                  <th scope="col">Provider</th>
+                  <th scope="col">Buyer</th>
+                  <th scope="col">Domiciliation Reference</th>
+                  <th scope="col">Domiciliation Date</th>
+                  <th scope="col">FOB Value (CFA)</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Modified</th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-de let-expanded="expanded">
+                <tr>
+                  <td>
+                    <button type="button" pButton pRipple [pRowToggler]="de"
+                      class="p-button-text p-button-rounded p-button-plain"
+                      [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                  </td>
+                  <td>{{ de.eForceReference }}</td>
+                  <td>{{ de.provider }}</td>
+                  <td>{{ de.buyer }}</td>
+                  <td>{{ de.domiciliationReference }}</td>
+                  <td>{{ de.domiciliationDate | date : "medium" }}</td>
+                  <td>{{ de.fobValueCfa | number:'1.2-2' }}</td>
+                  <td>
+                    <p-tag [value]="getDEStatusString(de.deStatus)" [severity]="colorStatus(de.deStatus)">
+                    </p-tag>
+                  </td>
+                  <td>
+                    <p-tag [value]="de.hasDataBeingModified ? 'Yes' : 'No'"
+                      [severity]="de.hasDataBeingModified ? 'danger' : 'success'">
+                    </p-tag>
+                  </td>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="rowexpansion" let-de>
+                <tr>
+                  <td colspan="9">
+                    <div class="p-grid p-nogutter">
+                      <div class="p-col-12">
+                        <div class="grid">
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">Client</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{ de.clientNameFromBook }}</div>
+                          </div>
+                          
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">Creation Date</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{ de.requestDate | date : "medium" }}</div>
+                          </div>
+
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">Provider</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{ de.provider }}</div>
+                          </div>
+
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">Bank</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{ de.bank }}</div>
+                          </div>
+
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">Place of Destination</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{ de.placeOfDestination }}</div>
+                          </div>
+
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">Corporate/Individual</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{ de.corporateOrIndividual }}</div>
+                          </div>
+
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">Message</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{ de.message }}</div>
+                          </div>
+
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">Created By</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{ de.createdBy }}</div>
+                          </div>
+
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">Created Date</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{ de.createdDate | date : "medium" }}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<swal #dialog_operation_swal title="Success" text="Operation completed successfully" icon="success">
+</swal>

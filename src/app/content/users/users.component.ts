@@ -22,7 +22,7 @@ export class UsersComponent implements OnInit {
   isSubmitted = false;
   totalRows: number = 0;
   currentPage: number = 1;
-  pageSize: number = 10;
+  pageSize: number = 15;
 
   @ViewChild('dialog_operation_swal')
   public readonly dialog_operation_swal!: SwalComponent;

@@ -25,11 +25,11 @@
               styleClass="p-datatable-striped p-datatable-gridlines"
               [expandedRowKeys]="expandedRows"
               dataKey="documentId"
-              [totalRecords]="totalRows"
-              [rows]="50"
               [paginator]="true"
+              [rows]="15"
               [showCurrentPageReport]="true"
-              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+              [totalRecords]="totalRows">
 
               <ng-template pTemplate="header">
                 <tr>
@@ -77,10 +77,10 @@
                       <div class="p-col-12">
                         <div class="grid">
                           <div class="col-2">
-                            <div class="text-left p-3 font-bold">ID</div>
+                            <div class="text-left p-3 font-bold">Document Name</div>
                           </div>
                           <div class="col-2">
-                            <div class="text-left p-3">{{doc.documentId}}</div>
+                            <div class="text-left p-3">{{doc.documentNameFr}}</div>
                           </div>
                           <div class="col-2">
                             <div class="text-left p-3 font-bold">Document Status</div>
@@ -113,6 +113,13 @@
                           <div class="col-2">
                             <div class="text-left p-3">{{doc.lastModifyBy}}</div>
                           </div>
+
+                           <div class="col-2">
+                            <div class="text-left p-3 font-bold">Last Updated</div>
+                          </div>
+                          <div class="col-2">
+                            <div class="text-left p-3">{{doc.lastUpdatedDate | date:'medium'}}</div>
+                          </div>
                         </div>
                       </div>
                       <br/>
@@ -120,34 +127,30 @@
                         <hr/>
                         <div class="flex flex-row-reverse flex-wrap">
                           <button pButton type="button"
+                            *ngIf="doc.documentStatus !== DocumentStatus.Delete"
                             class="p-button-outlined p-button-danger"
-
+                            (click)="deleteDocument(doc.documentId)"
                             icon="pi pi-trash" iconPos="left"
-                            label="Delete"
+                            label="Delete Document"
                             style="margin-right: 25px">
                           </button>
-
-                            <button pButton type="button"
+                         
+                          <button pButton type="button"
                               class="p-button-outlined p-button-info"
                               icon="pi pi-eye" iconPos="left"
-                              label="View Controls"
+                              label="View Controls On Document"
                               (click)="openDocumentControlsDialog(doc)"
-                              style="margin-right: 10px">
-                            </button>
-                              <button pButton type="button"
-                            label="Add Control"
-                            icon="pi pi-plus"
-                            (click)="openAddControlDialog(doc!)"
-
-                            class="p-button-outlined p-button-success"
                               style="margin-right: 10px">
                           </button>
                           <button pButton type="button"
-                            class="p-button-outlined"
-                            icon="pi pi-pencil" iconPos="left"
-                            label="Edit"
-                            style="margin-right: 25px">
+                            *ngIf="doc.documentStatus !== DocumentStatus.Delete"
+                            label="Add New Control To Documents"
+                            icon="pi pi-plus"
+                            (click)="openAddControlDialog(doc!)"
+                            class="p-button-outlined p-button-success"
+                            style="margin-right: 10px">
                           </button>
+                         
                         </div>
                       </div>
                     </div>
@@ -155,9 +158,12 @@
                 </tr>
               </ng-template>
             </p-table>
-          </div>
 
-          <p-dialog [(visible)]="documentDialog" [style]="{width: '50vw'}">
+              <!--  Create Document Dialog -->
+          <p-dialog [(visible)]="documentDialog" 
+                    [style]="{width: '50vw', height: '50vh'}" 
+                    [position]="'top'">
+                    
             <ng-template pTemplate="header">
               <div class="text-center">
                 <h3 class="title">Create Document</h3>
@@ -191,17 +197,8 @@
                   </span>
                 </div>
 
-                <div class="field col-12">
-                  <div class="flex align-items-center">
-                    <p-checkbox formControlName="documentOriginalRequired"
-
-                      inputId="documentOriginalRequired">
-                    </p-checkbox>
-                    <label for="documentOriginalRequired" class="ml-2">Original Required</label>
-                  </div>
-                </div>
-
-                <div class="field col-12">
+                <div class="field col-10"></div>
+                <div class="field col-2">
                   <button pButton type="submit"
                     class="p-button-outlined p-button-success"
                     [label]="isSubmitted ? 'Submitting...' : 'Save'"
@@ -214,9 +211,10 @@
             </form>
           </p-dialog>
 
-          <!-- Document Controls Dialog -->
-          <p-dialog [(visible)]="documentControlsDialog" [style]="{width: '60vw'}" [modal]="true"
-            [header]="'Document Controls - ' + (selectedDocument?.documentNameFr || '')">
+          <!-- View Document Controls Dialog -->
+          <p-dialog [(visible)]="documentControlsDialog" [style]="{width: '60vw'}"
+                    [modal]="true"
+                    [header]="'Document Controls - ' + (selectedDocument?.documentNameFr || '')">
 
            <br/>
            <br/>
@@ -240,6 +238,7 @@
                   </td>
                   <td>
                     <button pButton type="button"
+                      *ngIf="statusOfDocumentBeingControls !== DocumentStatus.Delete"
                       class="p-button-outlined p-button-danger"
                       icon="pi pi-trash"
                       (click)="removeDocumentControl(selectedDocument!.documentId, control.documentControlId)">
@@ -260,8 +259,10 @@
           </p-dialog>
 
           <!-- Add Control Dialog -->
-          <p-dialog [(visible)]="addControlDialog" [style]="{width: '60vw' }"
-                   [modal]="true" header="Add Document Control">
+          <p-dialog [(visible)]="addControlDialog" 
+                   [style]="{width: '60vw', height: '50vh'}" 
+                   [modal]="true" 
+                   header="Add Document Control">
             <br/>
             <br/>
             <form [formGroup]="createControlForm" (ngSubmit)="addDocumentControl()">
@@ -304,6 +305,9 @@
               </div>
             </form>
           </p-dialog>
+          </div>
+
+        
         </div>
       </div>
     </div>

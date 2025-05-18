@@ -3,13 +3,14 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DocumentationService } from '../../services/documentation.service';
 import { AppurementRequired, TransactionDirection, TransactionTypeResponse, TransactionTypeStatus } from '../../models/transaction-type.models';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
-import { DocumentResponse, DocumentSubmissionOption } from '../../models/document.models';
+import { DocumentResponse, DocumentStatus, DocumentSubmissionOption } from '../../models/document.models';
 
 @Component({
   selector: 'app-transaction-type',
   templateUrl: './transaction-type.component.html'
 })
 export class TransactionTypeComponent implements OnInit {
+  readonly TransactionTypeStatus = TransactionTypeStatus;
   transactionTypes: TransactionTypeResponse[] = [];
   transactionTypeDialog = false;
   createTransactionTypeForm: FormGroup;
@@ -24,8 +25,13 @@ export class TransactionTypeComponent implements OnInit {
   viewDocumentsDialog = false;
   transactionDocuments: DocumentResponse[] = [];
   expandedRows: { [key: string]: boolean } = {};
-  transactionDirections = Object.values(TransactionDirection).filter(value => typeof value === 'number');
-  appurementRequiredOptions = Object.values(AppurementRequired).filter(value => typeof value === 'number');
+  transactionDirections = Object.values(TransactionDirection)
+                               .filter(value => typeof value === 'number')
+                               .map(value => ({ label: TransactionDirection[value as number], value: value }));
+ 
+  appurementRequiredOptions = Object.values(AppurementRequired)
+                                    .filter(value => typeof value === 'number')
+                                    .map(value => ({ label: AppurementRequired[value as number], value: value }));
 
   @ViewChild('dialog_operation_swal')
   private dialogOperationSwal!: SwalComponent;
@@ -67,17 +73,27 @@ export class TransactionTypeComponent implements OnInit {
   }
 
   openDocumentsDialog(transactionType: TransactionTypeResponse) {
+
+    this.loadAllDocuments();
+
     this.selectedTransactionType = transactionType;
+
     this.sourceDocuments = this.allDocuments.filter(doc =>
       !transactionType.documentsRequestedList.includes(doc?.documentId)
+      && doc.documentStatus === DocumentStatus.Active
     );
+
     this.targetDocuments = this.allDocuments.filter(doc =>
       transactionType.documentsRequestedList.includes(doc?.documentId)
     );
+
     this.documentsDialog = true;
   }
 
   openViewTransactionDocumentsListDialog(transactionType: TransactionTypeResponse) {
+
+    this.loadAllDocuments();
+
     this.selectedTransactionType = transactionType;
 
     console.log('transactionType:', transactionType);
@@ -101,6 +117,13 @@ export class TransactionTypeComponent implements OnInit {
             this.loadTransactionTypes(); // Refresh the list
           },
           error: (err) => {
+               this.dialogOperationSwal.update({
+              icon: 'error',
+              title: 'Error',
+              text: err?.error?.detail
+            });
+            this.dialogOperationSwal.fire();
+
             console.error('Error updating documents:', err);
             // Handle error (maybe show an error message)
           }
@@ -146,7 +169,16 @@ export class TransactionTypeComponent implements OnInit {
     return TransactionTypeStatus[status];
   }
   getSubmissionOptionString(status: DocumentSubmissionOption): string {
-    return DocumentSubmissionOption[status];
+   switch (status) {
+      case DocumentSubmissionOption.SubmissionBeforeProcessing:
+        return 'Submission Before Processing';
+      case DocumentSubmissionOption.SubmissionAfterProcessing:
+        return 'Submission After Processing';
+      case DocumentSubmissionOption.DoNotMatters:
+        return 'Do Not Matter';
+      default:
+        return 'Unknown';
+    }
   }
 
   colorSubmissionOption(status: DocumentSubmissionOption): string {
@@ -159,11 +191,74 @@ export class TransactionTypeComponent implements OnInit {
         return 'info';
     }
   }
+
+  colorAppurement(status : AppurementRequired)
+  {
+    switch(status) {
+      case AppurementRequired.Yes:
+        return 'success';
+      case AppurementRequired.No:
+        return 'danger';
+      default:
+        return 'info';
+    }
+  }
+  colorDirection(status : TransactionDirection )
+  {
+     
+    switch(status) {
+      case TransactionDirection.Exportation:
+        return 'info';
+      case TransactionDirection.Importation:
+        return 'success';
+      default:
+        return 'info';
+    }
+  }
+
+   colorDocumentStatus(status: DocumentStatus): string {
+    switch (status) {
+      case DocumentStatus.Active:
+        return 'success';
+      case DocumentStatus.Suspended:
+        return 'warning';
+      case DocumentStatus.Delete:
+        return 'danger';
+      default:
+        return 'info';
+    }
+  }
+
+  getDocumentStatusString(direction: DocumentStatus): string {
+    return DocumentStatus[direction];
+  }
+
   getTransactionDirectionString(direction: TransactionDirection): string {
     return TransactionDirection[direction];
   }
 
   getAppurementRequiredString(appurement: AppurementRequired): string {
     return AppurementRequired[appurement];
+  }
+
+  deleteTransactionType(transactionTypeId: string) {
+    this.dialogOperationSwal.fire().then((result) => {
+      if (result.isConfirmed) {
+        this.documentationService.deleteTransactionType(transactionTypeId).subscribe({
+          next: () => {
+            this.loadTransactionTypes(); // Refresh the list
+          },
+          error: (err) => {
+            this.dialogOperationSwal.update({
+              icon: 'error',
+              title: 'Error',
+              text: err?.error?.detail
+            });
+            this.dialogOperationSwal.fire();
+            console.error('Error deleting transaction type:', err);
+          }
+        });
+      }
+    });
   }
 }

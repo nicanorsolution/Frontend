@@ -55,7 +55,7 @@ B70i9Ku7K7hkcNbf/QIDAQAB
       otp: this.loginForm.value.token
     }).subscribe((res) => {
       console.log('login success then renavigate', res);
-      this.route.navigate(['/admin/transaction/view-transaction']);
+      this.route.navigate(['/admin/dashboard']);
 
     }, (error) => {
       this.errorMessages = "Invalid Username or password or token";

@@ -1,0 +1,73 @@
+/* $border-color: rgba(black, .3);
+
+// ...existing timeline styles from documentation-transaction.component.scss...
+
+.scroller-activity {
+  width: auto;
+  padding-left: 5px;
+  max-height: 50vh;
+  overflow-y: scroll;
+  scrollbar-color: rgb(244, 102, 7) rgb(206, 210, 206);
+  scrollbar-width: thin;
+}
+
+.selected-row {
+  background-color: #e3f2fd !important;
+}
+
+// ...rest of existing styles...
+ */
+ 
+$border-color: rgba(black, .3);
+
+.timeline-item {
+  padding: 3em 2em 2em;
+  position: relative;
+  color: rgba(black, .7);
+  border-left: 2px solid $border-color;
+  margin-left: 0;
+
+  p {
+    font-size: 1rem;
+  }
+
+  &::before {
+    content: attr(date-is);
+    position: absolute;
+    left: 2em;
+    font-weight: bold;
+    top: 1em;
+    display: block;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    font-size: .985rem;
+  }
+
+  &::after {
+    width: 10px;
+    height: 10px;
+    display: block;
+    top: 1em;
+    position: absolute;
+    left: -7px;
+    border-radius: 10px;
+    content: '';
+    border: 2px solid $border-color;
+    background: white;
+  }
+
+  &:last-child {
+    border-image: linear-gradient(to bottom,
+        $border-color 60%,
+        rgba($border-color, 0)) 1 100%;
+  }
+}
+
+.scroller-activity {
+  width: auto;
+  padding-left: 5px;
+  max-height: 50vh;
+  overflow-y: scroll;
+  scrollbar-color: rgb(244, 102, 7) rgb(206, 210, 206);
+  scrollbar-width: thin;
+}

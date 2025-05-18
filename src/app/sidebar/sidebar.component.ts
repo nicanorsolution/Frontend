@@ -10,14 +10,28 @@ declare interface RouteInfo {
     roles : string[];
 }
 export const ROUTES: RouteInfo[] = [
+    {
+    path: '/admin/dashboard', title: 'Dashboard', icon: 'pe-7s-graph', class: '', roles: [RolePermissions.AdministratorRole, RolePermissions.SuperAdministratorRole,
+    RolePermissions.AuditControlRole, RolePermissions.OperationRole, RolePermissions.ChannelUserRole,
+    ]
+  },
   {
     path: '/admin/transaction/create-transaction', title: 'New Transaction', icon: 'pe-7s-play', class: '', roles: [RolePermissions.AdministratorRole, RolePermissions.SuperAdministratorRole,
     RolePermissions.AuditControlRole, RolePermissions.OperationRole, RolePermissions.ChannelUserRole,
     ]
   },
-
   {
     path: '/admin/transaction/view-transaction', title: 'View Transactions', icon: 'pe-7s-search', class: '', roles: [RolePermissions.AdministratorRole, RolePermissions.SuperAdministratorRole,
+    RolePermissions.AuditControlRole, RolePermissions.OperationRole, RolePermissions.ChannelUserRole,
+    ]
+  },
+  {
+    path: '/admin/exportations/create-exportation', title: 'New Exportation', icon: 'pe-7s-upload', class: '', roles: [RolePermissions.AdministratorRole, RolePermissions.SuperAdministratorRole,
+    RolePermissions.AuditControlRole, RolePermissions.OperationRole, RolePermissions.ChannelUserRole,
+    ]
+  },
+  {
+    path: '/admin/exportations/view-exportations', title: 'View Exportations', icon: 'pe-7s-display2', class: '', roles: [RolePermissions.AdministratorRole, RolePermissions.SuperAdministratorRole,
     RolePermissions.AuditControlRole, RolePermissions.OperationRole, RolePermissions.ChannelUserRole,
     ]
   },
@@ -72,6 +86,11 @@ export const ROUTES: RouteInfo[] = [
 
   {
     path: '/admin/di/di', title: 'Import Domiciliation', icon: 'pe-7s-info', class: '', roles: [RolePermissions.AdministratorRole, RolePermissions.SuperAdministratorRole,
+    RolePermissions.AuditControlRole, RolePermissions.OperationRole, RolePermissions.ChannelUserRole,
+    ]
+  },
+  {
+    path: '/admin/de/de', title: 'Export Domiciliation', icon: 'pe-7s-info', class: '', roles: [RolePermissions.AdministratorRole, RolePermissions.SuperAdministratorRole,
     RolePermissions.AuditControlRole, RolePermissions.OperationRole, RolePermissions.ChannelUserRole,
     ]
   },

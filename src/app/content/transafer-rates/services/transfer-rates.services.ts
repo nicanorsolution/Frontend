@@ -1,4 +1,4 @@
-import { CorporateQuery } from './../../customers/models/customer.models';
+import { CorporateQuery, IndividualQuery } from './../../customers/models/customer.models';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
@@ -14,7 +14,8 @@ import {
   CreateSpecialPricingForCorporateCommand,
   DeleteSpecialPricingForCorporateCommand,
   UpdateSpecialPricingForCorporateCommand,
-  CorporateLookupName
+  CorporateLookupName,
+  IndividualLookupName
 } from '../models/transfer-rates.models';
 import { CustomersService } from '../../customers/services/customers.services';
 
@@ -38,6 +39,18 @@ export class TransferRatesService {
     );
   }
 
+  lookupForIndividual(individualName: string) {
+    const query = {
+      name: individualName,
+      pageNumber: 1,
+      pageSize: 10
+    } as IndividualQuery;
+
+    return this.customersService.getIndividuals(query).pipe(
+      map(x => x.items.map(y => ({ individualId: y.id, name: y.name }) as IndividualLookupName))
+    );
+  }
+
   getSpecialPricingForCorporates(corporateId: string): Observable<SpecialPricingForCorporateResponse[]> {
     return this.http.get<SpecialPricingForCorporateResponse[]>(`${this.baseUrl}/corporates/${corporateId}/special-pricing`);
   }
@@ -58,8 +71,8 @@ export class TransferRatesService {
     return this.http.post<void>(`${this.baseUrl}/individual/special-pricing`, command);
   }
 
-  deleteSpecialPricingForIndividual(individualId: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/individual/special-pricing/${individualId}`);
+  deleteSpecialPricingForIndividual(individualId: string, rateId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/individual/special-pricing/${individualId}/${rateId}`);
   }
 
   updateSpecialPricingForIndividual(individualId: string, command: UpdateSpecialPricingForIndividualCommand): Observable<void> {
@@ -70,8 +83,8 @@ export class TransferRatesService {
     return this.http.post<void>(`${this.baseUrl}/corporate/special-pricing`, command);
   }
 
-  deleteSpecialPricingForCorporate(corporateId: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/corporate/special-pricing/${corporateId}`);
+  deleteSpecialPricingForCorporate(corporateId: string,rateId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/corporate/special-pricing/${corporateId}/${rateId}`);
   }
 
   updateSpecialPricingForCorporate(corporateId: string, command: UpdateSpecialPricingForCorporateCommand): Observable<void> {

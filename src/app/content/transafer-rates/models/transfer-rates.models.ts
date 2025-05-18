@@ -2,6 +2,10 @@ export interface CorporateLookupName {
   corporateId: string;
   name: string;
 }
+export interface IndividualLookupName {
+  individualId: string;
+  name: string;
+}
 
 
 export interface StandardTransferRateResponse {
@@ -78,6 +82,7 @@ export interface DeleteSpecialPricingForCorporateCommand {
 
 export interface UpdateSpecialPricingForCorporateCommand {
   corporateId: string;
+  specialRateId: string;
   startDate: Date;
   endDate: Date;
   spreadInPercentage: number;
@@ -102,9 +107,11 @@ export interface DeleteSpecialPricingForIndividualCommand {
 
 export interface UpdateSpecialPricingForIndividualCommand {
   individualId: string;
+  specialRateId: string;
   startDate: Date;
   endDate: Date;
   spreadInPercentage: number;
   commissionInPercentageForNonFinanceTransfer: number;
   commissionInPercentageForFinanceTransfer: number;
 }
+

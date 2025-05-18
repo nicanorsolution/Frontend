@@ -102,11 +102,11 @@
                     <td>{{ rate.quoteCurrency }}</td>
                     <td>{{ rate.startDate | date : "medium" }}</td>
                     <td>{{ rate.endDate | date : "medium" }}</td>
-                    <td>{{ rate.spreadInPercentage | number : "1.2-2" }}%</td>
+                    <td>{{ rate.spreadInPercentage | number : "1.3-3" }}%</td>
                     <td>
                       <p-tag
                         [severity]="rate.isDeleted ? 'danger' : 'success'"
-                        [value]="rate.isDeleted ? 'Inactive' : 'Active'"
+                        [value]="rate.isDeleted ? 'Deleted' : 'Active'"
                       >
                       </p-tag>
                     </td>
@@ -140,20 +140,20 @@
                             <div class="text-left p-3 font-bold">Spread (%)</div>
                           </div>
                           <div class="col-4">
-                            <div class="text-left p-3">{{rate.spreadInPercentage | number:'1.2-2'}}%</div>
+                            <div class="text-left p-3">{{rate.spreadInPercentage | number:'1.3-3'}}%</div>
                           </div>
 
                           <div class="col-2">
                             <div class="text-left p-3 font-bold">Non-Finance Commission</div>
                           </div>
                           <div class="col-4">
-                            <div class="text-left p-3">{{rate.commissionInPercentageForNonFinanceTransfer | number:'1.2-2'}}%</div>
+                            <div class="text-left p-3">{{rate.commissionInPercentageForNonFinanceTransfer | number:'1.3-3'}}%</div>
                           </div>
                           <div class="col-2">
                             <div class="text-left p-3 font-bold">Finance Commission</div>
                           </div>
                           <div class="col-4">
-                            <div class="text-left p-3">{{rate.commissionInPercentageForFinanceTransfer | number:'1.2-2'}}%</div>
+                            <div class="text-left p-3">{{rate.commissionInPercentageForFinanceTransfer | number:'1.3-3'}}%</div>
                           </div>
                         </div>
                         <hr />
@@ -194,9 +194,9 @@
 <p-dialog
   [(visible)]="specialRateDialog"
   [style]="{ width: '50vw' }"
-  header="Create Special Corporate Rate"
+  [header]="isUpdateMode ? 'Update Special Corporate Rate' : 'Create Special Corporate Rate'"
 >
-  <form [formGroup]="createSpecialRateForm" (ngSubmit)="createSpecialRate()">
+  <form [formGroup]="createSpecialRateForm" (ngSubmit)="onDialogSubmit()">
     <div class="grid p-fluid mt-3">
       <!-- Corporate Selection -->
       <div class="field col-12">
@@ -263,8 +263,8 @@
             formControlName="spreadInPercentage"
             [min]="0"
             mode="decimal"
-            [maxFractionDigits]="2"
-            [minFractionDigits]="2"
+            [maxFractionDigits]="3"
+            [minFractionDigits]="3"
             id="spreadInPercentage"
           >
           </p-inputNumber>
@@ -277,8 +277,8 @@
             formControlName="commissionInPercentageForNonFinanceTransfer"
             [min]="0"
             mode="decimal"
-            [maxFractionDigits]="2"
-            [minFractionDigits]="2"
+            [maxFractionDigits]="3"
+            [minFractionDigits]="3"
             id="commissionNonFinance"
           >
           </p-inputNumber>
@@ -291,15 +291,15 @@
             formControlName="commissionInPercentageForFinanceTransfer"
             [min]="0"
             mode="decimal"
-            [maxFractionDigits]="2"
-            [minFractionDigits]="2"
+            [maxFractionDigits]="3"
+            [minFractionDigits]="3"
             id="commissionFinance"
           >
           </p-inputNumber>
           <label for="commissionFinance">Finance Commission (%)</label>
         </span>
       </div>
-      <pre>{{ createSpecialRateForm.value | json }}</pre>
+      <!-- <pre>{{ createSpecialRateForm.value | json }}</pre> -->
       <!-- Submit Button -->
       <div class="field col-12">
         <button
@@ -325,24 +325,4 @@
 >
 </swal>
 
-<!-- Add Update Rate Dialog -->
-<p-dialog
-  [(visible)]="updateRateDialog"
-  [style]="{ width: '50vw' }"
-  header="Update Special Corporate Rate"
->
-  <form [formGroup]="createSpecialRateForm" (ngSubmit)="updateRate()">
-    <!-- ...existing form fields from create dialog... -->
-    <div class="field col-12">
-      <button
-        pButton
-        type="submit"
-        class="p-button-outlined p-button-success"
-        [label]="isSubmitted ? 'Updating...' : 'Update'"
-        [icon]="isSubmitted ? 'pi pi-spinner pi-spin' : 'pi pi-save'"
-        iconPos="left"
-        [disabled]="createSpecialRateForm.invalid || isSubmitted"
-      ></button>
-    </div>
-  </form>
-</p-dialog>
+

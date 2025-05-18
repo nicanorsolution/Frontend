@@ -9,12 +9,38 @@
 
           <div class="content">
             <p-fieldset legend="Menu">
-              <div class="inline-block m-2" style="float: right;">
-                <button pButton label="New Individual"
+              <div class="grid">
+                <div class="col-8">
+                  <form [formGroup]="searchForm" (ngSubmit)="searchIndividuals()" class="flex gap-2">
+                    <span class="p-input-icon-left flex-grow-1">
+                      <i class="pi pi-search"></i>
+                      <input
+                        type="text"
+                        pInputText
+                        formControlName="searchTerm"
+                        placeholder="Search Individuals..."
+                        class="w-full"
+                      />
+                    </span>
+                    <button
+                      pButton
+                      type="submit"
+                      label="Search"
+                      icon="pi pi-search"
+                      class="p-button-outlined"
+                    ></button>
+                  </form>
+                </div>
+                <div class="col-4">
+                  <div class="flex justify-content-end">
+                  <button pButton label="New Individual"
                   class="p-button-outlined p-button-success"
                   (click)="openAddIndividualDialog()"
                   icon="pi pi-plus" iconPos="left">
-                </button>
+                  </button>
+                  </div>
+                </div>
+
               </div>
             </p-fieldset>
             <br />
@@ -29,6 +55,8 @@
               [paginator]="true"
               [showCurrentPageReport]="true"
               [loading]="loading"
+              [lazy]="true"
+              (onPage)="onPageChange($event)"
               currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
 
               <ng-template pTemplate="header">
@@ -39,10 +67,9 @@
                   <th>Email</th>
                   <th>Phone</th>
                   <th>City</th>
-                  <th>Last Updated By</th>
-                  <th>Last Updated</th>
-                  <th>Status</th>
                   <th>Relationship Manager</th>
+                  <th>Status Mise En Demeure</th>
+                  <th>Status</th>
                 </tr>
               </ng-template>
 
@@ -59,15 +86,24 @@
                   <td>{{individual.email}}</td>
                   <td>{{individual.phone}}</td>
                   <td>{{individual.city}}</td>
-                  <td>{{individual.lastUpdatedBy}}</td>
-                  <td>{{individual.lastUpdatedDate | date:'medium'}}</td>
+                  <td>
+                     <p-tag
+                      [value]="individual.relationshipManagerName || 'Not Assigned'"
+                      severity="info">                      
+                    </p-tag>
+                  </td>
+                  <td>
+                    <p-tag
+                      [value]="getMiseEndemeureStatusString(individual.miseEnDemeureStatus)"
+                      [severity]="colorMiseEnDemeureStatus(individual.miseEnDemeureStatus)">
+                     </p-tag>
+                  </td>
                   <td>
                     <p-tag
                       [value]="getStatusString(individual.individualStatus)"
                       [severity]="colorStatus(individual.individualStatus)">
                     </p-tag>
                   </td>
-                  <td>{{ individual.relationshipManagerName || 'Not Assigned' }}</td>
                 </tr>
               </ng-template>
 
@@ -144,10 +180,22 @@
                               <div class="col-4">
                                 <div class="text-left p-3">{{individual.createdDate | date:'medium'}}</div>
                               </div>
-                                 <div class="col-4">
+                                  <div class="col-2">
+                                <div class="text-left p-3 font-bold">Last Updated By</div>
+                              </div>
+                              <div class="col-4">
+                                <div class="text-left p-3">{{individual.lastUpdatedBy}}</div>
+                              </div>
+                              <div class="col-2">
+                                <div class="text-left p-3 font-bold">Last Update Date</div>
+                              </div>
+                              <div class="col-4">
+                                <div class="text-left p-3">{{individual.lastUpdatedDate | date:'medium'}}</div>
+                              </div>
+                                 <div class="col-2">
                                   <div class="text-left p-3 font-bold">Mise En Demeure</div>
                                 </div>
-                                <div class="col-2">
+                                <div class="col-4">
                                   <div class="text-left p-3">
                                     <p-tag
                                       [value]="getMiseEndemeureStatusString(individual.miseEnDemeureStatus)"
@@ -155,10 +203,10 @@
                                     </p-tag>
                                   </div>
                                 </div>
-                                  <div class="col-4">
-                                  <div class="text-left p-3 font-bold">Attestation Non Default Apurement</div>
+                                  <div class="col-2">
+                                  <div class="text-left p-3 font-bold">Attestation Non Default Apurement (Last run status)</div>
                                 </div>
-                                <div class="col-2">
+                                <div class="col-4">
                                   <div class="text-left p-3">
                                     <p-tag
                                       [value]="getadnaReportStatusString(individual.adnaReportStatus)"
@@ -176,10 +224,10 @@
                         <div class="flex flex-row-reverse flex-wrap">
                           <button pButton type="button"
                             class="p-button-outlined p-button-danger"
-
                             icon="pi pi-trash" iconPos="left"
-                            label="Delete"
-                            (click)="deleteIndividual(individual.id)"
+                            label="Delete Individual"
+                            *ngIf="individual.individualStatus !== individualStatus.Delete"
+                            (click)="confirmDeleteIndividual(individual)"
                             style="margin-right: 25px">
                           </button>
                             <button pButton type="button"
@@ -191,6 +239,7 @@
                             style="margin-right: 10px">
                           </button>
                              <button pButton type="button"
+                              *ngIf="individual.individualStatus !== individualStatus.Delete"
                             class="p-button-outlined p-button-info"
                             icon="pi pi-chevron-down" iconPos="left"
                             label="Request ADNA"
@@ -198,13 +247,22 @@
                             style="margin-right: 10px">
                           </button>
                           <button pButton type="button"
+                           *ngIf="individual.individualStatus !== individualStatus.Delete"
+                            class="p-button-outlined p-button-info"
+                            icon="pi pi-user" iconPos="left"
+                            label="Assign RM"
+                            (click)="openAssignManagerDialog(individual)"
+                            style="margin-right: 10px">
+                          </button>
+                          <button pButton type="button"
+                           *ngIf="individual.individualStatus !== individualStatus.Delete"
                             class="p-button-outlined"
                             icon="pi pi-pencil" iconPos="left"
                             label="Edit"
                             (click)="openEditIndividualDialog(individual)"
                             style="margin-right: 10px">
                           </button>
-                          <ng-container [ngSwitch]="individual.individualStatus">
+                          <!-- <ng-container [ngSwitch]="individual.individualStatus">
                             <button *ngSwitchCase="1" pButton type="button"
                               class="p-button-outlined p-button-warning"
                               icon="pi pi-pause" iconPos="left"
@@ -219,7 +277,7 @@
                               (click)="activateIndividual(individual.id)"
                               style="margin-right: 10px">
                             </button>
-                          </ng-container>
+                          </ng-container> -->
                         </div>
                       </div>
                     </div>
@@ -344,6 +402,41 @@
                 </div>
               </form>
             </p-dialog>
+
+            <!-- Assign Manager Dialog -->
+<p-dialog [(visible)]="assignManagerDialog" [style]="{width: '40vw', height :'40vh'}" header="Assign Relationship Manager">
+  <form [formGroup]="assignManagerForm" (ngSubmit)="assignManager()">
+    <div class="grid p-fluid mt-3">
+      <div class="field col-12">
+        <span class="p-float-label">
+          <p-autoComplete formControlName="relationshipManager"
+            [suggestions]="filteredManagers"
+            (completeMethod)="searchManagers($event)"
+            [dropdown]="true"
+            [forceSelection]="true"
+            [field]="'name'"
+            [style]="{'width':'100%'}"
+            inputId="relationshipManager">
+            <ng-template let-manager pTemplate="item">
+              <div>{{manager.name}} - {{manager.email}}</div>
+            </ng-template>
+          </p-autoComplete>
+          <label for="relationshipManager">Select Manager</label>
+        </span>
+      </div>
+
+      <div class="field col-12">
+        <button pButton type="submit"
+          class="p-button-outlined p-button-success"
+          label="Assign"
+          icon="pi pi-check"
+          iconPos="left"
+          [disabled]="assignManagerForm.invalid">
+        </button>
+      </div>
+    </div>
+  </form>
+</p-dialog>
           </div>
         </div>
       </div>

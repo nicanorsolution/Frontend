@@ -25,6 +25,7 @@ import { TagModule } from 'primeng/tag';
     AppComponent,
     AdminLayoutComponent,
     LoginComponent
+   
   ],
   imports: [
     BrowserModule,

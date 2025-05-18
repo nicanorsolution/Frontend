@@ -29,8 +29,9 @@ export class SpecialCorporateRatesComponent implements OnInit {
   currencies: string[] = []; // Add other currencies as needed
 
   expandedRows: { [key: string]: boolean } = {};
-  updateRateDialog = false;
+ 
   selectedRate: SpecialPricingForCorporateResponse | null = null;
+  isUpdateMode = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -92,6 +93,7 @@ export class SpecialCorporateRatesComponent implements OnInit {
   }
 
   openCreateSpecialRateDialog(): void {
+    this.isUpdateMode = false;
     this.createSpecialRateForm.reset({
       baseCurrency: 'XAF',
       quoteCurrency: 'EUR'
@@ -131,32 +133,82 @@ export class SpecialCorporateRatesComponent implements OnInit {
         next: () => {
           this.isSubmitted = false;
           this.specialRateDialog = false;
-          this.dialogOperationSwal.fire();
-          if (this.selectedCorporate) {
-            this.searchSpecialRates();
-          }
-        },
-        error: () => this.isSubmitted = false
-      });
-  }
 
-  deleteRate(rate: SpecialPricingForCorporateResponse): void {
-    this.loading = true;
-    this.transferRatesService.deleteSpecialPricingForCorporate(rate.id)
-      .subscribe({
-        next: () => {
+            this.dialogOperationSwal.update({
+           title: 'Success',
+            text: 'Special rate updated successfully',
+            icon: 'success',
+           confirmButtonText: 'OK'
+          });
           this.dialogOperationSwal.fire();
+
           if (this.selectedCorporate) {
             this.searchSpecialRates();
           }
         },
-        complete: () => {
-          this.loading = false;
+        error: (err : any) => {
+          this.isSubmitted = false;
+
+           this.dialogOperationSwal.update({
+           title: 'Error',
+           text: `${err?.error?.status}: ${err?.error?.detail}`,
+           icon: 'error',
+           confirmButtonText: 'OK'
+          });
+
+          this.dialogOperationSwal.fire();
         }
       });
   }
 
+  deleteRate(rate: SpecialPricingForCorporateResponse): void {
+    this.dialogOperationSwal.update({
+      title: 'Are you sure?',
+      text: `Do you want to delete the special rate for ${rate.corporateName}?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it',
+      cancelButtonText: 'No, keep it'
+    });
+
+    this.dialogOperationSwal.fire().then((result) => {
+      if (result.isConfirmed) {
+        this.loading = true;
+        this.transferRatesService.deleteSpecialPricingForCorporate(rate.corporateId, rate.id)
+          .subscribe({
+            next: () => {
+              this.dialogOperationSwal.update({
+                title: 'Success',
+                text: 'Special rate deleted successfully',
+                icon: 'success',
+                showCancelButton: false,
+                confirmButtonText: 'OK'
+              });
+              this.dialogOperationSwal.fire();
+              if (this.selectedCorporate) {
+                this.searchSpecialRates();
+              }
+            },
+            error: (err) => {
+              this.dialogOperationSwal.update({
+                title: 'Error',
+                text: `${err?.error?.status}: ${err?.error?.detail}`,
+                icon: 'error',
+                showCancelButton: false,
+                confirmButtonText: 'OK'
+              });
+              this.dialogOperationSwal.fire();
+            },
+            complete: () => {
+              this.loading = false;
+            }
+          });
+      }
+    });
+  }
+
   openUpdateRateDialog(rate: SpecialPricingForCorporateResponse): void {
+    this.isUpdateMode = true;
     this.selectedRate = rate;
     this.createSpecialRateForm.patchValue({
       corporateId: { corporateId: rate.corporateId, name: rate.corporateName },
@@ -175,13 +227,22 @@ export class SpecialCorporateRatesComponent implements OnInit {
     this.createSpecialRateForm.get('quoteCurrency')?.disable();
   }
 
-  updateRate(): void {
+  onDialogSubmit(): void {
+    if (this.isUpdateMode) {
+      this.updateSpecialRate();
+    } else {
+      this.createSpecialRate();
+    }
+  }
+
+  updateSpecialRate(): void {
     if (this.createSpecialRateForm.invalid || !this.selectedRate) return;
 
     this.isSubmitted = true;
     const formValue = this.createSpecialRateForm.value;
     const command = {
       corporateId: this.selectedRate.corporateId,
+      specialRateId: this.selectedRate.id,
       startDate: formValue.startDate,
       endDate: formValue.endDate,
       spreadInPercentage: formValue.spreadInPercentage,
@@ -193,13 +254,33 @@ export class SpecialCorporateRatesComponent implements OnInit {
       .subscribe({
         next: () => {
           this.isSubmitted = false;
-          this.updateRateDialog = false;
+          this.specialRateDialog = false;
+
+          this.dialogOperationSwal.update({
+           title: 'Success',
+           text: 'Special rate updated successfully',
+          confirmButtonText: 'OK',
+           icon: 'success',
+          });
+
           this.dialogOperationSwal.fire();
+
           if (this.selectedCorporate) {
             this.searchSpecialRates();
           }
         },
-        error: () => this.isSubmitted = false
+        error: (err : any) => {
+           this.isSubmitted = false;
+
+           this.dialogOperationSwal.update({
+           title: 'Error',
+           text: `${err?.error?.status}: ${err?.error?.detail}`,
+           icon: 'error',
+           confirmButtonText: 'OK'
+          });
+
+          this.dialogOperationSwal.fire();
+           }
       });
   }
 }

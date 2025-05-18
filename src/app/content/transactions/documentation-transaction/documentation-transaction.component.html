@@ -348,7 +348,7 @@
                 <br/><br/>
 
                 <button pButton pRipple type="button"
-                        label="Documents Review Summary"
+                        label="Documents Review"
                         icon="pi pi-file-pdf"
                         (click)="openDocumentsReviewSummary()"
                         class="p-button-outlined p-button-rounded p-button-primary">
@@ -417,7 +417,7 @@
                           <ol>
                               <li *ngFor="let control of documentControls" style="padding:1rem;font-size:medium">
                                   <div class="grid">
-                                      <div class="col-8">
+                                      <div class="col-8" style="cursor: pointer; color:#D32F2F" (click)="viewControlDetails(control)">
                                           {{control.documentControlName}}
                                       </div>
                                       <div class="col-3">
@@ -456,12 +456,12 @@
 
                        <hr/>
 
-                      <div style="margin: auto;width: 50%;">
+                    <div style="margin: auto;width: 50%;">
                           <button pButton pRipple type="button" label="Transaction Audit"  icon="pi pi-history"
                           (click)="getTransctionMessages()"
                           class="p-button-outlined p-button-rounded p-button-primary">
                           </button>
-                      </div>
+                    </div>
                     <div class="container scroller-activity">
 
                         <div *ngFor="let item of transactionMessages" class="timeline-item">
@@ -702,8 +702,8 @@
                                  placeholder="Select Exception Resolver">
                       <ng-template let-contact pTemplate="item">
                         <div class="flex align-items-center gap-2">
-                          <div>{{contact.email}}</div>
-                          <div>{{contact.contactName}}</div>
+                          <div>{{contact.email}} - </div>
+                          <div>{{contact.contactName}} - </div>
                           <div>{{contact.contactPosition}}</div>
                         </div>
                       </ng-template>
@@ -773,7 +773,7 @@
                 <!-- Submit Button -->
                 <div class="col-12">
                   <button pButton type="submit"
-                          label="Raise Exception"
+                          label="Submit Exception"
                           icon="pi pi-exclamation-triangle"
                           class="p-button-danger"
                           [disabled]="exceptionForm.invalid">
@@ -872,7 +872,11 @@
                           </ul>
                         </div>
                         <div class="col-12">
-                          <p><strong>Attached Email:</strong> {{exception.attachedEmail}}</p>
+                          <p *ngIf="exception.attachedEmail">
+                              <strong>Attached Email:</strong><br/>
+                              <a (click)="downloadAttachedEmail(exception)"
+                                style="cursor: pointer;" >Download</a>
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -1346,3 +1350,10 @@
     
   </div>    
 </p-dialog> 
+<swal
+  #dialog_operation_swal
+  title="Delete ?"
+  text="This cannot be undone"
+  icon="question"
+  [showCloseButton]="true" >
+</swal>

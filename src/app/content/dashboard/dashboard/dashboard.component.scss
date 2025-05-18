@@ -1,0 +1,23 @@
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 1.5rem;
+    
+    .card-header {
+        background-color: #fff;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    }
+}
+
+.table {
+    margin-bottom: 0;
+    
+    th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.875rem;
+    }
+}
+
+.badge {
+    padding: 0.5em 0.75em;
+}

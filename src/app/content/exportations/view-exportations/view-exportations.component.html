@@ -1,0 +1,207 @@
+<div class="main-content slit-in-vertical">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="header">
+            <h4 class="title">Exportation Management</h4>
+          </div>
+
+          <div class="content">
+            <p-fieldset legend="Search">
+              <form [formGroup]="searchForm" (ngSubmit)="onSearch()" class="grid p-fluid">
+                <div class="col-3">
+                  <span class="p-float-label">
+                    <input pInputText formControlName="exportationReference" />
+                    <label>Exportation Reference</label>
+                  </span>
+                </div>
+                <div class="col-3">
+                  <span class="p-float-label">
+                    <input pInputText formControlName="customerName" />
+                    <label>Customer Name</label>
+                  </span>
+                </div>
+                <div class="col-2">
+                  <span class="p-float-label">
+                    <p-calendar formControlName="startDate" [showTime]="true" />
+                    <label>Start Date</label>
+                  </span>
+                </div>
+                <div class="col-2">
+                  <span class="p-float-label">
+                    <p-calendar formControlName="endDate" [showTime]="true" />
+                    <label>End Date</label>
+                  </span>
+                </div>
+                <div class="col-2">
+                  <button pButton type="submit" 
+                    label="Search" 
+                    icon="pi pi-search"
+                    class="p-button-outlined">
+                  </button>
+                </div>
+              </form>
+            </p-fieldset>
+
+            <br />
+            <hr />
+            <p-table [value]="exportations"
+              styleClass="p-datatable-striped p-datatable-gridlines"
+              [expandedRowKeys]="expandedRows"
+              dataKey="id"
+              [totalRecords]="totalRows"
+              [rows]="pageSize"
+              [paginator]="true"
+              [showCurrentPageReport]="true"
+              [loading]="loading"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="width: 3rem"></th>
+                  <th>Reference</th>
+                  <th>Customer</th>
+                  <th>DE Reference</th>
+                  <th>Status</th>
+                  <th>Apurement Status</th>
+                  <th>Created Date</th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-exportation let-expanded="expanded">
+                <tr>
+                  <td>
+                    <button type="button" pButton pRipple [pRowToggler]="exportation"
+                      class="p-button-text p-button-rounded p-button-plain"
+                      [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+                    </button>
+                  </td>
+                  <td>{{exportation.exportationReference}}</td>
+                  <td>{{exportation.customerName}}</td>
+                  <td>{{exportation.deDetails.eForceReference}}</td>
+                  <td>
+                    <p-tag [value]="getStatusString(exportation.exportationStatus)"
+                          [severity]="colorStatus(exportation.exportationStatus)">
+                    </p-tag>
+                  </td>
+                  <td>
+                    <p-tag [value]="getApurementStatusString(exportation.exportationApurementStatus)"
+                          [severity]="colorApurementStatus(exportation.exportationApurementStatus)">
+                    </p-tag>
+                  </td>
+                  <td>{{exportation.exportationCreatedDate | date:'medium'}}</td>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="rowexpansion" let-exportation>
+                <tr>
+                  <td colspan="7">
+                    <div class="p-grid p-nogutter">
+                      <div class="p-col-12">
+                        <p-fieldset legend="DE Details">
+                          <div class="grid">
+                            <div class="col-3"><b>File Number:</b></div>
+                            <div class="col-3">{{exportation.deDetails.fileNumber}}</div>
+                            <div class="col-3"><b>Request Date:</b></div>
+                            <div class="col-3">{{exportation.deDetails.requestDate | date:'medium'}}</div>
+
+                            <div class="col-3"><b>Domiciliation Ref:</b></div>
+                            <div class="col-3">{{exportation.deDetails.domiciliationReference}}</div>
+                            <div class="col-3"><b>Domiciliation Date:</b></div>
+                            <div class="col-3">{{exportation.deDetails.domiciliationDate | date:'medium'}}</div>
+
+                            <div class="col-3"><b>Provider:</b></div>
+                            <div class="col-3">{{exportation.deDetails.provider}}</div>
+                            <div class="col-3"><b>Buyer:</b></div>
+                            <div class="col-3">{{exportation.deDetails.buyer}}</div>
+
+                            <div class="col-3"><b>Destination:</b></div>
+                            <div class="col-3">{{exportation.deDetails.placeOfDestination}}</div>
+                            <div class="col-3"><b>FOB Value (CFA):</b></div>
+                            <div class="col-3">{{exportation.deDetails.fobValueCfa | number:'1.2-2'}}</div>
+                          </div>
+                        </p-fieldset>
+
+                        <p-fieldset legend="DE Fee Status" class="mt-3">
+                          <div class="grid">
+                            <div class="col-3"><b>Fee Status:</b></div>
+                            <div class="col-3">
+                              <p-tag [value]="getDEFeeStatusString(exportation.deFeeStatus)"
+                                    [severity]="colorDEFeeStatus(exportation.deFeeStatus)">
+                              </p-tag>
+                            </div>
+                            <div class="col-3"><b>Collection Date:</b></div>
+                            <div class="col-3">{{exportation.deFeeCollectionDate | date:'medium'}}</div>
+
+                            <div class="col-12" *ngIf="exportation.deFeeCollectionMessage">
+                              <p-message [severity]="exportation.deFeeStatus === 3 ? 'error' : 'info'"
+                                       [text]="exportation.deFeeCollectionMessage"
+                                       styleClass="w-full">
+                              </p-message>
+                            </div>
+                          </div>
+                        </p-fieldset>
+                      </div>
+                         <div class="p-col-12">
+                        <hr/>
+                        <div class="flex flex-row-reverse flex-wrap">
+                          <button pButton type="button"
+                            class="p-button-outlined p-button-info"
+                            icon="pi pi-history" iconPos="left"
+                            label="View History"
+                            (click)="ViewApprovalHistoryDialog(exportation)"
+                            style="margin-right: 25px">
+                          </button>
+                          <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-file-pdf" iconPos="left"
+                            label="Documentation"
+                            (click)="redirectToExportationDocumentationPage(exportation)"
+                            style="margin-right: 10px">
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Approval History Dialog -->
+  <p-dialog [(visible)]="approvalHistoryDialog"
+    [style]="{width: '70vw'}"
+    [header]="'Exportation Approval History - ' + (selectedExportation?.exportationReference || '')"
+    [modal]="true">
+
+    <div class="card">
+      <p-steps [model]="getStatusSteps()"
+              [readonly]="true"
+              [activeIndex]="selectedExportation?.exportationStatus || 0">
+        <ng-template pTemplate="item" let-item>
+          <span [class]="'status-' + item.status">{{item.label}}</span>
+        </ng-template>
+      </p-steps>
+
+      <div class="mt-4" *ngIf="selectedExportation?.exportationStatus === 2">
+        <p-message severity="error"
+                  text="Exportation cancelled"
+                  styleClass="w-full">
+        </p-message>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button pButton type="button"
+        label="Close"
+        class="p-button-outlined"
+        (click)="approvalHistoryDialog = false">
+      </button>
+    </ng-template>
+  </p-dialog>
+</div>

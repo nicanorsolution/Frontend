@@ -7,7 +7,8 @@ import {
   DocumentControlRequest,
   DocumentQuery,
   DocumentResponse,
-  DocumentStatus
+  DocumentStatus,
+  CreateDocumentCommand
 } from '../models/document.models';
 import {
   TransactionTypeQuery,
@@ -23,20 +24,7 @@ export class DocumentationService {
   private readonly baseUrl = `${environment.apiUrl}/v1/api/documentation`;
   constructor(private http: HttpClient) {}
 
-  getTransactionTypes(query?: TransactionTypeQuery): Observable<TransactionTypeResponse[]> {
-    let params = new HttpParams();
-
-    if (query?.transactionTypeStatus) {
-      params = params.append('status', query.transactionTypeStatus.toString());
-    }
-
-    return this.http.get<TransactionTypeResponse[]>(
-      `${this.baseUrl}/transactiontypes`,
-      { params }
-    );
-  }
-
-
+  // documents 
   getDocuments(query?: DocumentQuery): Observable<DocumentResponse[]> {
     let params = new HttpParams();
 
@@ -50,6 +38,49 @@ export class DocumentationService {
 
     return this.http.get<DocumentResponse[]>(
       `${this.baseUrl}/documents`,
+      { params }
+    );
+  }
+
+  createDocument(command: CreateDocumentCommand): Observable<string> {
+    return this.http.post<string>(
+      `${this.baseUrl}/document`,
+      command
+    );
+  }
+
+  deleteDocument(documentId: string): Observable<void> {
+    return this.http.delete<void>(
+      `${this.baseUrl}/${documentId}`
+    );
+  }
+
+ 
+
+  // document controls
+  addDocumentControl(documentId: string, control: DocumentControlRequest): Observable<void> {
+    return this.http.post<void>(
+      `${this.baseUrl}/document/${documentId}/controls`,
+      control
+    );
+  }
+
+  removeDocumentControl(documentId: string, controlId: string): Observable<void> {
+    return this.http.delete<void>(
+      `${this.baseUrl}/document/${documentId}/controls/${controlId}`
+    );
+  }
+
+  // Transaction type
+  getTransactionTypes(query?: TransactionTypeQuery): Observable<TransactionTypeResponse[]> {
+    let params = new HttpParams();
+
+    if (query?.transactionTypeStatus) {
+      params = params.append('status', query.transactionTypeStatus.toString());
+    }
+
+    return this.http.get<TransactionTypeResponse[]>(
+      `${this.baseUrl}/transactiontypes`,
       { params }
     );
   }
@@ -68,16 +99,9 @@ export class DocumentationService {
     );
   }
 
-  addDocumentControl(documentId: string, control: DocumentControlRequest): Observable<void> {
-    return this.http.post<void>(
-      `${this.baseUrl}/document/${documentId}/controls`,
-      control
-    );
-  }
-
-  removeDocumentControl(documentId: string, controlId: string): Observable<void> {
+  deleteTransactionType(id: string): Observable<void> {
     return this.http.delete<void>(
-      `${this.baseUrl}/document/${documentId}/controls/${controlId}`
+      `${this.baseUrl}/transactiontypes/${id}`
     );
   }
 }

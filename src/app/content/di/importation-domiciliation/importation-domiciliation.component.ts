@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { DI, DIStatus, UpdateGoodsDescriptionCommand, DIAttestationGenerationResponse, TypeAttestation, DIAttestationGenerationStatus, DIImputationResponse, ImputationStatus } from '../models/di.models';
+import { DI, DIStatus, UpdateGoodsDescriptionCommand, DIAttestationGenerationResponse, TypeAttestation, DIAttestationGenerationStatus, DIImputationResponse, ImputationStatus, DIGoodsUnit } from '../models/di.models';
 import { DIService } from '../services/di.services';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 
@@ -11,7 +11,7 @@ import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 export class ImportationDomiciliationComponent implements OnInit {
   dis: DI[] = [];
   loading = false;
-  totalRows = 0;
+  totalRecords = 0;
   pageSize = 10;
   pageNumber = 1;
   expandedRows: { [key: string]: boolean } = {};
@@ -29,22 +29,47 @@ export class ImportationDomiciliationComponent implements OnInit {
   imputationsDialog = false;
   imputations: DIImputationResponse[] = [];
 
+  searchForm!: FormGroup;
+
+  goodUnits: DIGoodsUnit[] = [];
+
   constructor(
     private diService: DIService,
     private fb: FormBuilder
   ) {
     this.initializeForm();
+    this.initializeSearchForm();
   }
 
-  ngOnInit() {
-    this.loadDIs();
+  ngOnInit(): void {
+    this.loadGoodUnits();
+  }
+
+  private loadGoodUnits() {
+    this.diService.getDiGoodUnits().subscribe({
+      next: (units) => {
+        this.goodUnits = units;
+      }
+    });
+  }
+
+  private initializeSearchForm() {
+    this.searchForm = this.fb.group({
+      referenceDi: [''],
+      clientName: [''],
+      sgsReference: [''],
+      startDate: [null],
+      endDate: [null]
+    });
   }
 
   private initializeForm() {
     this.updateDescriptionForm = this.fb.group({
+      amountInCurrency : ['', Validators.required],    
+      currency : [''],  
       goodsDescription: [''],
       goodQuantity: [null],
-      goodsUnit: [''],
+      goodsUnit: [null], // Changed to null to work better with dropdown
       valeurTotalInDevise: [null],
       billReference: [''],
       billExpiringDate: [null]
@@ -53,11 +78,25 @@ export class ImportationDomiciliationComponent implements OnInit {
 
   loadDIs() {
     this.loading = true;
-    this.diService.getDIs(this.pageNumber, this.pageSize).subscribe({
+    const searchCriteria = this.searchForm.value;
+    
+    console.log(searchCriteria);
+
+    this.diService.getDIs(
+      this.pageNumber,
+      this.pageSize,
+      searchCriteria.referenceDi,
+      searchCriteria.clientName,
+      searchCriteria.sgsReference,
+      searchCriteria.startDate,
+      searchCriteria.endDate
+    ).subscribe({
       next: (response) => {
         this.dis = response.items;
-        this.totalRows = response.totalCount;
+        this.totalRecords = response.totalCount;
         this.loading = false;
+        console.log(response);
+        console.log(this.totalRecords);
       },
       error: () => {
         this.loading = false;
@@ -65,8 +104,23 @@ export class ImportationDomiciliationComponent implements OnInit {
     });
   }
 
-  onPageChange(page: number) {
-    this.pageNumber = page;
+  resetSearch() {
+    this.searchForm.reset();
+    this.pageNumber = 1; // Reset to first page when searching
+    //this.loadDIs();
+  }
+
+  onSearch() {
+    this.pageNumber = 1; // Reset to first page when searching
+    this.loadDIs();
+  }
+
+  onPageChange(event: any) {
+    this.pageNumber = event.first / event.rows + 1;
+    this.pageSize = event.rows;
+
+    console.log(event);
+    
     this.loadDIs();
   }
 
@@ -161,6 +215,8 @@ export class ImportationDomiciliationComponent implements OnInit {
     this.selectedDI = di;
     this.updateDescriptionDialog = true;
     this.updateDescriptionForm.patchValue({
+      amountInCurrency: di.amountInCurrency,
+      currency: di.currency,
       goodsDescription: di.goodsDescription,
       goodQuantity: di.goodQuantity,
       goodsUnit: di.goodsUnit,

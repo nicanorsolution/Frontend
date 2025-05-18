@@ -7,7 +7,8 @@ import {
   UpdateGoodsDescriptionCommand,
   DIAttestationGenerationResponse,
   DIImputationResponse,
-  DI
+  DI,
+  DIGoodsUnit
 } from '../models/di.models';
 import { PaginatedList } from '../../../helpers/pagination';
 
@@ -53,11 +54,23 @@ export class DIService {
     return this.http.get<DIImputationResponse[]>(`${this.baseUrl}/dis/${diId}/imputations`);
   }
 
-  getDIs(pageNumber: number, pageSize: number): Observable<PaginatedList<DI>> {
-    const params = new HttpParams()
-      .set('pageNumber', pageNumber.toString())
-      .set('pageSize', pageSize.toString());
+  getDIs(pageNumber: number, pageSize: number,referenceDi?: string, clientName?: string, sgsReference?: string, start?: Date, end?: Date): Observable<PaginatedList<DI>> {
+    let params = new HttpParams()
+      .set('pageNumber', pageNumber?.toString())
+      .set('pageSize', pageSize?.toString());
+
+    if (referenceDi) params = params.set('referenceDi', referenceDi);
+    if (clientName) params = params.set('clientName', clientName);
+    if (sgsReference) params = params.set('sgsReference', sgsReference);
+    if (start) params = params.set('start', start.toISOString());
+    if (end) params = params.set('end', end.toISOString());
 
     return this.http.get<PaginatedList<DI>>(`${this.baseUrl}/dis`, { params });
   }
+
+  getDiGoodUnits(): Observable<DIGoodsUnit[]> {
+    return this.http.get<DIGoodsUnit[]>(`${this.baseUrl}/good-units`);
+  }
+
+
 }

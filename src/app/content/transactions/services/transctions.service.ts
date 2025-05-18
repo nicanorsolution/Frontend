@@ -31,6 +31,7 @@ import { DIService } from '../../di/services/di.services';
   providedIn: 'root'
 })
 export class TransactionService {
+ 
 
 
   private readonly baseUrl = `${environment.apiUrl}/v1/api/transactions`;
@@ -127,7 +128,7 @@ export class TransactionService {
     );
   }
 
-  getDocumentControls(documentId: string | undefined, transactionFileId: string): Observable<DocumentResponse> {
+  getDocumentControls(documentId: string | undefined, transactionFileId: string | undefined): Observable<DocumentResponse> {
     return this.http.get<DocumentResponse>(
       `${this.baseUrl}/documentControls/${documentId}`
     );
@@ -209,6 +210,10 @@ export class TransactionService {
 
   getProvisionTransferts(transactionId: string): Observable<TransactionProvisionTransferResponse[]> {
     return this.http.get<TransactionProvisionTransferResponse[]>(`${this.baseUrl}/${transactionId}/provision-transferts`);
+  }
+
+   getExceptionEmailAttachment(transactionId: string, exceptionId: string): Observable<Blob> {
+        return this.http.get(`${this.baseUrl}/${transactionId}/exception/${exceptionId}`, { responseType: 'blob' });
   }
 }
 

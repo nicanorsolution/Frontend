@@ -75,7 +75,9 @@
               <tr>
 
                 <td>{{ user.userName }}</td>
-                <td>{{ getRoleName(user.role) }}</td>
+                <td>
+                  <p-tag [value]="getRoleName(user.role)" [severity]="'success'"></p-tag>
+                </td>
                 <td> <p-tag [value]="user.status" [severity]="colorStatus(user.status)"></p-tag></td>
                 <td>{{ user.createdAt | date:'medium' }}  {{ user.createdBy }} </td>
                 <td>{{ user.updatedAt  | date:'medium'}}  {{ user.updatedBy }} </td>

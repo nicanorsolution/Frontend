@@ -17,10 +17,10 @@ export class RelationshipmanagerComponent implements OnInit {
   isSubmitted = false;
 
   totalRows = 0;
-  pageSize = 10;
+  pageSize = 25;
   pageNumber = 1;
   expandedRows: { [key: string]: boolean } = {};
-
+  searchText = '';
   @ViewChild('dialog_operation_swal')
   private dialogOperationSwal!: SwalComponent;
 
@@ -51,11 +51,17 @@ export class RelationshipmanagerComponent implements OnInit {
     this.loadManagers();
   }
 
+  searchManagers() {
+    this.pageNumber = 1;
+    this.loadManagers();
+  }
+
   loadManagers() {
     this.loading = true;
     const query = {
       pageNumber: this.pageNumber,
-      pageSize: this.pageSize
+      pageSize: this.pageSize,
+      name: this.searchText
     };
 
     this.customerService.getRelationshipManagers(query).subscribe({
@@ -63,6 +69,7 @@ export class RelationshipmanagerComponent implements OnInit {
         this.managers = response.items;
         this.totalRows = response.totalCount;
         this.loading = false;
+        console.log(response);
       },
       error: () => {
         this.loading = false;
@@ -77,21 +84,25 @@ export class RelationshipmanagerComponent implements OnInit {
 
   createManager() {
     if (this.createManagerForm.valid) {
-      this.isSubmitted = true;
-      const command = {
-        name: this.createManagerForm.value.name,
-        email: this.createManagerForm.value.email
-      };
+      this.dialogOperationSwal.fire().then((result) => {
+        if (result.isConfirmed) {
+          this.isSubmitted = true;
+          const command = {
+            name: this.createManagerForm.value.name,
+            email: this.createManagerForm.value.email
+          };
 
-      this.customerService.createRelationshipManager(command).subscribe({
-        next: () => {
-          this.managerDialog = false;
-          this.loadManagers();
-          this.isSubmitted = false;
-          this.dialogOperationSwal.fire();
-        },
-        error: () => {
-          this.isSubmitted = false;
+          this.customerService.createRelationshipManager(command).subscribe({
+            next: () => {
+              this.managerDialog = false;
+              this.loadManagers();
+              this.isSubmitted = false;
+              //this.dialogOperationSwal.fire();
+            },
+            error: () => {
+              this.isSubmitted = false;
+            }
+          });
         }
       });
     }
@@ -108,22 +119,25 @@ export class RelationshipmanagerComponent implements OnInit {
 
   updateManager() {
     if (this.editManagerForm.valid && this.selectedManager) {
-      this.isSubmitted = true;
-      const command = {
-        relationshipManagerId: this.selectedManager.id,
-        name: this.editManagerForm.value.name,
-        email: this.editManagerForm.value.email
-      };
+      this.dialogOperationSwal.fire().then((result) => {
+        if (result.isConfirmed) {
+          this.isSubmitted = true;
+          const command = {
+            relationshipManagerId: this.selectedManager!.id,
+            name: this.editManagerForm.value.name,
+            email: this.editManagerForm.value.email
+          };
 
-      this.customerService.updateRelationshipManagerInfo(command).subscribe({
-        next: () => {
-          this.editManagerDialog = false;
-          this.loadManagers();
-          this.isSubmitted = false;
-          this.dialogOperationSwal.fire();
-        },
-        error: () => {
-          this.isSubmitted = false;
+          this.customerService.updateRelationshipManagerInfo(command).subscribe({
+            next: () => {
+              this.editManagerDialog = false;
+              this.loadManagers();
+              this.isSubmitted = false;
+            },
+            error: () => {
+              this.isSubmitted = false;
+            }
+          });
         }
       });
     }
@@ -142,25 +156,32 @@ export class RelationshipmanagerComponent implements OnInit {
   }
 
   activateManager(managerId: string) {
-    this.customerService.activateRelationshipManager(managerId).subscribe({
-      next: () => {
-        this.loadManagers();
-        this.dialogOperationSwal.fire();
+    this.dialogOperationSwal.fire().then((result) => {
+      if (result.isConfirmed) {
+        this.customerService.activateRelationshipManager(managerId).subscribe({
+          next: () => {
+            this.loadManagers();
+          }
+        });
       }
     });
   }
 
   suspendManager(managerId: string) {
-    this.customerService.suspendRelationshipManager(managerId).subscribe({
-      next: () => {
-        this.loadManagers();
-        this.dialogOperationSwal.fire();
+    this.dialogOperationSwal.fire().then((result) => {
+      if (result.isConfirmed) {
+        this.customerService.suspendRelationshipManager(managerId).subscribe({
+          next: () => {
+            this.loadManagers();
+          }
+        });
       }
     });
   }
 
-  onPageChange(page: number) {
-    this.pageNumber = page;
+  onPageChange(event: any) {
+    this.pageNumber = event.first / event.rows + 1;
+    this.pageSize = event.rows;
     this.loadManagers();
   }
 

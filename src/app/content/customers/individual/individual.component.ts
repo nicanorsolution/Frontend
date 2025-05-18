@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CustomersService } from '../services/customers.services';
-import { IndividualResponse, CustomerType, CustomerInfoResponse, CreateIndividualCommand, CustomerAccountInfo, IndividualStatus, ADNAReportStatus, MiseEnDemeureStatus } from '../models/customer.models';
+import { IndividualResponse, CustomerType, CustomerInfoResponse, CreateIndividualCommand, CustomerAccountInfo, IndividualStatus, ADNAReportStatus, MiseEnDemeureStatus, RelationshipManagerResponse } from '../models/customer.models';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { PaginatedList } from '../../../helpers/pagination';
 import { AutoCompleteOnSelectEvent } from 'primeng/autocomplete';
@@ -19,9 +19,13 @@ export class IndividualComponent implements OnInit {
   createIndividualForm!: FormGroup;
   isSubmitted = false;
   isEditing = false;
+  assignManagerDialog = false;
+  assignManagerForm!: FormGroup;
+  filteredManagers: RelationshipManagerResponse[] = [];
 
+  selectedIndividual!: IndividualResponse;
   totalRows = 0;
-  pageSize = 10;
+  pageSize = 2;
   pageNumber = 1;
   expandedRows: { [key: string]: boolean } = {};
 
@@ -32,6 +36,9 @@ export class IndividualComponent implements OnInit {
   canSearchAccount = false;
   filteredAccounts: CustomerAccountInfo[] = [];
 
+  individualStatus = IndividualStatus;
+  searchForm!: FormGroup;
+
   constructor(
     private customerService: CustomersService,
     private fb: FormBuilder
@@ -40,6 +47,9 @@ export class IndividualComponent implements OnInit {
   }
 
   private initializeForm() {
+    this.searchForm = this.fb.group({
+      searchTerm: ['']
+    });
     this.createIndividualForm = this.fb.group({
       individualId: [''],
       name: ['', Validators.required],
@@ -50,6 +60,9 @@ export class IndividualComponent implements OnInit {
       phone: ['', Validators.required],
       accountNumber: ['', Validators.required],
       branch: ['', Validators.required]
+    });
+    this.assignManagerForm = this.fb.group({
+      relationshipManager: ['', Validators.required]
     });
   }
 
@@ -75,7 +88,16 @@ export class IndividualComponent implements OnInit {
     this.loadIndividuals();
   }
 
+  searchIndividuals() {
+    const searchTerm = this.searchForm.get('searchTerm')?.value;
+    this.loadIndividuals(searchTerm);
+  }
+
   loadIndividuals(name?: string, niu?: string) {
+    if (name || niu) {
+      this.pageNumber = 1; // Reset to first page when searching
+    }
+    
     this.loading = true;
     const query = {
       name,
@@ -143,10 +165,34 @@ export class IndividualComponent implements OnInit {
     });
   }
 
-  deleteIndividual(id: string) {
-    this.customerService.deleteIndividual(id).subscribe({
+  confirmDeleteIndividual(individual: IndividualResponse) {
+    this.dialogOperationSwal.update({
+      title: 'Are you sure?',
+      text: `This will delete individual ${individual.name}. This action cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it',
+      cancelButtonText: 'Cancel'
+    });
+    
+    this.dialogOperationSwal.fire().then((result) => {
+      if (result.isConfirmed) {
+        this.deleteIndividual(individual.id);
+      }
+    });
+  }
+
+  deleteIndividual(individualId: string) {
+    this.customerService.deleteIndividual(individualId).subscribe({
       next: () => {
         this.loadIndividuals();
+        this.dialogOperationSwal.update({
+          title: 'Success',
+          text: 'Individual deleted successfully',
+          icon: 'success',
+          showCancelButton: false,
+          confirmButtonText: 'OK'
+        });
         this.dialogOperationSwal.fire();
       },
       error: (error) => {
@@ -155,9 +201,16 @@ export class IndividualComponent implements OnInit {
     });
   }
 
-  onPageChange(page: number) {
-    this.pageNumber = page;
-    this.loadIndividuals();
+  onPageChange(event: any) {
+    this.pageNumber = event.first / event.rows + 1;
+    this.pageSize = event.rows;
+
+    const searchTerm = this.searchForm.get('searchTerm')?.value;
+    if (searchTerm) {
+      this.loadIndividuals(searchTerm);
+    } else {
+      this.loadIndividuals();
+    }
   }
 
   searchCustomer(event: { query: string }) {
@@ -193,7 +246,7 @@ export class IndividualComponent implements OnInit {
 
   searchAccount(event: { query: string }) {
     if (event.query && this.canSearchAccount) {
-      this.customerService.getCustomerAccountByNumber(event.query)
+      this.customerService.getCustomerAccountByNumber(event.query, this.selectedIndividual?.id)
         .subscribe({
           next: (response) => {
             if (response) {
@@ -396,4 +449,52 @@ export class IndividualComponent implements OnInit {
 
       }
 
+      openAssignManagerDialog(individual: IndividualResponse) {
+        this.selectedIndividual = individual;
+        this.assignManagerDialog = true;
+        this.assignManagerForm.reset();
+      }
+
+      searchManagers(event: { query: string }) {
+        const query = {
+          name: event.query,
+          pageNumber: 1,
+          pageSize: 10
+        };
+
+        this.customerService.getRelationshipManagers(query).subscribe({
+          next: (response) => {
+            this.filteredManagers = response.items;
+          },
+          error: (error) => {
+            this.filteredManagers = [];
+            this.handleError(error);
+          }
+        });
+      }
+
+      assignManager() {
+        if (this.assignManagerForm.valid && this.selectedIndividual) {
+          const relationshipManager = this.assignManagerForm.value.relationshipManager;
+          
+          this.customerService.assignIndividualManager(
+            this.selectedIndividual.id,
+            relationshipManager.id
+          ).subscribe({
+            next: () => {
+              this.assignManagerDialog = false;
+              this.loadIndividuals();
+              this.dialogOperationSwal.update({
+                title: 'Success',
+                text: 'Relationship Manager assigned successfully!',
+                icon: 'success'
+              });
+              this.dialogOperationSwal.fire();
+            },
+            error: (error) => {
+              this.handleError(error);
+            }
+          });
+        }
+      }
 }

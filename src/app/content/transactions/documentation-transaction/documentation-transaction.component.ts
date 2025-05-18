@@ -1,5 +1,5 @@
 import { DocumentSubmissionOption, ProcessingOption, ProvisionTransferStatus, TransactionApprovalFlowCommand, TransactionDecisionAction, TransactionDIStatus, TransactionExceptionHistoryResponse, TransactionMessageResponse, TransactionMessageType, TransactionProvisionStatus, TransactionProvisionTransferResponse } from './../models/transactions.model';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
@@ -30,6 +30,7 @@ import { DIStatus, DIImputationResponse, ImputationStatus } from '../../di/model
 import { UserRoles } from '../../users/user.models';
 import { AuthService } from '../../users/auth.service';
 import { ConfirmationService } from 'primeng/api';
+import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 
 @Component({
   selector: 'app-documentation-transaction',
@@ -117,6 +118,10 @@ export class DocumentationTransactionComponent implements OnInit {
 
   panelNumber: number = 1;
 
+
+  
+    @ViewChild('dialog_operation_swal')
+    private dialogOperationSwal!: SwalComponent;
   constructor(
     private route: ActivatedRoute,
     private transactionService: TransactionService,
@@ -214,6 +219,15 @@ export class DocumentationTransactionComponent implements OnInit {
       );
   }
 
+  viewControlDetails(control : DocumentControl)
+  {
+     this.dialogOperationSwal.update({
+          title: 'Control details',
+          text: control.documentControlDetail,
+          icon: 'info'
+        });
+        this.dialogOperationSwal.fire();
+  }
   onControlPerformed(event: any) {
 
     console.log("🚀 => file: documentation-transaction.component.ts:98 => DocumentationTransactionComponent => onControlPerformed => event:", event);
@@ -707,6 +721,52 @@ getDocumentSubmissionStatusLabel(status: DocumentSubmissionOption): string {
         });
     }
 
+  }
+
+  downloadAttachedEmail(exception : TransactionExceptionResponse){
+    if (exception.attachedEmail) {
+         this.transactionService.getExceptionEmailAttachment(exception.transactionId, exception.id)
+           .subscribe({
+             next: (blob : Blob) => {
+               // Get file extension from content type
+               const contentType = blob.type;
+               let extension = 'txt';
+               
+               if (contentType.includes('eml')) {
+                 extension = 'eml';
+               } else if (contentType.includes('pdf')) {
+                 extension = 'pdf'; 
+               } else if (contentType.includes('doc')) {
+                 extension = 'doc';
+               } else if (contentType.includes('docx')) {
+                 extension = 'docx';
+               } else if (contentType === 'application/octet-stream') {
+                 // Try to get extension from original filename if available
+                 const disposition = exception.attachedEmail;
+                 if (disposition) {
+                 const match = disposition.match(/\.([0-9a-z]+)$/i);
+                 if (match) {
+                   extension = match[1];
+                 }
+                 }
+               }
+               
+               const url = window.URL.createObjectURL(blob);
+               const a = document.createElement('a');
+               a.href = url;
+               a.download = `attachment-${exception.id}.${extension}`;
+               a.click();
+               window.URL.revokeObjectURL(url);
+             },
+             error: (error : any) => {
+               Swal.fire({
+                 title: 'Error', 
+                 text: error?.error?.detail || 'Failed to download attachment',
+                 icon: 'error'
+               });
+             }
+           });
+       }
   }
   // Get the file extension from the MIME type or default to .txt
   getFileExtension(blob: Blob) {

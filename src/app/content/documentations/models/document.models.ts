@@ -14,6 +14,13 @@ export interface DocumentResponse {
   lastModifyBy: string;
   lastUpdatedDate: Date;
 }
+export interface CreateDocumentCommand {
+  documentNameFr: string;
+  documentNameEn: string;
+  documentSubmissionOption: DocumentSubmissionOption;
+  documentOriginalRequired: boolean;
+}
+
 
 export interface DocumentControl {
   documentControlId: string;
@@ -21,8 +28,6 @@ export interface DocumentControl {
   documentControlDetail: string;
   documentControlType: DocumentControlType;
 }
-
-
 
 export interface DocumentControlRequest {
   documentControlName: string;
@@ -42,10 +47,10 @@ export enum DocumentStatus {
   Delete = 3
 }
 
-
-
 export enum DocumentSubmissionOption {
-  SubmissionBeforeProcessing = 1,
-  SubmissionAfterProcessing = 2,
-  DoNotMatters = 3
+   SubmissionBeforeProcessing = 1,
+    SubmissionAfterProcessing = 2,
+    SubmissionForPartialApurement = 3,// mise en demeure lettre dechargé
+    SubmissionForFailureToApurement = 4, // mise en demeure lettre dechargé
+    DoNotMatters = 5
 }

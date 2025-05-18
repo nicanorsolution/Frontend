@@ -6,16 +6,18 @@ import { DocumentationModule } from 'src/app/content/documentations/documentatio
 import { TransferRatesModule } from 'src/app/content/transafer-rates/transfer-rates.module';
 import { TransactionModule } from 'src/app/content/transactions/transaction-module';
 import { ReportModule } from 'src/app/content/reports/reports.module';
+import { DashboardModule } from 'src/app/content/dashboard/dashboard.module';
+import { ExportationsModule } from 'src/app/content/exportations/exportations.module';
 
 
-@NgModule({
-  imports: [
-
+@NgModule({  imports: [
     RouterModule.forChild(AdminLayoutRoutes),
     DocumentationModule,
     TransferRatesModule,
     UsersModule,
     ReportModule,
+    DashboardModule,
+    ExportationsModule
   ],
   declarations: [
   ]

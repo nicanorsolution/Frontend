@@ -1,0 +1,1107 @@
+<div class="main-content slit-in-vertical">
+  <p-confirmDialog></p-confirmDialog>
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="header">
+            <h4 class="title">Exportation Details</h4>
+          </div>
+          <div class="content">
+            <!-- Loading State -->
+            <div *ngIf="loading" class="flex align-items-center justify-content-center" style="height: 200px;">
+              <p-progressSpinner></p-progressSpinner>
+            </div>
+
+            <!-- Exportation Details -->
+            <div *ngIf="!loading && exportation" class="p-4">
+              <p-fieldset legend="Exportation Information">
+                <div class="grid">
+                  <div class="col-3"><b>Reference:</b></div>
+                  <div class="col-3">{{exportation.exportationReference}}</div>
+                  <div class="col-3"><b>Status:</b></div>
+                  <div class="col-3">
+                    <p-tag [value]="getStatusString(exportation.exportationStatus)"
+                          [severity]="colorStatus(exportation.exportationStatus)">
+                    </p-tag>
+                  </div>
+
+                  <div class="col-3"><b>Customer:</b></div>
+                  <div class="col-3">{{exportation.customerName}}</div>
+                  <div class="col-3"><b>Created Date:</b></div>
+                  <div class="col-3">{{exportation.exportationCreatedDate | date:'medium'}}</div>
+
+                  <div class="col-3"><b>Apurement Status:</b></div>
+                  <div class="col-3">
+                    <p-tag [value]="getApurementStatusString(exportation.exportationApurementStatus)"
+                          severity="info">
+                    </p-tag>
+                  </div>
+                  <div class="col-3"><b>Apurement Running count:</b></div>
+                  <div class="col-3">
+                    <p-tag [value]="exportation.numberDaysSinceDomiciliation.toString() + ' days'"
+                          [severity]="exportation.numberDaysSinceDomiciliation < 150 ? 'success' : 'danger'">
+                    </p-tag>
+                  </div>
+                    <div class="col-3"><b>Exportation Exception Count:</b></div>
+                    <div class="col-3">
+                        <a *ngIf="!exportation.exportationExceptionsPendingCount || exportation.exportationExceptionsPendingCount === 0" >
+                          <p-tag value="0 Exception(0) pending" severity="success"></p-tag>
+                        </a>
+                        <a *ngIf="exportation.exportationExceptionsPendingCount > 0">
+                          <p-tag [value]="exportation.exportationExceptionsPendingCount.toString() + ' Exception(s) pending'" severity="danger"></p-tag>
+                        </a>
+                    </div>
+                </div>
+              </p-fieldset>
+
+              <p-fieldset legend="DE Details" class="mt-3">
+                <div class="grid">
+                  <div class="col-3"><b>eForce Reference:</b></div>
+                  <div class="col-3">{{exportation.deDetails.eForceReference}}</div>
+                  <div class="col-3"><b>File Number:</b></div>
+                  <div class="col-3">{{exportation.deDetails.fileNumber}}</div>
+
+                  <div class="col-3"><b>Domiciliation Reference:</b></div>
+                  <div class="col-3">{{exportation.deDetails.domiciliationReference}}</div>
+                  <div class="col-3"><b>Domiciliation Date:</b></div>
+                  <div class="col-3">{{exportation.deDetails.domiciliationDate | date:'mediumDate'}}</div>
+
+                  <div class="col-3"><b>Provider:</b></div>
+                  <div class="col-3">{{exportation.deDetails.provider}}</div>
+                  <div class="col-3"><b>Buyer:</b></div>
+                  <div class="col-3">{{exportation.deDetails.buyer}}</div>
+
+                  <div class="col-3"><b>FOB Value (CFA):</b></div>
+                  <div class="col-3">{{exportation.deDetails.fobValueCfa | number:'1.2-2'}}</div>
+                  <div class="col-3"><b>Place of Destination:</b></div>
+                  <div class="col-3">{{exportation.deDetails.placeOfDestination}}</div>
+                </div>
+              </p-fieldset>
+
+              <p-fieldset legend="DE Fees Details" class="mt-3">
+                <div class="grid">
+                  <div class="col-3"><b>Fee Status:</b></div>
+                  <div class="col-3">
+                    <p-tag [value]="getDEFeeStatusString(exportation.deFeeStatus)"
+                          [severity]="colorDEFeeStatus(exportation.deFeeStatus)">
+                    </p-tag>
+                  </div>
+                  <div class="col-3"><b>Collection Date:</b></div>
+                  <div class="col-3">{{(exportation.deFeeCollectionDate | date:'medium') || 'Not collected'}}</div>
+
+                  <div class="col-3"><b>Collection Message:</b></div>
+                  <div class="col-9">{{exportation.deFeeCollectionMessage || 'No message'}}</div>
+                </div>
+              </p-fieldset>
+
+              <!-- Add new Incoming Responses section -->
+              <p-fieldset legend="Incomings Matching" class="mt-3">
+                <p-table [value]="exportation.incomingResponses" styleClass="p-datatable-gridlines">
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <th>Swift Reference</th>
+                      <th>Value Date</th>
+                      <th>Account</th>
+                      <th>Amount</th>
+                      <th>Currency</th>
+                      <th>Uploaded Date</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-incoming>
+                    <tr>
+                      <td>{{incoming.incomingSwiftReference}}</td>
+                      <td>{{incoming.incomingValueDate | date:'medium'}}</td>
+                      <td>{{incoming.incomingAccountNumber}}</td>
+                      <td>{{incoming.incomingAmount | number:'1.2-2'}}</td>
+                      <td>{{incoming.currency}}</td>
+                      <td>{{incoming.incomingDate | date:'medium'}}</td>
+                      <td>
+                        <p-tag [value]="getIncomingStatusString(incoming.incomingStatus)"
+                              [severity]="colorIncomingStatus(incoming.incomingStatus)">
+                        </p-tag>
+                      </td>
+                      <td>
+                        <div class="flex gap-2">
+                          <button pButton icon="pi pi-download" 
+                                  class="p-button-rounded p-button-info"
+                                  [disabled]="!incoming.hasIncomingSwiftFilePath"
+                                  (click)="downloadIncomingSwift(exportation.id, incoming.serialNumber)"
+                                  pTooltip="Download Swift">
+                          </button>
+                          <button pButton icon="pi pi-trash" 
+                                  class="p-button-rounded p-button-danger"
+                                  (click)="deleteIncoming(exportation.id, incoming.serialNumber)"
+                                     appAdminRole
+                                    [Roles]="[
+                                      UserRoles.TradeDeskAuthorizer.toString()
+                                    ]"
+                                  pTooltip="Delete">
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="emptymessage">
+                    <tr>
+                      <td colspan="9" class="text-center">No incoming responses found</td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </p-fieldset>
+
+              <!--  Exportation review and actions : exceptions, swift upload , apurement and DE fees payment -->
+
+              <hr/>
+              <div class="flex flex-row flex-wrap" >
+
+                 <div style="float: right; margin-right: 0;">
+                    <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-upload" iconPos="left"
+                            label="Upload Documents"
+                            (click)="openUploadDocumentsDialog()"
+                                appAdminRole
+                                [Roles]="[UserRoles.TradeInitiator.toString(),
+                                  UserRoles.TradeDeskAuthorizer.toString()
+                                ]"
+                            style="margin-right: 10px">
+                 </button>
+                <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-file" iconPos="left"
+                            label="Apurement"
+                            (click)="openApurementExportationOptionDialog()"
+                                appAdminRole
+                                [Roles]="[
+                                  UserRoles.TradeDeskAuthorizer.toString()
+                                ]"  
+                            style="margin-right: 10px">
+                 </button>
+
+                 <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-wallet" iconPos="left"
+                            label="DE Fee Payment"
+                            (click)="collectDeFee(exportation.id)"
+                                appAdminRole
+                                [Roles]="[UserRoles.TradeInitiator.toString()
+                                ]"  
+                            style="margin-right: 10px">
+                 </button>
+
+                   <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-arrow-down" iconPos="left"
+                            label="Incoming Registration"
+                            (click)="incomingRegistrationDialog(exportation)"                        
+                                appAdminRole
+                                [Roles]="[
+                                  UserRoles.TradeDeskAuthorizer.toString()
+                                ]"
+                            style="margin-right: 10px">
+                 </button>
+                 
+                
+                <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-exclamation-triangle" iconPos="left"
+                            label="Raise Exception"
+                            (click)="openRaiseExceptionDialog()"
+                            style="margin-right: 10px">
+                  </button>
+                   <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-pencil" iconPos="left"
+                            [label]="'View/Update Exceptions ('+exportation.exportationExceptionsCount+')'"
+                            (click)="openViewExceptionsDialog()"
+                            style="margin-right: 10px">
+                 </button>
+                 </div>
+
+               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Document Review Section -->
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="header">
+            <h4 class="title">Documents Review</h4>
+            <hr/>
+          </div>
+
+          <div class="content">
+            <div class="grid">
+              <div [ngClass]="{'col-3':panelNumber==2,'col-2':panelNumber==3}" 
+                   style="border-radius: 6px; border-color: #c42626; border-style:solid; border-width: 1px;">
+                <h4 class="title"><strong>Required Documents List</strong></h4>
+                <br/>
+
+                <div class="custom-doc-list">
+                  <div *ngFor="let doc of documents"
+                       (click)="onDocumentChange({ value: doc })"
+                       class="doc-item"
+                       style="cursor:pointer; padding: 0.55em 0.75em; margin-bottom: 6px; border: 1px solid #dcdcdc; border-radius: 4px;">
+                    <i class="pi pi-file" style="font-size: medium; margin-right: 0.5em;"></i>
+                    {{doc.documentName}}
+                    <br/>
+                    <span style="color: #444;">
+                      <p-tag [value]="getFileStatusLabel(doc.exportationFileStatus)"
+                             [severity]="getStatusSeverity(doc.exportationFileStatus)">
+                      </p-tag>
+                    </span>
+                  </div>
+                </div>
+
+                <br/><br/>
+
+                <button pButton pRipple type="button"
+                        label="Download Documents"
+                        icon="pi pi-download"
+                        (click)="downloadZipDocs()"
+                        class="p-button-outlined p-button-rounded p-button-primary">
+                </button>
+                <br/><br/>
+                <button pButton pRipple type="button"
+                        label="Documents Summary"
+                        icon="pi pi-file-pdf"
+                        (click)="openDocumentsReviewSummary()"
+                        class="p-button-outlined p-button-rounded p-button-primary">
+                </button>
+
+                <br/><br/>
+              </div>
+
+              <div [ngClass]="{'col-9':panelNumber==2,'col-7':panelNumber==3}"
+                   style="border-radius: 6px; border-color: #c42626; border-style:solid; border-width: 1px;">
+                <!-- Document Preview Area -->
+                <h4 class="title" *ngIf="!selectedDocument" style="color: red;">No Document Selected</h4>
+                <div *ngIf="selectedDocument" class="grid row col-12">
+                  <div class="col-5">
+                    <h4 class="title">
+                      <strong>Document Title</strong>: {{ selectedDocument.documentName }}
+                    </h4>
+                  </div>
+                  <div class="col-5">
+                    <h4 class="title">
+                      <b>Document Status:</b>
+                      <p-tag styleClass="mr-2"
+                             [severity]="getStatusSeverity(selectedDocument.exportationFileStatus)">
+                        {{ getFileStatusLabel(selectedDocument.exportationFileStatus) }}
+                      </p-tag>
+                    </h4>
+                  </div>
+                  <div class="col-2">
+                       <h4 class="title">
+                       <button pButton pRipple type="button" style="float: right;"
+                              label="Track Doc."
+                              (click)="trackDocument()"
+                              icon="pi pi-history"
+                              class="p-button-outlined p-button-rounded p-button-primary">
+                      </button>
+                     </h4>
+                  </div>
+                  
+                </div>
+
+                <ngx-extended-pdf-viewer *ngIf="selectedDocument && fileBLob"
+                                     [src]="fileBLob"
+                                     [height]="'100vh'"
+                                     useBrowserLocale="true">
+                </ngx-extended-pdf-viewer>
+
+                <div *ngIf="!fileBLob">
+                  <h3 style="color: #c42626;">No file found</h3>
+                </div>
+              </div>
+
+              <!-- Document Controls Panel -->
+              <ng-container *ngIf="panelNumber==3">
+                <div class="col-3" style="border-radius: 6px; border-color: #c42626; border-style:solid; border-width: 1px;">
+                  <h4 *ngIf="!selectedDocument" class="title" style="color: red;">No Document Selected</h4>
+
+                  <div *ngIf="selectedDocument">
+                    <h4 class="title"><b>Controls On Document:</b> {{selectedDocument.documentName}}</h4>
+                    <hr/>
+                    
+                    <p *ngIf="documentControls?.length == 0">
+                      <b style="color: red;">No controls recorded for this document</b>
+                    </p>
+
+                    <h4 *ngIf="documentControls?.length != 0" class="title" style="color: #D32F2F;">Controls to perform:</h4>
+
+                    <ol>
+                      <li *ngFor="let control of documentControls" style="padding:1rem;font-size:medium">
+                        <div class="grid">
+                          <div class="col-8" style="cursor: pointer; color:#D32F2F" (click)="viewControlDetails(control)">
+                            {{control.documentControlName}}
+                          </div>
+                          <div class="col-3">
+                            <p-tag styleClass="mr-2"
+                                  [severity]="colorDocumentControlType(control.documentControlType)"
+                                  [value]="getDocumentControlType(control.documentControlType)">
+                            </p-tag>
+                          </div>
+                          <div class="col-1" style="float: left;">
+                            <p-checkbox name="groupcontrol"
+                                      [value]="control"
+                                      [(ngModel)]="selectedControls"
+                                      (onChange)="onControlPerformed($event)"
+                                      inputId="document_control_task_id">
+                            </p-checkbox>
+                          </div>
+                        </div>
+                      </li>
+                    </ol>
+
+                    <div class="grid">
+                      <div class="col-3"></div>
+                      <div class="col-6" style="padding:auto;">
+                        <button pButton pRipple type="button"
+                                label="Review Document"
+                                icon="pi pi-check"
+                                [disabled]="!isCheckDocumentEnabled()"
+                                (click)="openReviewDialog()"
+                                class="p-button-outlined p-button-rounded p-button-success">
+                        </button>
+                      </div>
+                      <div class="col-3"></div>
+                    </div>
+                  </div>
+                         <hr/>
+
+                    <div style="margin: auto;width: 50%;">
+                          <button pButton pRipple type="button" label="Exportation Audit"  icon="pi pi-history"
+                          (click)="getExportationMessages()"
+                          class="p-button-outlined p-button-rounded p-button-primary">
+                          </button>
+                    </div>
+                    <div class="container scroller-activity">
+
+                        <div *ngFor="let item of exportationMessages" class="timeline-item">
+                            <div style="position: absolute;left:2em;font-weight: bold;top: 1em;display: block;font-family: 'Roboto', sans-serif;font-weight: 700;font-size: .885rem;color: brown;">
+                                {{item.createdDate | date :'medium'}} - By {{item.createdBy}}
+                            </div>
+                            <h5 style="margin-top: 0;">
+                              <p-tag [value]="getExportationMessageType(item.exportationMessageType)"
+                               [severity]="'info'" ></p-tag> - 
+                              <p-tag [value]="getExportationMessageTypeName(item.messageType)" 
+                              [severity]="getExportationMessageTypeColor(item.messageType)" >
+                              </p-tag></h5>
+                            <p [innerHTML]="item.message">
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+              </ng-container>
+
+               <!-- Action Buttons -->
+           
+              <div class="flex flex-row flex-wrap mt-3">
+                <button pButton type="button"
+                        class="p-button-outlined p-button-success"
+                        icon="pi pi-check" iconPos="left"
+                        label="Submit"
+                        (click)="submitExportation()"
+                        appAdminRole
+                                [Roles]="[
+                                UserRoles.TradeInitiator.toString()]"
+                        *ngIf="exportation?.exportationStatus == ExportationStatus.ExportationDrafted"
+                        style="margin-right: 10px;">
+                </button>
+                <button pButton type="button"
+                        class="p-button-outlined p-button-danger"
+                        icon="pi pi-trash" iconPos="left"
+                        label="Delete"
+                        (click)="deleteExportation()"
+                        appAdminRole
+                                [Roles]="[
+                                UserRoles.TradeInitiator.toString()]"
+                        style="margin-right: 10px;">
+                </button>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      
+    </div>
+    
+  </div>
+
+  <!-- Document Review Dialog -->
+  <p-dialog [(visible)]="reviewDialog"
+            [style]="{width: '50vw'}"
+            [header]="'Review Document - ' + selectedDocument?.documentName"
+            [modal]="true">
+    <br/>
+            <br/>
+            <form [formGroup]="reviewForm" (ngSubmit)="submitReview()" class="p-fluid">
+              <div class="grid">
+                <!-- Status -->
+                <div class="col-12 mb-3">
+                  <span class="p-float-label">
+                    <p-dropdown formControlName="exportationFileStatus"
+                              [options]="documentReviewStatus"
+                              [style]="{'width':'100%'}"
+                              optionLabel="label"
+                              optionValue="value"
+                              placeholder="Select Status"
+                              [showClear]="false">
+                    </p-dropdown>
+                    <label>Review Status</label>
+                  </span>
+                </div>
+
+                <!-- Review Note -->
+                <div class="col-12 mb-3">
+                  <span class="p-float-label">
+                    <textarea pInputTextarea
+                             formControlName="reviewerNote"
+                             [rows]="4"
+                             [style]="{'width':'100%','font-size':'1.2em'}"
+                             autoResize="true">
+                    </textarea>
+                    <label>Review Notes</label>
+                  </span>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="col-12">
+                  <button pButton type="submit"
+                          label="Submit Review"
+                          icon="pi pi-check"
+                          [disabled]="reviewForm.invalid"
+                          class="p-button-success">
+                  </button>
+                </div>
+              </div>
+            </form>
+  </p-dialog>
+
+   <!-- Raise Exception Dialog -->
+  <p-dialog [(visible)]="raiseExceptionDialog"
+                    [style]="{width: '60vw'}"
+                    [header]="'Raise Exception - ' + exportation?.exportationReference"
+                    [modal]="true">
+                    <br/><br/>
+            <form [formGroup]="exceptionForm" (ngSubmit)="submitException()" class="p-fluid">
+              <div class="grid">
+                <!-- Exception Directed To -->
+                <div class="col-6 mb-3">
+                  <span class="p-float-label">
+                    <p-dropdown formControlName="exceptionDirectedTo"
+                              [options]="directedToOptions"
+                              [style]="{'width':'100%'}"
+                              optionLabel="label"
+                              optionValue="value"
+                              placeholder="Select Target">
+                    </p-dropdown>
+                    <label>Direct Exception To</label>
+                  </span>
+                </div>
+
+                <!-- Severity -->
+                <div class="col-6 mb-3">
+                  <span class="p-float-label">
+                    <p-dropdown formControlName="severity"
+                              [options]="severityOptions"
+                              [style]="{'width':'100%'}"
+                              optionLabel="label"
+                              optionValue="value"
+                              placeholder="Select Severity">
+                    </p-dropdown>
+                    <label>Severity</label>
+                  </span>
+                </div>
+
+                <!-- Exception Resolver Email -->
+                <div class="col-12 mb-3">
+                  <span class="p-float-label">
+                      <p-multiSelect formControlName="exceptionResolverEmail"
+                                 [options]="contactOfExceptionResolver"
+                                 optionLabel="email"
+                                 optionValue="email"
+                                 [filter]="true"
+                                 (onClick)="getContactOfExceptionResolver()"
+                                 placeholder="Select Exception Resolver">
+                      <ng-template let-contact pTemplate="item">
+                        <div class="flex align-items-center gap-2">
+                          <div>{{contact.email}} - </div>
+                          <div>{{contact.contactName}} - </div>
+                          <div>{{contact.contactPosition}}</div>
+                        </div>
+                      </ng-template>
+                    </p-multiSelect>
+                    <label>Exception Resolver Email</label>
+                  </span>
+                </div>
+
+                <!-- Related Documents -->
+                <div class="col-9 mb-3">
+                  <span class="p-float-label">
+                    <p-multiSelect formControlName="exportationFileCausingException"
+                                 [options]="documents"
+                                 optionLabel="documentName"
+                                 optionValue="id"
+                                 [filter]="true"
+                                 placeholder="Select Related Documents">
+                      <ng-template let-doc pTemplate="item">
+                        <div class="flex align-items-center gap-2">
+                          <div>{{doc.documentName}}</div>
+                          <p-tag [value]="getFileStatusLabel(doc.exportationFileStatus)"
+                                [severity]="getStatusSeverity(doc.exportationFileStatus)">
+                          </p-tag>
+                        </div>
+                      </ng-template>
+                    </p-multiSelect>
+                    <label>Related Documents</label>
+                  </span>
+                </div>
+                 <div class="col-3 mb-3">
+                  <span class="p-float-label">
+                    <p-checkbox formControlName="isExportationFileReviewNoteAdded"
+                           [binary]="true" value="true"
+                           inputId="isExportationFileReviewNoteAdded">
+                    </p-checkbox>
+
+                    <label for="isExportationFileReviewNoteAdded" class="ml-4">Add Documents Review Notes</label>
+                  </span>
+                </div>
+
+                <!-- Internal Note -->
+                <div class="col-12 mb-3">
+                  <span class="p-float-label">
+                    <textarea pInputTextarea
+                             formControlName="internalNote"
+                             [rows]="3"
+                             [style]="{'width':'100%', 'font-size':'1.5em'}"
+                             autoResize="true">
+                    </textarea>
+                    <label>Internal Note</label>
+                  </span>
+                </div>
+
+                <!-- Client Note -->
+                <div class="col-12 mb-3">
+                  <span class="p-float-label">
+                    <textarea pInputTextarea
+                             formControlName="clientNote"
+                             [rows]="3"
+                             [style]="{'width':'100%', 'font-size':'1.5em'}"
+                             autoResize="true">
+                    </textarea>
+                    <label>Client Note</label>
+                  </span>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="col-12">
+                  <button pButton type="submit"
+                          label="Raise Exception"
+                          icon="pi pi-exclamation-triangle"
+                          class="p-button-danger"
+                          [disabled]="exceptionForm.invalid">
+                  </button>
+                </div>
+              </div>
+            </form>
+          </p-dialog>
+  <!-- Delete Confirmation Dialog -->
+  <swal #dialog_operation_swal
+        title="Delete ?"
+        text="This cannot be undone"
+        icon="question"
+        [showCloseButton]="true">
+  </swal>
+
+  <!-- Upload Documents Dialog -->
+  <p-dialog [(visible)]="uploadDocumentsDialog"
+          [style]="{width: '70vw'}"
+          [header]="'Upload Documents - ' + exportation?.exportationReference"
+          [modal]="true">
+  <p-table [value]="documents"
+           [responsive]="true"
+           styleClass="p-datatable-sm p-datatable-gridlines">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Document Name</th>
+        <th>Status</th>
+        <th>Submission Option</th>
+        <th>Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-doc>
+      <tr [class.selected-row]="selectedUploadDocument?.id === doc.id">
+        <td>{{doc.documentName}}</td>
+        <td>
+          <p-tag [value]="getFileStatusLabel(doc.exportationFileStatus)"
+                 [severity]="getStatusSeverity(doc.exportationFileStatus)">
+          </p-tag>
+        </td>
+        <td>
+           <p-tag [value]="getDocumentSubmissionStatusLabel(doc.documentSubmissionOption)"
+                 [severity]="getDocumentSubmissionSeverity(doc.documentSubmissionOption)">
+           </p-tag>
+        </td>
+        <td>
+          <div class="flex gap-2">
+            <button pButton 
+                    type="button"
+                    label="Select for Upload"
+                    icon="pi pi-upload"
+                    class="p-button-outlined p-button-primary"
+                    (click)="selectDocumentForUpload(doc)">
+            </button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <div class="mt-4" *ngIf="selectedUploadDocument">
+    <h5>Upload Document: {{selectedUploadDocument.documentName}}</h5>
+    <div class="grid">
+      <div class="col-8">
+        <input type="file"
+               class="p-inputtext w-full"
+               (change)="onFileSelected($event)"
+               accept=".pdf,.doc,.docx">
+      </div>
+      <div class="col-4">
+        <button pButton 
+                type="button"
+                label="Upload"
+                icon="pi pi-upload"
+                [disabled]="!selectedFile"
+                (click)="uploadDocument()"
+                class="p-button-success">
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton 
+            type="button"
+            label="Close"
+            icon="pi pi-times"
+            (click)="uploadDocumentsDialog = false"
+            class="p-button-outlined">
+    </button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="documentHistoryDialog"
+          [style]="{width: '50vw'}"
+          [header]="'Document History'"
+          [modal]="true">
+    <div class="container scroller-activity">
+        <div *ngFor="let item of documentHistory" class="timeline-item">
+            <div style="position: absolute;left:2em;font-weight: bold;top: 1em;display: block;font-family: 'Roboto', sans-serif;font-weight: 700;font-size: .885rem;color: brown;">
+                {{item.lastUpdatedDate | date :'medium'}} - {{item.lastUpdateBy}}
+            </div>
+            <h5 style="margin-top: 0;">
+                <p-tag [value]="getDocumentHistoryStatus(item.exportationFileStatus)"
+                      [severity]="colorDocumentHistoryStatus(item.exportationFileStatus)">
+                </p-tag>
+            </h5>
+            <p>
+                <strong>Document Name:</strong><br/>
+                {{item.documentName}}
+            </p>
+            <p>
+                <strong>Review Note:</strong><br/>
+                {{item.reviewNote}}
+            </p>
+            <p *ngIf="item.documentPath && item.documentPath.length > 0">
+                <strong>Attached Document:</strong><br/>
+                <a (click)="downloadHistoryDocument(item.exportationId, item.id, item.history, item.documentName)"
+                   style="cursor: pointer;">Download</a>
+            </p>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton type="button"
+                label="Close"
+                class="p-button-outlined"
+                (click)="documentHistoryDialog = false">
+        </button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="apurementExportationOptionDialog"
+          [style]="{width: '50vw',height: '50vh'}"
+          [header]="'Set Apurement Status'"
+          [modal]="true">
+     <br/> <br/> <br/> <br/>
+  <div class="grid">
+      <div class="col-12">
+                <span class="p-float-label">
+                    <p-dropdown [(ngModel)]="selectedApurementExportationOption"
+                                [options]="apurementExportationOption"
+                                [style]="{'width':'100%'}"
+                                optionLabel="label"
+                                optionValue="value"
+                                placeholder="Select Apurement Status"
+                                [showClear]="false">
+                    </p-dropdown>
+                    <label>Apurement Status</label>
+                </span>
+      </div>
+    </div>
+    <br/> <br/> <br/> <br/>
+
+    <ng-template pTemplate="footer">
+        <button pButton type="button"
+                label="Submit"
+                class="p-button-outlined"
+                (click)="submitApurementExportationOption()">
+        </button>
+        <button pButton type="button"
+                label="Close"
+                class="p-button-outlined"
+                (click)="apurementExportationOptionDialog = false">
+        </button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="incomingDialog"
+          [style]="{width: '50vw'}"
+          [header]="'Register Incoming'"
+          [modal]="true">
+  <form [formGroup]="incomingForm" class="p-fluid">
+    <div class="grid">
+      <!-- File Upload -->
+      <div class="col-12 mb-3">
+        <div class="p-field">
+          <label class="mb-2">Swift File (.txt) *</label>
+          <input type="file"
+                 class="p-inputtext w-full"
+                 (change)="onIncomingSwiftSelected($event)"
+                 accept=".txt">
+          <small class="p-error block mt-1" *ngIf="selectedIncomingSwiftFile">
+            Selected file: {{selectedIncomingSwiftFile.name}}
+          </small>
+        </div>
+      </div>
+
+      <!-- Parsed Data Fields -->
+      <div class="col-6 mb-3">
+        <span class="p-float-label">
+          <input pInputText
+                 formControlName="accountNumber"
+                 [readonly]="true">
+          <label>Account Number</label>
+        </span>
+      </div>
+
+      <div class="col-3 mb-3">
+        <span class="p-float-label">
+          <input pInputText
+                 formControlName="amount"
+                 [readonly]="true">
+          <label>Amount</label>
+        </span>
+      </div>
+
+      <div class="col-3 mb-3">
+        <span class="p-float-label">
+          <input pInputText
+                 formControlName="currency"
+                 [readonly]="true">
+          <label>Currency</label>
+        </span>
+      </div>
+
+       <div class="col-6 mb-3">
+        <span class="p-float-label">
+          <input pInputText
+                 formControlName="swiftReference"
+                 [readonly]="true">
+          <label>Swift Reference</label>
+        </span>
+      </div>
+
+      <div class="col-6 mb-3">
+        <span class="p-float-label">
+          <input pInputText
+                 formControlName="valueDate"
+                 [readonly]="true">
+          <label>Value Date</label>
+        </span>
+      </div>
+        
+      <div class="col-12 mb-3">
+        <span class="p-float-label">
+          <textarea pInputTextarea style="width: 100%; font-size: 1.5em"
+                   formControlName="beneficiaryNameAddress"
+                   [rows]="4"
+                   [readonly]="true">
+          </textarea>
+          <label>Beneficiary Name & Address</label>
+        </span>
+      </div>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <button pButton 
+            type="button"
+            label="Register"
+            icon="pi pi-check"
+            [disabled]="!selectedIncomingSwiftFile || !incomingForm.valid"
+            (click)="submitIncomingRegistration()"
+            class="p-button-success">
+    </button>
+    <button pButton 
+            type="button"
+            label="Close"
+            icon="pi pi-times"
+            (click)="incomingDialog = false"
+            class="p-button-outlined">
+    </button>
+  </ng-template>
+</p-dialog>
+
+<!-- Add before the last closing div -->
+<p-dialog [(visible)]="viewExceptionsDialog"
+          [style]="{width: '80vw'}"
+          [header]="'Exportation Exceptions - ' + exportation?.exportationReference"
+          [modal]="true">
+  <p-table [value]="transactionExceptions"
+          [expandedRowKeys]="expandedRows"
+          dataKey="id"
+          styleClass="p-datatable-gridlines"
+          [paginator]="true"
+          [rows]="10"
+          [showCurrentPageReport]="true"
+          responsiveLayout="scroll">
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 3rem"></th>
+        <th>N°</th>
+        <th>Directed To</th>
+        <th>Exception Resolver</th>
+        <th>Attachment</th>
+        <th>Status</th>
+        <th>Severity</th>
+        <th>Created Date</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-exception let-expanded="expanded">
+      <tr>
+        <td>
+          <button type="button" pButton pRipple
+                  [pRowToggler]="exception"
+                  class="p-button-text p-button-rounded p-button-plain"
+                  [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+          </button>
+        </td>
+        <td>E-{{exception.exceptionSerialNumber}}</td>
+        <td>
+          <p-tag [value]="getExceptionDirectedToLabel(exception.exceptionDirectedTo)"
+                severity="info">
+          </p-tag>
+        </td>
+        <td>
+          <div class="flex flex-column">
+            <small *ngFor="let resolver of exception.exceptionResolver">
+              {{resolver}}
+            </small>
+          </div>
+        </td>
+        <td>
+          {{exception?.attachedEmail == null || exception?.attachedEmail == undefined || exception?.attachedEmail == '' ? 'No Attachment' : 'File Attached'}}
+        </td>
+        <td>
+          <p-tag [value]="getExceptionStatusLabel(exception.exceptionStatus)"
+                [severity]="colorExceptionStatus(exception.exceptionStatus)">
+          </p-tag>
+        </td>
+        <td>
+          <p-tag [value]="getExceptionSeverityToLabel(exception.severity)"
+                [severity]="colorExceptionSeverity(exception.severity)">
+          </p-tag>
+        </td>
+        <td>{{exception.dateCreated | date:'medium'}}</td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="rowexpansion" let-exception>
+      <tr>
+        <td colspan="8">
+          <div class="p-3">
+            <div class="grid">
+              <div class="col-6">
+                <h6>Internal Note</h6>
+                <p>{{exception.internalNote}}</p>
+              </div>
+              <div class="col-6">
+                <h6>Client Note</h6>
+                <p>{{exception.clientNote}}</p>
+              </div>
+              <div class="col-6">
+                <h6>Related Documents</h6>
+                <ul>
+                  <li *ngFor="let docId of exception.exportationFileCausingException">
+                    {{getDocumentName(docId)}}
+                  </li>
+                </ul>
+              </div>
+              <div class="col-12">
+                          <p *ngIf="exception.attachedEmail">
+                              <strong>Attached Email:</strong><br/>
+                              <a (click)="downloadAttachedEmail(exception)"
+                                style="cursor: pointer;" >Download</a>
+                          </p>
+                        </div>
+            </div>
+          </div>
+          <hr/>
+          <div class="flex flex-row flex-wrap reverse">
+            <button pButton type="button"
+                    class="p-button-outlined"
+                    icon="pi pi-pencil" iconPos="left"
+                    label="Update Exception"
+                    (click)="openUpdateExceptionDialog(exception)"
+                    style="margin-right: 10px">
+            </button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-dialog>
+
+<p-dialog [(visible)]="updateExceptionDialog"
+          [style]="{width: '50vw'}"
+          [header]="'Update Exception Status'"
+          [modal]="true">
+  <form [formGroup]="updateExceptionForm" (ngSubmit)="submitUpdateException()" class="p-fluid">
+    <br/><br/>
+    <div class="grid">
+      <!-- Status -->
+      <div class="col-12 mb-3">
+        <span class="p-float-label">
+          <p-dropdown formControlName="exceptionStatus"
+                    [options]="exceptionStatusOptions"
+                    [style]="{'width':'100%'}"
+                    optionLabel="label"
+                    optionValue="value"
+                    [showClear]="false">
+          </p-dropdown>
+          <label>Exception Status</label>
+        </span>
+      </div>
+
+      <!-- Internal Note -->
+      <div class="col-12 mb-3">
+        <span class="p-float-label">
+          <textarea pInputTextarea
+                   formControlName="internalNote"
+                   [rows]="4"
+                   [style]="{'width':'100%', 'font-size':'1.2em'}"
+                   autoResize="true">
+          </textarea>
+          <label>Internal Note</label>
+        </span>
+      </div>
+
+      <!-- File Attachment -->
+      <div class="col-12 mb-3">
+        <div class="p-field">
+          <label class="mb-2">Attach File (optional)</label>
+          <input type="file"
+                 class="p-inputtext w-full"
+                 (change)="onFileSelected($event)"
+                 accept=".pdf,.doc,.docx,.xls,.xlsx">
+          <small class="p-error block mt-1" *ngIf="selectedFile">
+            Selected file: {{selectedFile.name}}
+          </small>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="col-12">
+        <button pButton type="submit"
+                label="Update Exception"
+                icon="pi pi-save"
+                [disabled]="updateExceptionForm.invalid"
+                class="p-button-success">
+        </button>
+      </div>
+    </div>
+  </form>
+</p-dialog>
+
+   <!-- Documents Review Summary Dialog -->
+          <p-dialog [(visible)]="documentsReviewDialog"
+                    [style]="{width: '80vw'}"
+                    [header]="'Documents Review Summary - ' + exportation?.exportationReference"
+                    [modal]="true">
+
+            <p-table [value]="documents"
+                     styleClass="p-datatable-gridlines p-datatable-striped"
+                     [paginator]="true"
+                     [rows]="10"
+                     [showCurrentPageReport]="true"
+                     responsiveLayout="scroll">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Document Name</th>
+                  <th>Review Note</th>
+                  <th style="width: 200px">Status</th>
+                  <th style="width: 200px">Document Submission Option </th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-doc>
+                <tr>
+                  <td>{{doc.documentName}}</td>
+                    <td>
+                    <div [style.maxHeight]="'60px'" class="overflow-auto">
+                      {{doc.reviewNote || 'No review note'}}
+                    </div>
+                  </td>
+                  <td>
+                    <p-tag [value]="getFileStatusLabel(doc.exportationFileStatus)"
+                          [severity]="getStatusSeverity(doc.exportationFileStatus)">
+                    </p-tag>
+                  </td>
+
+                  <td>
+                    <p-tag [value]="getDocumentSubmissionStatusLabel(doc.documentSubmissionOption)"
+                          [severity]="getDocumentSubmissionSeverity(doc.documentSubmissionOption)">
+                    </p-tag>
+                  </td>
+
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="5" class="text-center">No documents found</td>
+                </tr>
+              </ng-template>
+            </p-table>
+
+            <ng-template pTemplate="footer">
+              <button pButton type="button"
+                      label="Close"
+                      class="p-button-outlined"
+                      (click)="documentsReviewDialog = false">
+              </button>
+            </ng-template>
+          </p-dialog>
+
+</div>
