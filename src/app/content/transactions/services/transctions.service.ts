@@ -21,7 +21,10 @@ import {
   TransactionFileHistoryResponse,
   ProcessingOption,
   TransactionApurementStatus,
-  TransactionProvisionTransferResponse
+  TransactionProvisionTransferResponse,
+  ProvisionBeforeInitiationResponse,
+  TransactionAmountLienStatus,
+  RoleToSendBackTransactionResponse
 } from '../models/transactions.model';
 import { PaginatedList } from '../../../helpers/pagination';
 import { DocumentResponse } from '../../documentations/models/document.models';
@@ -31,7 +34,7 @@ import { DIService } from '../../di/services/di.services';
   providedIn: 'root'
 })
 export class TransactionService {
- 
+
 
 
   private readonly baseUrl = `${environment.apiUrl}/v1/api/transactions`;
@@ -51,7 +54,7 @@ export class TransactionService {
   }
 
   approvalFlow(command: TransactionApprovalFlowCommand): Observable<void> {
-    console.log('TransactionApprovalFlowCommand', command);  
+    console.log('TransactionApprovalFlowCommand', command);
     return this.http.post<void>(`${this.baseUrl}/flow`, command);
   }
 
@@ -204,6 +207,10 @@ export class TransactionService {
     return this.http.post<void>(`${this.baseUrl}/${transactionId}/provision`, null);
   }
 
+  verifyProvisionForTransaction(transactionId: string): Observable<ProvisionBeforeInitiationResponse> {
+    return this.http.post<ProvisionBeforeInitiationResponse>(`${this.baseUrl}/${transactionId}/provision-at-initiation`, null);
+  }
+
   retryProvisionAccount(transactionProvisionTransferId: string): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/${transactionProvisionTransferId}/provision-retry`, null);
   }
@@ -214,6 +221,33 @@ export class TransactionService {
 
    getExceptionEmailAttachment(transactionId: string, exceptionId: string): Observable<Blob> {
         return this.http.get(`${this.baseUrl}/${transactionId}/exception/${exceptionId}`, { responseType: 'blob' });
+  }
+
+  uploadTransactionDebitAdviceFile(transactionId: string, file: File): Observable<void> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<void>(
+      `${this.baseUrl}/${transactionId}/upload-debit-advice-file`,
+      formData
+    );
+  }
+  cancelTransactionDebitAdvice(transactionId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${transactionId}/cancel-debit-advice`);
+  }
+
+  getTransactionDebitAdviceFile(transactionId: string): Observable<Blob> {
+    return this.http.get(
+      `${this.baseUrl}/${transactionId}/debit-advice-file`,
+      { responseType: 'blob' }
+    );
+  }
+  setTransactionAmountLienStatus(transactionId: string, transactionAmountLienStatus: TransactionAmountLienStatus): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/${transactionId}/amount-lien/${transactionAmountLienStatus}`, null);
+  }
+
+  getRolesToSendBackTransaction(transactionId: string): Observable<RoleToSendBackTransactionResponse[]> {
+    return this.http.get<RoleToSendBackTransactionResponse[]>(`${this.baseUrl}/role-send-back/${transactionId}`);
   }
 }
 

@@ -12,10 +12,13 @@ export class RoleDirective implements OnInit {
   ngOnInit() {
     const token = this.authService.getDecodedToken();
 
+    console.log('Token:', token);
+    console.log('Required Roles:', this.role);
 
     if (token && token.UserRoles == this.role.find((r) => r == token.UserRoles)) {
       this.renderer.removeAttribute(this.el.nativeElement, 'disabled');
-    } else {
+    }
+    else {
       this.renderer.setAttribute(this.el.nativeElement, 'disabled', 'true');
     }
     // this.el.nativeElement.style.display = 'none';

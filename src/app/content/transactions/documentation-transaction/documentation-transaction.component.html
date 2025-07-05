@@ -57,6 +57,14 @@
                           severity="info">
                     </p-tag>
                   </div>
+
+                  <div class="col-3"><b>Sent For Correction:</b></div>
+                  <div class="col-3">
+                    <p-tag [value]="transaction.isCorrected == true ? 'Yes' : 'No'"
+                           [severity]="transaction.isCorrected == true ? 'danger' : 'success'">
+                    </p-tag>
+                  </div>
+
                 </div>
               </p-fieldset>
 
@@ -67,17 +75,17 @@
                   <div class="col-3"><b>Rate Date:</b></div>
                   <div class="col-3">{{transaction.rateDate | date:'medium'}}</div>
                    <div class="col-3"><b>Spread:</b></div>
-                  <div class="col-3">{{transaction.spreadInPercentage | number:'1.2-2'}} %</div>
+                  <div class="col-3">{{transaction.spreadInPercentage | percent:'1.2-2'}} </div>
                    <div class="col-3"><b>Principal Amount:</b></div>
                   <div class="col-3">{{transaction.principalAmountInBaseCurrency | number:'1.2-2'}} XAF </div>
                    <div class="col-3"><b>Financial Commission:</b></div>
-                  <div class="col-3">{{transaction.financialCommissionInPercentage | number:'1.2-2'}} %</div>
+                  <div class="col-3">{{transaction.financialCommissionInPercentage | percent:'1.2-2'}} </div>
                    <div class="col-3"><b>Financial Commission Calculation:</b></div>
                   <div class="col-3">{{transaction.financialCommission | number:'1.2-2'}} XAF</div>
                    <div class="col-3"><b>Financial Commission Tax:</b></div>
                   <div class="col-3">{{transaction.financialCommissionTax | number:'1.2-2'}} XAF</div>
                    <div class="col-3"><b>Non Financial Commission:</b></div>
-                  <div class="col-3">{{transaction.nonFinancialCommissionInPercentage | number:'1.2-2'}} %</div>
+                  <div class="col-3">{{transaction.nonFinancialCommissionInPercentage | percent:'1.2-2'}} </div>
                   <div class="col-3"><b>Non Financial Commission:</b></div>
                   <div class="col-3">{{transaction.nonFinancialCommission | number:'1.2-2'}} XAF</div>
                     <div class="col-3"><b>Non Financial Commission Tax:</b></div>
@@ -163,6 +171,24 @@
                     <div class="col-3">
                          <p-tag [value]="getTranDIStatusString(transaction.transactionDIStatus)" [severity]="getTranDIStatusColor(transaction.transactionDIStatus)"></p-tag>
                     </div>
+
+                    <div class="col-3"><b>Transaction Debit Advice:</b></div>
+                    <div class="col-3">
+                      {{transaction.isDebitAdviceFound == true ? 'Debit advice available' : 'No debit advice'}}
+                      <a *ngIf="transaction.isDebitAdviceFound" (click)="downloadTransactionDebitAdvice()" style="cursor: pointer; margin-right: 10px;">Download</a>
+                      <a *ngIf="transaction.isDebitAdviceFound"
+                        (click)="cancelTransactionDebitAdvice()"
+                             appAdminRole
+                                [Roles]="[
+                                UserRoles.TreasuryOperationAuthorizer.toString(),
+                                UserRoles.TradeOperationAuthorizer.toString()
+                                ]">Delete</a>
+                    </div>
+
+                    <div class="col-3"><b>Transaction Amount Lien Status:</b></div>
+                    <div class="col-3">
+                         <p-tag [value]="getTransactionAmountLienStatusString(transaction.transactionAmountLienStatus)" [severity]="getTransactionAmountLienStatusColor(transaction.transactionAmountLienStatus)"></p-tag>
+                    </div>
                 </div>
               </p-fieldset>
 
@@ -181,23 +207,46 @@
                                 [Roles]="[UserRoles.TradeInitiator.toString(),
                                   UserRoles.TradeDeskAuthorizer.toString()
                                 ]"
-                            style="margin-right: 10px">
+                            style="margin-right: 8px">
                  </button>
 
+                  <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-calculator" iconPos="left"
+                            label="Verify Provision"
+                            *ngIf="UserType == UserTypeEnum.InternalUser"
+                            (click)="verifyProvisionForTransaction(transaction)"
+                                appAdminRole
+                                [Roles]="[UserRoles.TradeInitiator.toString()]"
+                            style="margin-right: 8px">
+                 </button>
+
+                 <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-dollar" iconPos="left"
+                            *ngIf="UserType == UserTypeEnum.InternalUser"
+                            label="'{{transaction.transactionAmountLienStatus==TransactionAmountLienStatus.AmountNotLien ? 'Confirm Amount Lien' : 'Unconfirm Amount Lien' }}"
+                            (click)="setTransactionAmountLienStatus()"
+                                appAdminRole
+                                [Roles]="[UserRoles.TradeInitiator.toString()]"
+                            style="margin-right: 8px">
+                 </button>
 
                   <button pButton type="button"
                             class="p-button-outlined"
                             icon="pi pi-exclamation-triangle" iconPos="left"
                             label="Raise Exception"
+                            *ngIf="UserType == UserTypeEnum.InternalUser"
                             (click)="openRaiseExceptionDialog()"
-                            style="margin-right: 10px">
+                            style="margin-right: 8px">
                   </button>
                    <button pButton type="button"
                             class="p-button-outlined"
                             icon="pi pi-pencil" iconPos="left"
                             [label]="'View/Update Exceptions ('+transaction.transactionExceptionsCount +')'"
+                            *ngIf="UserType == UserTypeEnum.InternalUser"
                             (click)="openViewExceptionsDialog()"
-                            style="margin-right: 10px">
+                            style="margin-right: 8px">
                  </button>
 
                   <button pButton type="button"
@@ -208,7 +257,7 @@
                              appAdminRole
                                 [Roles]="[
                                 UserRoles.TreasuryAuthorizer.toString()]"
-                            style="margin-right: 10px">
+                            style="margin-right: 8px">
                  </button>
                  <button pButton type="button"
                             class="p-button-outlined"
@@ -218,7 +267,7 @@
                                appAdminRole
                                 [Roles]="[
                                 UserRoles.TradeDeskAuthorizer.toString()]"
-                            style="margin-right: 10px">
+                            style="margin-right: 8px">
                  </button>
 
                  <button pButton type="button"
@@ -231,7 +280,7 @@
                                 UserRoles.TreasuryOperationAuthorizer.toString(),
                                 UserRoles.TradeOperationAuthorizer.toString()
                                 ]"
-                            style="margin-right: 10px">
+                            style="margin-right: 8px">
                  </button>
                  <button pButton type="button"
                             class="p-button-outlined"
@@ -243,7 +292,7 @@
                                 UserRoles.TradeAuthorizer.toString(),
                                 UserRoles.TradeOperationAuthorizer.toString()
                                 ]"
-                            style="margin-right: 10px">
+                            style="margin-right: 8px">
                  </button>
                  <button pButton type="button"
                             class="p-button-outlined"
@@ -255,7 +304,7 @@
                                 UserRoles.TradeAuthorizer.toString(),
                                 UserRoles.TradeOperationAuthorizer.toString()
                                 ]"
-                            style="margin-right: 10px">
+                            style="margin-right: 8px">
                  </button>
                   <button pButton type="button"
                             class="p-button-outlined"
@@ -266,7 +315,7 @@
                                 [Roles]="[
                                 UserRoles.TradeOperationAuthorizer.toString()
                                 ]"
-                            style="margin-right: 10px">
+                            style="margin-right: 8px">
                  </button>
                  <button pButton type="button"
                             class="p-button-outlined"
@@ -277,8 +326,21 @@
                                 [Roles]="[
                                 UserRoles.TradeOperationAuthorizer.toString()
                                 ]"
-                            style="margin-right: 10px">
+                            style="margin-right: 8px">
                  </button>
+                 <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-upload" iconPos="left"
+                            label="Upload Debit Advice"
+                            (click)="uploadTransactionDebitAdviceFile()"
+                             appAdminRole
+                                [Roles]="[
+                                UserRoles.TreasuryOperationAuthorizer.toString(),
+                                UserRoles.TradeOperationAuthorizer.toString()
+                                ]"
+                            style="margin-right: 8px">
+                 </button>
+
                  </div>
 
                </div>
@@ -506,7 +568,7 @@
                             [currentStatus]="transaction?.status"
                             icon="pi pi-times" iconPos="left"
                             label="Send For Correction"
-                             (click)="approvalFlow(TransactionDecisionAction.SendForCorrection)"
+                             (click)="openSendForCorrection()"
                             style="margin-right: 10px;">
                  </button>
                   <button pButton type="button"
@@ -1038,52 +1100,78 @@
 </p-dialog>
 
 <p-dialog [(visible)]="diImputationDialog"
-          [style]="{width: '50vw'}"
+          [style]="{width: '70vw', 'max-width': '100vw'}"
           [header]="'DI Imputation'"
           [modal]="true">
            <br/><br/>
   <div class="p-fluid">
     <div class="grid">
-
       <!-- DI Selection -->
       <div class="col-12 mb-3">
         <span class="p-float-label">
-          <p-dropdown [options]="clientDIs"
-                     [(ngModel)]="selectedDI"
+          <p-multiSelect [options]="clientDIs"
+                     [(ngModel)]="selectedDIs"
                      [style]="{'width':'100%'}"
                      optionLabel="referenceDi"
-                     placeholder="Select DI"
-                     (onChange)="onDISelect($event)">
+                     placeholder="Select DIs"
+                     (onChange)="onDIsSelect($event)">
             <ng-template let-di pTemplate="item">
-              <div>{{di.referenceDi}} - {{di.diAmount}} {{di.diCurrency}}</div>
+              <div>{{di.referenceDi}} - Amount : {{di.diAmount}} {{di.diCurrency}}
+                - Balance : {{di.soldeInCurrency}} {{di.diCurrency}} - Status :
+                <p-tag [value]="getDIStatusString(di.diStatus)"
+                        [severity]="colorDIStatus(di.diStatus)">
+                </p-tag>
+              </div>
             </ng-template>
-          </p-dropdown>
-          <label>Select DI</label>
+          </p-multiSelect>
+          <label>Select DIs</label>
         </span>
       </div>
 
-      <!-- DI Details -->
-      <div class="col-12" *ngIf="selectedDI">
-        <p-fieldset legend="DI Details">
+      <!-- Selected DIs Details -->
+      <div class="col-12" *ngFor="let di of selectedDIs">
+        <p-fieldset legend="DI Details - {{di.referenceDi}}">
           <div class="grid">
-            <div class="col-6"><b>Reference:</b> {{selectedDI.referenceDi}}</div>
-            <div class="col-6"><b>Status:</b>  <p-tag [value]="getDIStatusString(selectedDI.diStatus)"
-                                                      [severity]="colorDIStatus(selectedDI.diStatus)">
-                                              </p-tag></div>
+            <div class="col-6"><b>Domiciliation Date :</b> {{di.dateCreationDiInEforce | date:'medium' }}</div>
+             <div class="col-6"><b>DI Modification Status:</b>
+              <p-tag [value]="di.hasDataBeingModified ? 'Data being modified' : 'Data not modified'"
+                    [severity]="di.hasDataBeingModified ? 'warning' : 'success'">
+              </p-tag>
+            </div>
+            <div class="col-6"><b>Reference:</b> {{di.referenceDi}}</div>
+            <div class="col-6"><b>DI Status:</b>
+              <p-tag [value]="getDIStatusString(di.diStatus)"
+                    [severity]="colorDIStatus(di.diStatus)">
+              </p-tag>
+            </div>
 
-            <div class="col-6"><b>Amount:</b> {{selectedDI.diAmount}}</div>
-            <div class="col-6"><b>Currency:</b> {{selectedDI.diCurrency}}</div>
+            <div class="col-6"><b>Amount:</b> {{di.diAmount}}</div>
+            <div class="col-6"><b>Currency:</b> {{di.diCurrency}}</div>
 
-            <div class="col-6"><b>Bank Reference:</b> {{selectedDI.domiciliationNumberInBank || 'N/A'}}</div>
-            <div class="col-6"><b>SGS Reference:</b> {{selectedDI.referenceSgs || 'N/A'}}</div>
+             <div class="col-6"><b>Balance Amount:</b> {{di.soldeInCurrency}}</div>
+            <div class="col-6"><b>Currency:</b> {{di.diCurrency}}</div>
 
-            <div class="col-12"><b>Provider:</b> {{selectedDI.providerName || 'N/A'}}</div>
+            <div class="col-6"><b>Bank Reference:</b> {{di.domiciliationNumberInBank || 'N/A'}}</div>
+            <div class="col-6"><b>SGS Reference:</b> {{di.referenceSgs || 'N/A'}}</div>
+
+            <div class="col-12"><b>Provider:</b> {{di.providerName || 'N/A'}}</div>
+             <!-- imputation comm -->
+      <div class="col-12 mt-3">
+         <textarea pInputTextarea
+                             [(ngModel)]="di.comment"
+                             [rows]="4"
+                             [style]="{'width':'100%','font-size':'1.2em'}"
+                             autoResize="true">
+         </textarea>
+      </div>
           </div>
         </p-fieldset>
       </div>
 
+
+
       <!-- Transaction Details -->
-      <div class="col-12 mt-3" *ngIf="selectedDI && transaction">
+      <div class="col-12 mt-3" *ngIf="selectedDIs.length > 0 && transaction">
         <p-fieldset legend="Transaction Details">
           <div class="grid">
             <div class="col-6"><b>Amount:</b> {{transaction.transactionAmount}}</div>
@@ -1098,7 +1186,7 @@
                 label="Impute"
                 icon="pi pi-check"
                 (click)="imputeDI()"
-                [disabled]="!selectedDI"
+                [disabled]="!selectedDIs?.length"
                 class="p-button-success">
         </button>
       </div>
@@ -1119,6 +1207,8 @@
         <th>Imputation Currency</th>
         <th>Status</th>
         <th>Date</th>
+        <th>Comment</th>
+
         <th>Actions</th>
       </tr>
     </ng-template>
@@ -1134,6 +1224,7 @@
           </p-tag>
         </td>
         <td>{{imputation.imputationDate | date:'medium'  }}</td>
+        <td>{{imputation.comment}}</td>
 
         <td>
           <button pButton pRipple type="button"
@@ -1263,7 +1354,7 @@
 </p-dialog>
 
 <p-dialog [(visible)]="apurementTransactionOptionDialog"
-          [style]="{width: '50vw'}"
+          [style]="{width: '50vw', height: '60vh'}"
           [header]="'Set Apurement Status'"
           [modal]="true">
      <br/> <br/> <br/> <br/>
@@ -1304,13 +1395,13 @@
           [style]="{width: '70vw'}"
           [header]="'Provision Details'"
           [modal]="true">
-     <br/> <br/> 
+     <br/> <br/>
   <div class="row">
   <p-table [value]="transactionProvisionTransferResponse" styleClass="p-datatable-gridlines">
     <ng-template pTemplate="header">
       <tr>
         <th>Reference</th>
-        <th>Operation Account</th> 
+        <th>Operation Account</th>
         <th>Type</th>
         <th>Amount</th>
         <th>Creation Date</th>
@@ -1334,7 +1425,7 @@
         <td>{{provision.dateProcessed | date:'medium'}}</td>
         <td>
           <button pButton pRipple type="button"
-                  icon="pi pi-refresh" 
+                  icon="pi pi-refresh"
                   class="p-button-rounded p-button-warning"
                   (click)="retryProvisionAccount(provision.id)">
           </button>
@@ -1347,9 +1438,121 @@
       </tr>
     </ng-template>
   </p-table>
-    
-  </div>    
-</p-dialog> 
+
+  </div>
+</p-dialog>
+
+<p-dialog header="Financial Calculation Result" [(visible)]="openProvisionVerificationDialog" [style]="{width: '60vw'}">
+  <!-- Financial Outcome Section -->
+  <div class="financial-container">
+    <div class="grid-container">
+      <div class="grid-row">
+        <span class="label">Currency:</span>
+        <span class="value">{{ provisionVerificationResponse?.currency }}</span>
+      </div>
+      <div class="grid-row">
+        <span class="label">Rate:</span>
+        <span class="value">{{ provisionVerificationResponse?.financialOutcome?.rate | number:'1.3-3' }}</span>
+      </div>
+      <div class="grid-row">
+        <span class="label">Rate Date:</span>
+        <span class="value">{{ provisionVerificationResponse?.financialOutcome?.rateDate | date:'medium' }}</span>
+      </div>
+      <div class="grid-row">
+        <span class="label">Principal Amount:</span>
+        <span class="value">{{ provisionVerificationResponse?.financialOutcome?.principalAmountInBaseCurrency | number:'1.2-2' }}</span>
+      </div>
+      <div class="grid-row">
+        <span class="label">Spread:</span>
+        <span class="value">{{ provisionVerificationResponse?.financialOutcome?.spreadInPercentage | percent:'1.2-2' }}</span>
+      </div>
+    </div>
+
+    <div class="grid-container">
+      <div class="grid-row">
+        <span class="label">Financial Commission:</span>
+        <span class="value">{{ provisionVerificationResponse?.financialOutcome?.financialCommission | number:'1.2-2' }}</span>
+      </div>
+      <div class="grid-row">
+        <span class="label">Financial Tax:</span>
+        <span class="value">{{ provisionVerificationResponse?.financialOutcome?.financialCommissionTax | number:'1.2-2' }}</span>
+      </div>
+      <div class="grid-row">
+        <span class="label">Non-Financial Commission:</span>
+        <span class="value">{{ provisionVerificationResponse?.financialOutcome?.nonFinancialCommission | number:'1.2-2' }}</span>
+      </div>
+      <div class="grid-row">
+        <span class="label">Non-Financial Tax:</span>
+        <span class="value">{{ provisionVerificationResponse?.financialOutcome?.nonFinancialCommissionTax | number:'1.2-2' }}</span>
+      </div>
+      <div class="grid-row">
+        <span class="label">Account Balance:</span>
+        <span class="value">{{ provisionVerificationResponse?.balance | number:'1.2-2' }}</span>
+      </div>
+      <div class="grid-row">
+        <span class="label">Lien Amount:</span>
+        <span class="value highlight">{{ provisionVerificationResponse?.financialOutcome?.amountToLienLocalCurrency | number:'1.2-2' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Message Section -->
+  <div class="message-container">
+    <p class="message" [innerHTML]="((provisionVerificationResponse?.financialOutcome?.amountToLienLocalCurrency ?? 0) > (provisionVerificationResponse?.balance ?? 0)) ? 'Lien amount exceeds balance' : 'Lien amount is within balance'"></p>
+  </div>
+</p-dialog>
+
+
+<!-- Send For Correction Dialog -->
+<p-dialog [(visible)]="openSendForCorrectionDialog"
+                    [style]="{width: '50vw'}"
+                    [header]="'Send For Correction  Transaction - ' + transaction?.transactionReference"
+                    [modal]="true" >
+            <br/>
+            <br/>
+            <form [formGroup]="sendForCorrectionForm" (ngSubmit)="sendForCorrection()" class="p-fluid">
+              <div class="grid">
+                <!-- Role -->
+                <div class="col-12 mb-3">
+                  <span class="p-float-label">
+                    <p-dropdown formControlName="role"
+                              [options]="optionSendForCorrection"
+                              [style]="{'width':'100%'}"
+                              optionLabel="roleName"
+                              optionValue="role"
+                              placeholder="Select Role"
+                              [showClear]="false">
+                    </p-dropdown>
+                    <label>Role To Sent To</label>
+                  </span>
+                </div>
+
+                <!-- Review Note -->
+                <div class="col-12 mb-3">
+                  <span class="p-float-label">
+                    <textarea pInputTextarea
+                             formControlName="comment"
+                             [rows]="4"
+                             [style]="{'width':'100%','font-size':'1.2em'}"
+                             autoResize="true">
+                    </textarea>
+                    <label>Comment Notes</label>
+                  </span>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="col-12">
+                  <button pButton type="submit"
+                          label="Send For Correction"
+                          icon="pi pi-check"
+                          [disabled]="sendForCorrectionForm.invalid"
+                          class="p-button-success">
+                  </button>
+                </div>
+              </div>
+            </form>
+   </p-dialog>
+
 <swal
   #dialog_operation_swal
   title="Delete ?"

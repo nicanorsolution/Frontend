@@ -22,6 +22,19 @@
                         class="w-full"
                       />
                     </span>
+                    <p-dropdown
+                      formControlName="userType"
+                      [options]="[
+                        { label: 'All Types', value: null },
+                        { label: 'Internal User', value: UserType.InternalUser },
+                        { label: 'External User', value: UserType.ExternalUser }
+                      ]"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="User Type"
+                      [showClear]="true"
+                      styleClass="w-10rem">
+                    </p-dropdown>
                     <button
                       pButton
                       type="submit"
@@ -59,48 +72,185 @@
               currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
               (onPage)="onPageChange($event)"
               [lazy]="true"
-              [first]="(currentPage-1) * pageSize">
+              [first]="(currentPage-1) * pageSize"
+              [expandedRowKeys]="expandedRows"
+              dataKey="id">
 
             <ng-template pTemplate="header">
               <tr>
+                <th style="width: 3rem"></th>
                 <th>User Name</th>
+                <th>Full Name</th>
                 <th>Role</th>
+                <th>User Type</th>
+                <th>Entity</th>
                 <th>Status</th>
                 <th>Creation</th>
-                <th>Last Modified</th>
-                <th>Action</th>
               </tr>
             </ng-template>
+
             <ng-template pTemplate="body" let-user let-expanded="expanded">
               <tr>
-
+                <td>
+                  <button type="button" pButton pRipple [pRowToggler]="user"
+                    class="p-button-text p-button-rounded p-button-plain"
+                    [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+                  </button>
+                </td>
                 <td>{{ user.userName }}</td>
+                <td>{{ user.firstName }} {{ user.lastName }}</td>
                 <td>
                   <p-tag [value]="getRoleName(user.role)" [severity]="'success'"></p-tag>
                 </td>
-                <td> <p-tag [value]="user.status" [severity]="colorStatus(user.status)"></p-tag></td>
-                <td>{{ user.createdAt | date:'medium' }}  {{ user.createdBy }} </td>
-                <td>{{ user.updatedAt  | date:'medium'}}  {{ user.updatedBy }} </td>
                 <td>
+                  <p-tag [value]="getUserTypeName(user.userType)" [severity]="'info'"></p-tag>
+                </td>
+                <td>{{ user.entityName || 'N/A' }}</td>
+                <td> <p-tag [value]="user.status" [severity]="colorStatus(user.status)"></p-tag></td>
+                <td>{{ user.createdAt | date:'medium' }}</td>
+              </tr>
+            </ng-template>
 
-                  <button    pButton   type="button"   label="Approve"   class="p-button-outlined p-button-success"
-                  *ngIf="user.status == 'Created'"
-                     [appRole]="['SuperAdmin']"
-                  icon="pi pi-check" iconPos="left" (click)="checkerDecision(user,CheckerDecision.ApprovedCurrentAction)" >
-                  </button>
+            <ng-template pTemplate="rowexpansion" let-user>
+              <tr>
+                <td colspan="8">
+                  <div class="p-grid p-nogutter">
+                    <br/>
+                    <div class="p-col-12">
+                      <div class="grid">
+                        <div class="col-3">
+                          <div class="text-left p-3 font-bold">User Name</div>
+                        </div>
+                        <div class="col-3">
+                          <div class="text-left p-3">{{user.userName}}</div>
+                        </div>
+                         <div class="col-3">
+                          <div class="text-left p-3 font-bold">Email Address</div>
+                        </div>
+                        <div class="col-3">
+                          <div class="text-left p-3">{{user.email}}</div>
+                        </div>
+                        <div class="col-3">
+                          <div class="text-left p-3 font-bold">Full Name</div>
+                        </div>
+                        <div class="col-3">
+                          <div class="text-left p-3">{{ user.firstName }} {{ user.lastName }}</div>
+                        </div>
 
-                  <button    pButton   type="button"   label="Cancel"   class="p-button-outlined p-button-danger ml-1"
-                  *ngIf="user.status == 'Created'"
-                    [appRole]="['SuperAdmin']"
-                  icon="pi pi-times" iconPos="left" (click)="checkerDecision(user,CheckerDecision.CanceledCurrentAction)" >
-                  </button>
 
-                  <button    pButton   type="button"   label="Delete"   class="p-button-outlined p-button-danger"
-                  *ngIf="user.status == 'Approved'"
-                    [appRole]="['SuperAdmin']"
-                  icon="pi pi-trash" iconPos="left" (click)="deleteUser(user)" >
-                  </button>
+                        <div class="col-3">
+                          <div class="text-left p-3 font-bold">Phone Number</div>
+                        </div>
+                        <div class="col-3">
+                          <div class="text-left p-3">{{user.phone}}</div>
+                        </div>
 
+                        <div class="col-3">
+                          <div class="text-left p-3 font-bold">User Role</div>
+                        </div>
+                        <div class="col-3">
+                          <div class="text-left p-3">
+                            <p-tag [value]="getRoleName(user.role)" [severity]="'success'"></p-tag>
+                          </div>
+                        </div>
+                        <div class="col-3">
+                          <div class="text-left p-3 font-bold">User Type</div>
+                        </div>
+                        <div class="col-3">
+                          <div class="text-left p-3">
+                            <p-tag [value]="getUserTypeName(user.userType)" [severity]="'info'"></p-tag>
+                          </div>
+                        </div>
+
+                        <div class="col-3">
+                          <div class="text-left p-3 font-bold">Entity ID</div>
+                        </div>
+                        <div class="col-3">
+                          <div class="text-left p-3">{{user.entityIdMapTo || 'N/A'}}</div>
+                        </div>
+                        <div class="col-3">
+                          <div class="text-left p-3 font-bold">Entity Name</div>
+                        </div>
+                        <div class="col-3">
+                          <div class="text-left p-3">{{user.entityName || 'N/A'}}</div>
+                        </div>
+
+                        <div class="col-3">
+                          <div class="text-left p-3 font-bold">Status</div>
+                        </div>
+                        <div class="col-3">
+                          <div class="text-left p-3">
+                            <p-tag [value]="user.status" [severity]="colorStatus(user.status)"></p-tag>
+                          </div>
+                        </div>
+                        <div class="col-3">
+                          <div class="text-left p-3 font-bold">User ID</div>
+                        </div>
+                        <div class="col-3">
+                          <div class="text-left p-3">{{user.id}}</div>
+                        </div>
+
+                        <div class="col-3">
+                          <div class="text-left p-3 font-bold">Created By</div>
+                        </div>
+                        <div class="col-3">
+                          <div class="text-left p-3">{{user.createdBy}}</div>
+                        </div>
+                        <div class="col-3">
+                          <div class="text-left p-3 font-bold">Created At</div>
+                        </div>
+                        <div class="col-3">
+                          <div class="text-left p-3">{{user.createdAt | date:'medium'}}</div>
+                        </div>
+
+                        <div class="col-3">
+                          <div class="text-left p-3 font-bold">Updated By</div>
+                        </div>
+                        <div class="col-3">
+                          <div class="text-left p-3">{{user.updatedBy || 'Pending'}}</div>
+                        </div>
+                        <div class="col-3">
+                          <div class="text-left p-3 font-bold">Updated At</div>
+                        </div>
+                        <div class="col-3">
+                          <div class="text-left p-3">{{(user.updatedAt | date:'medium') || 'Pending'}}</div>
+                        </div>
+                      </div>
+                    </div>
+                    <br/>
+                    <div class="p-col-12">
+                      <hr/>
+                      <div class="flex flex-row-reverse flex-wrap">
+
+                        <button pButton type="button" label="Cancel"
+                          *ngIf="user.status == 'Created'"
+                          [appRole]="[UserRoles.SuperAdmin.toString(),UserRoles.Admin.toString()]"
+                          class="p-button-outlined p-button-danger"
+                          icon="pi pi-times" iconPos="left"
+                          (click)="checkerDecision(user,CheckerDecision.CanceledCurrentAction)"
+                          style="margin-right: 10px">
+                        </button>
+
+                        <button pButton type="button" label="Delete"
+                          *ngIf="user.status == 'Approved'"
+                          [appRole]="[UserRoles.SuperAdmin.toString(),UserRoles.Admin.toString()]"
+                          class="p-button-outlined p-button-danger"
+                          icon="pi pi-trash" iconPos="left"
+                          (click)="deleteUser(user)"
+                          style="margin-right: 10px">
+                        </button>
+
+                          <button pButton type="button" label="Approve"
+                          *ngIf="user.status == 'Created'"
+                          [appRole]="[UserRoles.SuperAdmin.toString(),UserRoles.Admin.toString()]"
+                          class="p-button-outlined p-button-success"
+                          icon="pi pi-check" iconPos="left"
+                          (click)="checkerDecision(user,CheckerDecision.ApprovedCurrentAction)"
+                          style="margin-right: 10px">
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </td>
               </tr>
             </ng-template>
@@ -109,7 +259,7 @@
 
           </div>
 
-          <p-dialog  [(visible)]="userDialog" [style]="{width: '50vw'}">
+          <p-dialog [(visible)]="userDialog"  [style]="{width: '60vw'}">
             <ng-template pTemplate="header">
               <div class="text-center">
                 <h3 class="title">Create User</h3>
@@ -119,43 +269,160 @@
             <form [formGroup]="createUserForm" (ngSubmit)="createUser()">
              <div class="grid p-fluid mt-3">
 
-              <div class="field col-12">
+              <div class="field col-6">
                 <span class="p-float-label p-input-filled">
-
-                  <input formControlName="userName"  type="text" id="inputtext" pInputText />
-
-                  <label for="inputtext">User Name</label>
-                  <small *ngIf=" createUserForm.get('userName')?.touched && createUserForm.get('userName')?.hasError('noOnlyDigits')" class="p-error">Username is required. and can't be only digit</small>
-              </span>
+                  <input formControlName="userName" type="email" id="userName" pInputText />
+                  <label for="userName">Email Address</label>
+                  <small *ngIf="createUserForm.get('userName')?.invalid && (createUserForm.get('userName')?.dirty || createUserForm.get('userName')?.touched)" class="p-error">
+                    Valid email is required
+                  </small>
+                </span>
               </div>
 
-              <div class="field col-12">
+              <div class="field col-6">
                 <span class="p-float-label p-input-filled">
-
                   <p-dropdown
-                  formControlName="role"
-                  [options]="roles"
-                  optionLabel="roleName"
-                  [showClear]="true"
-                  placeholder="Select a role" />
-
-                  <label for="role">User Role</label>
-                  <small *ngIf="createUserForm.get('role')?.invalid && (createUserForm.get('role')?.dirty
-                              || createUserForm.get('role')?.touched)" class="p-error">Role is required.</small>
-              </span>
+                    formControlName="userType"
+                    [options]="[
+                      { label: 'Internal User', value: UserType.InternalUser },
+                      { label: 'External User', value: UserType.ExternalUser }
+                    ]"
+                    optionLabel="label"
+                    optionValue="value"
+                    (onChange)="onUserTypeChange()"
+                    placeholder="Select user type">
+                  </p-dropdown>
+                  <label for="userType">User Type</label>
+                  <small *ngIf="createUserForm.get('userType')?.invalid && (createUserForm.get('userType')?.dirty || createUserForm.get('userType')?.touched)" class="p-error">
+                    User type is required
+                  </small>
+                </span>
               </div>
 
+              <div class="field col-6">
+                <span class="p-float-label p-input-filled">
+                  <input formControlName="firstName" type="text" id="firstName" pInputText />
+                  <label for="firstName">First Name</label>
+                  <small *ngIf="createUserForm.get('firstName')?.invalid && (createUserForm.get('firstName')?.dirty || createUserForm.get('firstName')?.touched)" class="p-error">
+                    First name is required
+                  </small>
+                </span>
+              </div>
 
-              <div class="field col-9" ></div>
-              <div class="field col-3">
+              <div class="field col-6">
+                <span class="p-float-label p-input-filled">
+                  <input formControlName="lastName" type="text" id="lastName" pInputText />
+                  <label for="lastName">Last Name</label>
+                  <small *ngIf="createUserForm.get('lastName')?.invalid && (createUserForm.get('lastName')?.dirty || createUserForm.get('lastName')?.touched)" class="p-error">
+                    Last name is required
+                  </small>
+                </span>
+              </div>
+
+              <div class="field col-6">
+                <span class="p-float-label p-input-filled">
+                  <input formControlName="phone" type="tel" id="phone" pInputText />
+                  <label for="phone">Phone Number</label>
+                  <small *ngIf="createUserForm.get('phone')?.invalid && (createUserForm.get('phone')?.dirty || createUserForm.get('phone')?.touched)" class="p-error">
+                    Phone number is required
+                  </small>
+                </span>
+              </div>
+
+              <div class="field col-6">
+                <span class="p-float-label p-input-filled">
+                  <p-dropdown
+                    formControlName="role"
+                    [options]="roles"
+                    optionLabel="roleName"
+                    [showClear]="true"
+                    placeholder="Select a role">
+                  </p-dropdown>
+                  <label for="role">User Role</label>
+                  <small *ngIf="createUserForm.get('role')?.invalid && (createUserForm.get('role')?.dirty || createUserForm.get('role')?.touched)" class="p-error">
+                    Role is required
+                  </small>
+                </span>
+              </div>
+
+              <!-- External User Entity Mapping Section -->
+              <div *ngIf="selectedUserType === UserType.ExternalUser" class="field col-12">
+                <hr>
+                <h5>Entity Mapping (External User)</h5>
+              </div>
+
+              <div *ngIf="selectedUserType === UserType.ExternalUser" class="field col-6">
+                <span class="p-float-label p-input-filled">
+                  <p-dropdown
+                    formControlName="entityMappingType"
+                    [options]="[
+                      { label: 'Corporate', value: 'corporate' },
+                      { label: 'Individual', value: 'individual' }
+                    ]"
+                    optionLabel="label"
+                    optionValue="value"
+                    (onChange)="onEntityMappingTypeChange()"
+                    placeholder="Select entity type">
+                  </p-dropdown>
+                  <label for="entityMappingType">Entity Type</label>
+                  <small *ngIf="createUserForm.get('entityMappingType')?.invalid && (createUserForm.get('entityMappingType')?.dirty || createUserForm.get('entityMappingType')?.touched)" class="p-error">
+                    Entity type is required for external users
+                  </small>
+                </span>
+              </div>
+
+              <div *ngIf="selectedUserType === UserType.ExternalUser && entityMappingType === 'corporate'" class="field col-6">
+                <span class="p-float-label p-input-filled">
+                  <p-autoComplete
+                    formControlName="corporateOrIndividualId"
+                    [suggestions]="corporateOptions"
+                    (completeMethod)="searchCorporate($event)"
+                    field="name"
+                    [dropdown]="true"
+                    placeholder="Search and select corporate">
+                  </p-autoComplete>
+                  <label for="corporateOrIndividualId">Corporate</label>
+                  <small *ngIf="createUserForm.get('corporateOrIndividualId')?.invalid && (createUserForm.get('corporateOrIndividualId')?.dirty || createUserForm.get('corporateOrIndividualId')?.touched)" class="p-error">
+                    Corporate selection is required
+                  </small>
+                </span>
+              </div>
+
+              <div *ngIf="selectedUserType === UserType.ExternalUser && entityMappingType === 'individual'" class="field col-6">
+                <span class="p-float-label p-input-filled">
+                  <p-autoComplete
+                    formControlName="corporateOrIndividualId"
+                    [suggestions]="individualOptions"
+                    (completeMethod)="searchIndividual($event)"
+                    field="name"
+                    [dropdown]="true"
+                    placeholder="Search and select individual">
+                  </p-autoComplete>
+                  <label for="corporateOrIndividualId">Individual</label>
+                  <small *ngIf="createUserForm.get('corporateOrIndividualId')?.invalid && (createUserForm.get('corporateOrIndividualId')?.dirty || createUserForm.get('corporateOrIndividualId')?.touched)" class="p-error">
+                    Individual selection is required
+                  </small>
+                </span>
+              </div>
+
+              <div class="field col-8"></div>
+              <div class="field col-4">
                 <br/>
-                <button    pButton   type="submit"  class="p-button-outlined p-button-success"  style="float: right; margin-right: 25px; "
-                 [label]="isSubmitted ? 'Submiting...' : 'Save'" [icon]="isSubmitted ? 'pi pi-spinner pi-spin' : 'pi pi-save'"  iconPos="left"
-                 [disabled]="createUserForm.invalid" >
-                </button>
+                <div class="flex gap-2 justify-content-end">
+                  <button pButton type="button" label="Cancel"
+                    class="p-button-outlined p-button-secondary"
+                    (click)="userDialog = false">
+                  </button>
+                  <button pButton type="submit"
+                    class="p-button-outlined p-button-success"
+                    [label]="isSubmitted ? 'Submitting...' : 'Save'"
+                    [icon]="isSubmitted ? 'pi pi-spinner pi-spin' : 'pi pi-save'"
+                    iconPos="left"
+                    [disabled]="createUserForm.invalid || isSubmitted">
+                  </button>
+                </div>
               </div>
              </div>
-
             </form>
          </p-dialog>
 

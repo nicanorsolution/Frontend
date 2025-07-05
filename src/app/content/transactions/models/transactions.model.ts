@@ -169,6 +169,12 @@ export interface TransactionResponse {
   nonFinancialCommission: number;
   nonFinancialCommissionTax: number;
   amountToLienLocalCurrency: number;
+  isDebitAdviceFound : boolean;
+  transactionAmountLienStatus: TransactionAmountLienStatus;
+  correctionComment?: string;
+  correctionDate?: Date;
+  correctionUserName?: string;
+  isCorrected?: boolean;
 }
 
 
@@ -203,6 +209,29 @@ export interface TransactionProvisionTransferResponse {
   errorMessage?: string;
 }
 
+export interface ProvisionBeforeInitiationResponse {
+  financialOutcome?: FinancialOutcome;
+  balance?: number;
+  currency?: string;
+}
+
+export interface FinancialOutcome {
+  historyVersion?: string;
+  isSpecialPricing?: boolean;
+  rate?: number;
+  rateDate?: Date;
+  spreadInPercentage?: number;
+  principalAmountInBaseCurrency?: number;
+  financialCommissionInPercentage?: number;
+  financialCommission?: number;
+  financialCommissionTax?: number;
+  nonFinancialCommissionInPercentage?: number;
+  nonFinancialCommission?: number;
+  nonFinancialCommissionTax?: number;
+  amountToLienLocalCurrency?: number;
+}
+
+
 export enum ProvisionTransferStatus {
   Created,
   Processed,
@@ -213,6 +242,8 @@ export enum ProvisionTransferStatus {
 export interface TransactionApprovalFlowCommand {
   transactionId: string;
   transactionDecisionAction: TransactionDecisionAction;
+  userRoleToSendTo?: number; //UserRoleToSendTo
+  comment?: string;
 }
 
 export enum TransactionFileStatus {
@@ -283,6 +314,13 @@ export interface DIByClientResponse {
   domiciliationNumberInBank: string | null;
   referenceSgs: string | null;
   providerName: string | null;
+  dateCreationDiInEforce?: Date;
+  hasDataBeingModified: boolean;
+  soldeInCurrency?: number;
+
+  // this added to the response to be used in actual imputation
+  // since each imputation need a comment
+  comment: string;
 }
 
 export interface TransactionMessageResponse {
@@ -331,4 +369,14 @@ export  enum TransactionProvisionStatus
     BeingProcessed,
     Processed,
     Failed
+}
+
+export enum TransactionAmountLienStatus {
+  AmountNotLien,
+  AmountLien
+}
+
+export interface RoleToSendBackTransactionResponse {
+  role: number;
+  roleName: string;
 }

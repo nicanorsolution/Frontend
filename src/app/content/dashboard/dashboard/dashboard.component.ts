@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { DashboardService } from '../services/dashboard.service';
-import { CustomerDistribution, DashboardStats, DocumentStatusDistribution, RecentTransaction, TransactionTrend } from '../models/dashboard.models';
+import { BankDashboardResponse, CustomerDistribution, DashboardStats, DocumentStatusDistribution, RecentTransaction, TransactionTrend } from '../models/dashboard.models';
 import { ChartConfiguration, ChartData, ChartEvent, ChartType } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 
@@ -73,10 +73,22 @@ export class DashboardComponent implements OnInit {
         }]
     };
 
-    constructor(private dashboardService: DashboardService) { }
+    bankDashboard : BankDashboardResponse | null = null;
+
+    constructor(private dashboardService: DashboardService) {       
+
+    }
 
     ngOnInit(): void {
-        this.loadDashboardData();
+     
+      this.dashboardService.getBankDashboard().subscribe((response) => {
+
+            console.log(response);
+            
+            this.bankDashboard = response;
+        });
+
+        this.loadDashboardData();        
     }
 
     private loadDashboardData(): void {

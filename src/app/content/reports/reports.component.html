@@ -33,6 +33,7 @@
                   <th>Type</th>
                   <th>Format</th>
                   <th>Status</th>
+                  <th>Message</th>
                   <th>Date Requested</th>
                   <th>Date Generated</th>
                   <th>Action</th>
@@ -48,6 +49,7 @@
                           [value]="ReportStatus[report.reportStatus]"  class="p-mr-2">
                     </p-tag>
                   </td>
+                  <td>{{ report.reportMessage}}</td>
                   <td>{{ report.reportDateRequested | date : "medium" }}</td>
                   <td>{{ report.reportDateGenerated | date : "medium" }}</td>
                   <td>
@@ -69,7 +71,7 @@
 
           <p-dialog
             [(visible)]="reportDialog"
-            [style]="{ width: '50vw' }"
+            [style]="{ width: '50vw',height: '60vh' }"
             [modal]="true"
           >
             <ng-template pTemplate="header">
@@ -77,7 +79,11 @@
                 <h3 class="title">Create Report</h3>
               </div>
             </ng-template>
-
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
             <form [formGroup]="createReportForm" (ngSubmit)="createReport()">
               <div class="grid p-fluid mt-3">
                 <div class="field col-12">

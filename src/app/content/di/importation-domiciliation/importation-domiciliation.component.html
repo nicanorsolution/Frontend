@@ -641,6 +641,7 @@
         <th>Currency</th>
         <th>Imputation Date</th>
         <th>Status</th>
+        <th>Comment</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-imputation>
@@ -661,6 +662,7 @@
           >
           </p-tag>
         </td>
+        <td>{{ imputation.comment }}</td>
       </tr>
     </ng-template>
     <ng-template pTemplate="emptymessage">

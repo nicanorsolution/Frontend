@@ -58,9 +58,9 @@ export class TransactionalRoleDirective implements OnInit {
       case TransactionStatus.TreasuryOperationAuthorized:
         userCanAction = this.roles.find((r) => r == token.UserRoles) == UserRoles.TradeOperationAuthorizer.toString();
         break;
-      case TransactionStatus.TradeOperationAuthorized:
+    /*   case TransactionStatus.TradeOperationAuthorized:
         userCanAction = this.roles.find((r) => r == token.UserRoles) == UserRoles.TradeOperationAuthorizer.toString();
-        break;
+        break; */
     }
 
     console.log('appTransactionalRole hasRole', hasRole);

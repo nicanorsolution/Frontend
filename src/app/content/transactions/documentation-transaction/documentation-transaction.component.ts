@@ -1,4 +1,4 @@
-import { DocumentSubmissionOption, ProcessingOption, ProvisionTransferStatus, TransactionApprovalFlowCommand, TransactionDecisionAction, TransactionDIStatus, TransactionExceptionHistoryResponse, TransactionMessageResponse, TransactionMessageType, TransactionProvisionStatus, TransactionProvisionTransferResponse } from './../models/transactions.model';
+import { DocumentSubmissionOption, ProcessingOption, ProvisionBeforeInitiationResponse, ProvisionTransferStatus, RoleToSendBackTransactionResponse, TransactionAmountLienStatus, TransactionApprovalFlowCommand, TransactionDecisionAction, TransactionDIStatus, TransactionExceptionHistoryResponse, TransactionMessageResponse, TransactionMessageType, TransactionProvisionStatus, TransactionProvisionTransferResponse } from './../models/transactions.model';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -26,8 +26,8 @@ import { TransactionService } from '../services/transctions.service';
 import { TransactionDocumentationData } from '../resolvers/transaction-documentation.resolver';
 import { DocumentControl, DocumentControlType, DocumentResponse } from '../../documentations/models/document.models';
 import { error } from 'console';
-import { DIStatus, DIImputationResponse, ImputationStatus } from '../../di/models/di.models';
-import { UserRoles } from '../../users/user.models';
+import { DIStatus, DIImputationResponse, ImputationStatus, ImputeDICommand } from '../../di/models/di.models';
+import { UserRoles, UserType } from '../../users/user.models';
 import { AuthService } from '../../users/auth.service';
 import { ConfirmationService } from 'primeng/api';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
@@ -93,7 +93,8 @@ export class DocumentationTransactionComponent implements OnInit {
   ReferenceMT = ReferenceMT;
   diImputationDialog = false;
   clientDIs: DIByClientResponse[] = [];
-  selectedDI?: DIByClientResponse;
+  //selectedDI?: DIByClientResponse;
+  selectedDIs: DIByClientResponse[] = [];
   diImputationsDialog = false;
   diImputations: DIImputationResponse[] = [];
 
@@ -116,10 +117,13 @@ export class DocumentationTransactionComponent implements OnInit {
     { label: 'Apured Partially', value: TransactionApurementStatus.ApuredPartially }
   ];
 
+  sendForCorrectionForm: FormGroup;
+
   panelNumber: number = 1;
 
+  UserType : UserType | undefined;
+  UserTypeEnum  = UserType;
 
-  
     @ViewChild('dialog_operation_swal')
     private dialogOperationSwal!: SwalComponent;
   constructor(
@@ -150,6 +154,12 @@ export class DocumentationTransactionComponent implements OnInit {
       referenceMT: ['', Validators.required],
       reference: ['', Validators.required]
     });
+    this.sendForCorrectionForm = this.fb.group({
+       role: [null, Validators.required],
+       comment: ['', Validators.required]
+    });
+
+   this.UserType = this.authService.getDecodedToken().UserType;
   }
 
   ngOnInit() {
@@ -184,6 +194,30 @@ export class DocumentationTransactionComponent implements OnInit {
       console.log('panelNumber', 2);
       return 2;
     }
+  }
+
+  openProvisionVerificationDialog = false;
+  provisionVerificationResponse : ProvisionBeforeInitiationResponse | null = null;
+  verifyProvisionForTransaction(transaction: TransactionResponse): void {
+
+    this.transactionService.verifyProvisionForTransaction(transaction.id)
+      .subscribe({
+        next: (response: ProvisionBeforeInitiationResponse) => {
+
+          console.log("🚀 => verifyProvisionForTransaction => response:", response);
+         this.provisionVerificationResponse = response;
+         this.openProvisionVerificationDialog = true;
+
+        },
+        error: (error) => {
+          Swal.fire({
+            title: 'Error',
+            text: error?.error?.detail || 'Failed to check provision',
+            icon: 'error'
+          });
+        }
+      });
+
   }
   openUploadDocuments() {
     this.uploadDocumentsDialog = true;
@@ -698,6 +732,30 @@ getDocumentSubmissionStatusLabel(status: DocumentSubmissionOption): string {
     }
 
   }
+    downloadTransactionDebitAdvice() {
+
+    if (this.transaction) {
+      this.transactionService.getTransactionDebitAdviceFile(this.transaction.id)
+        .subscribe({
+          next: (blob) => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `debit-advice-${this.transaction?.transactionReference}` + this.getFileExtension(blob);
+            a.click();
+            window.URL.revokeObjectURL(url);
+          },
+          error: (error) => {
+            Swal.fire({
+              title: 'Error',
+              text: error?.error?.detail || 'Failed to download debit advice file',
+              icon: 'error'
+            });
+          }
+        });
+    }
+
+  }
   downloadZipDocs()
   {
     if (this.transaction) {
@@ -712,9 +770,11 @@ getDocumentSubmissionStatusLabel(status: DocumentSubmissionOption): string {
             window.URL.revokeObjectURL(url);
           },
           error: (error) => {
+            console.log(error);
+
             Swal.fire({
               title: 'Error',
-              text: error?.error?.detail || 'Failed to download Swift file',
+              text: error?.error?.detail || 'Failed to download zip file',
               icon: 'error'
             });
           }
@@ -731,11 +791,11 @@ getDocumentSubmissionStatusLabel(status: DocumentSubmissionOption): string {
                // Get file extension from content type
                const contentType = blob.type;
                let extension = 'txt';
-               
+
                if (contentType.includes('eml')) {
                  extension = 'eml';
                } else if (contentType.includes('pdf')) {
-                 extension = 'pdf'; 
+                 extension = 'pdf';
                } else if (contentType.includes('doc')) {
                  extension = 'doc';
                } else if (contentType.includes('docx')) {
@@ -750,7 +810,7 @@ getDocumentSubmissionStatusLabel(status: DocumentSubmissionOption): string {
                  }
                  }
                }
-               
+
                const url = window.URL.createObjectURL(blob);
                const a = document.createElement('a');
                a.href = url;
@@ -760,7 +820,7 @@ getDocumentSubmissionStatusLabel(status: DocumentSubmissionOption): string {
              },
              error: (error : any) => {
                Swal.fire({
-                 title: 'Error', 
+                 title: 'Error',
                  text: error?.error?.detail || 'Failed to download attachment',
                  icon: 'error'
                });
@@ -794,6 +854,7 @@ getDocumentSubmissionStatusLabel(status: DocumentSubmissionOption): string {
           this.selectedSwiftFile = undefined;
           this.uploadSwiftForm.reset();
 
+          window.location.reload();
           Swal.fire({
             title: 'Success',
             text: 'Swift file uploaded successfully',
@@ -811,11 +872,85 @@ getDocumentSubmissionStatusLabel(status: DocumentSubmissionOption): string {
     }
   }
 
+  uploadTransactionDebitAdviceFile() {
+    if (!this.transaction) return;
+
+    // Create a file input element
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.pdf,.doc,.docx';
+    fileInput.style.display = 'none';
+
+    // Handle file selection
+    fileInput.onchange = (e: any) => {
+      if (e.target.files.length > 0) {
+        const file = e.target.files[0];
+
+        // Upload the file
+        this.transactionService.uploadTransactionDebitAdviceFile(this.transaction!.id, file)
+          .subscribe({
+            next: () => {
+              Swal.fire({
+                title: 'Success',
+                text: 'Debit advice file uploaded successfully',
+                icon: 'success'
+              }).then(() => {
+                window.location.reload();
+              });
+            },
+            error: (error) => {
+             // console.log(error);
+              Swal.fire({
+                title: 'Error',
+                text: error?.error?.detail || 'Failed to upload debit advice file',
+                icon: 'error'
+              });
+            }
+          });
+      }
+    };
+
+    // Trigger file selection
+    fileInput.click();
+  }
+
+  cancelTransactionDebitAdvice() {
+    if (!this.transaction) return;
+
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete the debit advice file?',
+      header: 'Delete Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.transactionService.cancelTransactionDebitAdvice(this.transaction!.id)
+          .subscribe({
+            next: () => {
+              Swal.fire({
+                title: 'Success',
+                text: 'Debit advice file deleted successfully',
+                icon: 'success'
+              }).then(() => {
+                window.location.reload();
+              });
+            },
+            error: (error) => {
+              Swal.fire({
+                title: 'Error',
+                text: error?.error?.detail || 'Failed to delete debit advice file',
+                icon: 'error'
+              });
+            }
+          });
+      }
+    });
+  }
+
   openDIImputationDialog() {
     if (!this.transaction?.id) return;
 
     this.diImputationDialog = true;
-    this.selectedDI = undefined;
+    this.selectedDIs = [];
 
     this.transactionService.getTransactionDIs(this.transaction.id).subscribe({
       next: (response) => {
@@ -831,8 +966,8 @@ getDocumentSubmissionStatusLabel(status: DocumentSubmissionOption): string {
     });
   }
 
-  onDISelect(event: any) {
-    this.selectedDI = event.value;
+  onDIsSelect(event: any) {
+    this.selectedDIs = event.value;
   }
 
   getDIStatusString(status: DIStatus): string {
@@ -868,29 +1003,38 @@ getDocumentSubmissionStatusLabel(status: DocumentSubmissionOption): string {
     }
   }
   imputeDI() {
-    if (!this.selectedDI || !this.transaction) return;
-    /*  dIId: string;           // Guid maps to string in TypeScript
-     amountToImpute: number; // decimal maps to number in TypeScript
-     currency: string;
-     transactionId: string;  // long maps to number in TypeScript
-     transactionReference: string; */
-    const command = {
-      dIId: this.selectedDI.diId,
+    if (!this.selectedDIs?.length || !this.transaction) return;
+
+    const command: ImputeDICommand = {
+      dIsToImpute: this.selectedDIs.map(di => ({
+        dIId: di.diId,
+        comment: di.comment
+      })),
       amountToImpute: this.transaction.transactionAmount,
       currency: this.transaction.transactionCurrency,
       transactionId: this.transaction.id,
       transactionReference: this.transaction.transactionReference
+    };
+
+    // Check if all selected DIs have a comment
+    if (this.selectedDIs.some(di => !di.comment)) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please provide a comment for all selected DIs',
+        icon: 'error'
+      });
+      return;
     }
 
     this.transactionService.ImputeDI(command).subscribe({
       next: () => {
         this.diImputationDialog = false;
-
         Swal.fire({
           title: 'Success',
           text: 'DI imputation completed successfully',
           icon: 'success'
         });
+         window.location.reload();
       },
       error: (error) => {
         Swal.fire({
@@ -900,8 +1044,6 @@ getDocumentSubmissionStatusLabel(status: DocumentSubmissionOption): string {
         });
       }
     });
-
-
   }
 
   openDIImputationsDialog() {
@@ -1353,6 +1495,63 @@ getDocumentSubmissionStatusLabel(status: DocumentSubmissionOption): string {
     });
   }
 
+  openSendForCorrectionDialog = false;
+  optionSendForCorrection: RoleToSendBackTransactionResponse[] = [];
+  openSendForCorrection() {
+
+    if (!this.transaction) return;
+
+    this.transactionService.getRolesToSendBackTransaction(this.transaction.id)
+      .subscribe({
+        next: (response : RoleToSendBackTransactionResponse[]) => {
+          this.optionSendForCorrection = response;
+          this.openSendForCorrectionDialog = true;
+        },
+        error: (error : any) => {
+          Swal.fire({
+            title: 'Error',
+            text: error?.error?.detail || 'Failed to load send for correction options',
+            icon: 'error'
+          });
+        }
+      });
+
+  }
+
+  sendForCorrection() {
+    if (!this.transaction) return;
+
+    if (!this.sendForCorrectionForm.valid) return;
+
+    const command = {
+      transactionId: this.transaction.id,
+      transactionDecisionAction: TransactionDecisionAction.SendForCorrection,
+      userRoleToSendTo: this.sendForCorrectionForm.get('role')?.value,
+      comment: this.sendForCorrectionForm.get('comment')?.value
+     } as TransactionApprovalFlowCommand;
+
+
+     this.transactionService.approvalFlow(command)
+       .subscribe({
+         next: () => {
+           Swal.fire({
+             title: 'Success',
+             text: 'Transaction sent for correction successfully',
+             icon: 'success'
+           }).then(() => {
+             window.location.reload();
+           });
+         },
+         error: (error) => {
+           Swal.fire({
+             title: 'Error',
+             text: error?.error?.detail || 'Failed to send transaction for correction',
+             icon: 'error'
+           });
+         }
+       });
+  }
+
   provisionAccount() {
 
     if (!this.transaction) return;
@@ -1389,7 +1588,7 @@ getDocumentSubmissionStatusLabel(status: DocumentSubmissionOption): string {
   }
 
   retryProvisionAccount(transactionProvisionTransferId: string) {
- 
+
     this.confirmationService.confirm({
       message: 'Are you sure you want to retry this provision?',
       header: 'Provision Confirmation',
@@ -1422,8 +1621,8 @@ getDocumentSubmissionStatusLabel(status: DocumentSubmissionOption): string {
   }
 
   transactionProvisionTransferResponse: TransactionProvisionTransferResponse[] =[];
-  provisionTransfertsDialog = false;   
- 
+  provisionTransfertsDialog = false;
+
   getProvisionTransferStatusColor(status : ProvisionTransferStatus)
   {
     switch (status) {
@@ -1458,7 +1657,7 @@ getDocumentSubmissionStatusLabel(status: DocumentSubmissionOption): string {
   getTransactionProvisionStatusColor(status: TransactionProvisionStatus) {
     switch (status) {
       case TransactionProvisionStatus.NotProcessed:
-        return 'warning';    
+        return 'warning';
       case TransactionProvisionStatus.BeingProcessed:
         return 'info';
       case TransactionProvisionStatus.Processed:
@@ -1484,7 +1683,7 @@ getDocumentSubmissionStatusLabel(status: DocumentSubmissionOption): string {
     }
   }
 
-  
+
   getProvisionTransfertsDialog()
   {
     if(!this.transaction?.id) return;
@@ -1504,4 +1703,56 @@ getDocumentSubmissionStatusLabel(status: DocumentSubmissionOption): string {
         }
       });
   }
+
+  TransactionAmountLienStatus = TransactionAmountLienStatus;
+  setTransactionAmountLienStatus(){
+    if (!this.transaction) return;
+
+    let transStatus =  this.transaction.transactionAmountLienStatus == TransactionAmountLienStatus.AmountNotLien ?
+                          TransactionAmountLienStatus.AmountLien : TransactionAmountLienStatus.AmountNotLien;
+
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to update the transaction amount lien status?',
+      header: 'Update Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+      this.transactionService.setTransactionAmountLienStatus(this.transaction!.id, transStatus)
+        .subscribe({
+        next: () => {
+          Swal.fire({
+          title: 'Success',
+          text: 'Transaction amount lien status updated successfully',
+          icon: 'success'
+          }).then(() => {
+          window.location.reload();
+          });
+        },
+        error: (error) => {
+          Swal.fire({
+          title: 'Error',
+          text: error?.error?.detail || 'Failed to update transaction amount lien status',
+          icon: 'error'
+          });
+        }
+        });
+      }
+    });
+
+  }
+
+  getTransactionAmountLienStatusString(transactionAmountLienStatus: TransactionAmountLienStatus){
+     return  TransactionAmountLienStatus[transactionAmountLienStatus];
+  }
+
+  getTransactionAmountLienStatusColor(transactionAmountLienStatus : TransactionAmountLienStatus){
+    switch (transactionAmountLienStatus) {
+      case TransactionAmountLienStatus.AmountNotLien:
+        return 'success';
+      case TransactionAmountLienStatus.AmountLien:
+        return 'danger';
+      default:
+        return 'info';
+    }
+  }
 }
+

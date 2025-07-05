@@ -20,7 +20,17 @@
                       class="ml-auto p-button-outlined p-button-success"
                       [label]="'Select Customer'"
                       [icon]="'pi pi-search'"
+                      *ngIf="userType == UserTypeEnum.InternalUser"
                       (click)="openSelectCustomerDialog()">
+                      </button>
+                     
+                      <button pButton
+                      type="button"
+                      class="ml-auto p-button-outlined p-button-success"
+                      [label]="'Select Account'"
+                      [icon]="'pi pi-search'"
+                      *ngIf="userType == UserTypeEnum.ExternalUser"
+                      (click)="openSelectAccountDialog()">
                       </button>
                     </div>
                     </div>

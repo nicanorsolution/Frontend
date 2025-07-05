@@ -1,9 +1,15 @@
 export interface ImputeDICommand {
-  dIId: string;           // Guid maps to string in TypeScript
+  dIsToImpute: DIToImpute[];           // Guid maps to string in TypeScript
   amountToImpute: number; // decimal maps to number in TypeScript
   currency: string;
   transactionId: string;  // long maps to number in TypeScript
   transactionReference: string;
+
+}
+
+export interface DIToImpute {
+  dIId: string;
+  comment: string;
 }
 
 export interface UpdateGoodsDescriptionCommand {
@@ -70,6 +76,7 @@ export interface DIImputationResponse {
   imputationCurrency: string;
   imputationStatus: ImputationStatus;
   imputationDate : Date;
+  comment: string;
 }
 
 export enum ImputationStatus {

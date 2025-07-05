@@ -126,13 +126,13 @@
                       </td>
                       <td>
                         <div class="flex gap-2">
-                          <button pButton icon="pi pi-download" 
+                          <button pButton icon="pi pi-download"
                                   class="p-button-rounded p-button-info"
                                   [disabled]="!incoming.hasIncomingSwiftFilePath"
                                   (click)="downloadIncomingSwift(exportation.id, incoming.serialNumber)"
                                   pTooltip="Download Swift">
                           </button>
-                          <button pButton icon="pi pi-trash" 
+                          <button pButton icon="pi pi-trash"
                                   class="p-button-rounded p-button-danger"
                                   (click)="deleteIncoming(exportation.id, incoming.serialNumber)"
                                      appAdminRole
@@ -178,7 +178,7 @@
                                 appAdminRole
                                 [Roles]="[
                                   UserRoles.TradeDeskAuthorizer.toString()
-                                ]"  
+                                ]"
                             style="margin-right: 10px">
                  </button>
 
@@ -189,7 +189,7 @@
                             (click)="collectDeFee(exportation.id)"
                                 appAdminRole
                                 [Roles]="[UserRoles.TradeInitiator.toString()
-                                ]"  
+                                ]"
                             style="margin-right: 10px">
                  </button>
 
@@ -197,15 +197,15 @@
                             class="p-button-outlined"
                             icon="pi pi-arrow-down" iconPos="left"
                             label="Incoming Registration"
-                            (click)="incomingRegistrationDialog(exportation)"                        
+                            (click)="incomingRegistrationDialog(exportation)"
                                 appAdminRole
                                 [Roles]="[
                                   UserRoles.TradeDeskAuthorizer.toString()
                                 ]"
                             style="margin-right: 10px">
                  </button>
-                 
-                
+
+
                 <button pButton type="button"
                             class="p-button-outlined"
                             icon="pi pi-exclamation-triangle" iconPos="left"
@@ -242,7 +242,7 @@
 
           <div class="content">
             <div class="grid">
-              <div [ngClass]="{'col-3':panelNumber==2,'col-2':panelNumber==3}" 
+              <div [ngClass]="{'col-3':panelNumber==2,'col-2':panelNumber==3}"
                    style="border-radius: 6px; border-color: #c42626; border-style:solid; border-width: 1px;">
                 <h4 class="title"><strong>Required Documents List</strong></h4>
                 <br/>
@@ -311,7 +311,7 @@
                       </button>
                      </h4>
                   </div>
-                  
+
                 </div>
 
                 <ngx-extended-pdf-viewer *ngIf="selectedDocument && fileBLob"
@@ -333,7 +333,7 @@
                   <div *ngIf="selectedDocument">
                     <h4 class="title"><b>Controls On Document:</b> {{selectedDocument.documentName}}</h4>
                     <hr/>
-                    
+
                     <p *ngIf="documentControls?.length == 0">
                       <b style="color: red;">No controls recorded for this document</b>
                     </p>
@@ -394,8 +394,8 @@
                             </div>
                             <h5 style="margin-top: 0;">
                               <p-tag [value]="getExportationMessageType(item.exportationMessageType)"
-                               [severity]="'info'" ></p-tag> - 
-                              <p-tag [value]="getExportationMessageTypeName(item.messageType)" 
+                               [severity]="'info'" ></p-tag> -
+                              <p-tag [value]="getExportationMessageTypeName(item.messageType)"
                               [severity]="getExportationMessageTypeColor(item.messageType)" >
                               </p-tag></h5>
                             <p [innerHTML]="item.message">
@@ -407,7 +407,7 @@
               </ng-container>
 
                <!-- Action Buttons -->
-           
+
               <div class="flex flex-row flex-wrap mt-3">
                 <button pButton type="button"
                         class="p-button-outlined p-button-success"
@@ -433,12 +433,12 @@
               </div>
             </div>
           </div>
-          
+
         </div>
       </div>
-      
+
     </div>
-    
+
   </div>
 
   <!-- Document Review Dialog -->
@@ -658,7 +658,7 @@
         </td>
         <td>
           <div class="flex gap-2">
-            <button pButton 
+            <button pButton
                     type="button"
                     label="Select for Upload"
                     icon="pi pi-upload"
@@ -681,7 +681,7 @@
                accept=".pdf,.doc,.docx">
       </div>
       <div class="col-4">
-        <button pButton 
+        <button pButton
                 type="button"
                 label="Upload"
                 icon="pi pi-upload"
@@ -694,7 +694,7 @@
   </div>
 
   <ng-template pTemplate="footer">
-    <button pButton 
+    <button pButton
             type="button"
             label="Close"
             icon="pi pi-times"
@@ -743,7 +743,7 @@
 </p-dialog>
 
 <p-dialog [(visible)]="apurementExportationOptionDialog"
-          [style]="{width: '50vw',height: '50vh'}"
+          [style]="{width: '50vw',height: '60vh'}"
           [header]="'Set Apurement Status'"
           [modal]="true">
      <br/> <br/> <br/> <br/>
@@ -843,7 +843,7 @@
           <label>Value Date</label>
         </span>
       </div>
-        
+
       <div class="col-12 mb-3">
         <span class="p-float-label">
           <textarea pInputTextarea style="width: 100%; font-size: 1.5em"
@@ -858,7 +858,7 @@
   </form>
 
   <ng-template pTemplate="footer">
-    <button pButton 
+    <button pButton
             type="button"
             label="Register"
             icon="pi pi-check"
@@ -866,7 +866,7 @@
             (click)="submitIncomingRegistration()"
             class="p-button-success">
     </button>
-    <button pButton 
+    <button pButton
             type="button"
             label="Close"
             icon="pi pi-times"

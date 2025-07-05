@@ -2,7 +2,10 @@ import { CheckerDecision } from './../../helpers/checker-decision';
 
 export interface CreateUserCommand {
   email: string;
-  password: string;
+  corporateOrIndividualId?: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
   userType: UserType;
   roles: number[];
   permissions: string[];
@@ -10,14 +13,17 @@ export interface CreateUserCommand {
 
 export interface ChangeRolePermissionCommand {
   userId: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
   roles: number[];
   permissions: string[];
 }
 
-export interface UserApproveDeleteRequest {
+/* export interface UserApproveDeleteRequest {
   userId: string;
   action: number;
-}
+} */
 export interface ApproveOrRejectChangeCommand {
   userId: string;
   checkerDecision: CheckerDecision;
@@ -29,7 +35,12 @@ export interface UserDeleteRequest {
 
 export interface UserResponse {
   id: string;
+  entityIdMapTo: string;
+  entityName: string;
   userName: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
   role: number;
   status: string;
   userType: UserType,
@@ -69,5 +80,11 @@ export enum UserRoles {
 
 export enum UserType {
   InternalUser = 1,
-  ChannelUser = 2
+  ExternalUser = 2
 }
+
+export interface EntityIdLookupName {
+  id: string;
+  name: string;
+}
+

@@ -9,6 +9,8 @@ import { DocumentationService } from '../../documentations/services/documentatio
 import { TransactionTypeResponse, TransactionTypeStatus } from '../../documentations/models/transaction-type.models';
 import { DocumentResponse } from '../../documentations/models/document.models';
 import { SwiftCodeService } from '../../transafer-rates/services/swiftcode.services';
+import { AuthService } from '../../users/auth.service';
+import { UserType } from '../../users/user.models';
 
 @Component({
   selector: 'app-create-transaction',
@@ -35,12 +37,18 @@ export class CreateTransactionComponent implements OnInit {
   filteredSwiftCodes: any[] = [];
   isSearchingSwift = false;
 
+  userType: UserType | null = null;
+  UserTypeEnum = UserType;
+  userEntityId: string | null = null;
+  userEntityName: string | null = null;
+
   constructor(
     private fb: FormBuilder,
     private transactionService: TransactionService,
     private customersService: CustomersService,
     private documentationService: DocumentationService,
-    private swiftCodeService: SwiftCodeService
+    private swiftCodeService: SwiftCodeService,
+    private authService : AuthService
   ) {}
 
   ngOnInit() {
@@ -77,6 +85,10 @@ export class CreateTransactionComponent implements OnInit {
     // Load active transaction types
     this.loadTransactionTypes();
     this.loadCurrencies();
+
+    this.userType = this.authService.getDecodedToken()?.UserType || null;
+    this.userEntityId = this.authService.getDecodedToken()?.EntityIdMapTo || null;
+    console.log(this.userType, this.userEntityId, this.authService.getDecodedToken());
   }
 
   loadTransactionTypes() {
@@ -111,6 +123,14 @@ export class CreateTransactionComponent implements OnInit {
     this.customerAccounts = [];
   }
 
+  openSelectAccountDialog() {
+    //TODO fix this external user config
+  /*   this.selectAccountDialog = true;
+    this.searchAccountForm.reset();
+    this.filteredAccounts = [];
+    this.selectedAccount = null; */
+  }
+
   searchCustomer(event: { query: string }) {
     if (!event.query.trim() || this.isSearching) return;
 
@@ -132,7 +152,8 @@ export class CreateTransactionComponent implements OnInit {
           this.isSearching = false;
         }
       });
-    } else {
+    }
+    else {
       this.customersService.getIndividuals({
         name: event.query,
         pageNumber: 1,

@@ -13,6 +13,9 @@ import { ActivatedRoute, Router } from '@angular/router';
     .status-success { color: #22C55E; }
     .status-danger { color: #DC2626; }
     .status-warn { color: #F59E0B; }
+    :host ::ng-deep .row-accessories {
+    background-color: rgb(255 7 7 / 15%) !important;
+    }
   `]
 })
 export class ViewTransactionsComponent implements OnInit {
@@ -25,6 +28,7 @@ export class ViewTransactionsComponent implements OnInit {
   pageNumber = 1;
   expandedRows: { [key: string]: boolean } = {};
   approvalHistoryDialog = false;
+  correctionMessageDialog = false;
   selectedTransaction?: TransactionResponse;
 
   @ViewChild('dialog_operation_swal')
@@ -166,6 +170,10 @@ export class ViewTransactionsComponent implements OnInit {
     this.approvalHistoryDialog = true;
   }
 
+  ViewCorrectionMessageDialog(transaction: TransactionResponse) {
+    this.selectedTransaction = transaction;
+    this.correctionMessageDialog = true;
+  }
   getStatusSteps(): { label: string, status: string }[] {
     if (!this.selectedTransaction) return [];
 
