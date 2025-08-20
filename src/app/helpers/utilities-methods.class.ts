@@ -9,7 +9,7 @@ export class Utility {
    return `${year}-${month}-${day}`;
   }
 
- 
+
  static actionDone(item: string, action: string): string {
    switch (action) {
         case 'CreationAction':
@@ -138,8 +138,6 @@ export enum RolePermissions {
   OperationRole = "operation_role",
   AuditControlRole = "audit_control_role",
 }
-
-
 export class DateFormater {
   static addDaysAndFormat(date: Date, daysToAdd: number): string {
     // Create a new Date object to avoid mutating the original date
@@ -163,4 +161,3 @@ const formattedDate = addDaysAndFormat(currentDate, daysToAdd);
 console.log(formattedDate); // Output: dd-mm-yyyy format */
 
 }
-0

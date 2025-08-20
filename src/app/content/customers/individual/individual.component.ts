@@ -1,24 +1,27 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CustomersService } from '../services/customers.services';
-import { IndividualResponse, CustomerType, CustomerInfoResponse, CreateIndividualCommand, CustomerAccountInfo, IndividualStatus, ADNAReportStatus, MiseEnDemeureStatus, RelationshipManagerResponse } from '../models/customer.models';
+import { IndividualResponse, CustomerType, CustomerInfoResponse, CreateIndividualCommand, CustomerAccountInfo, IndividualStatus, ADNAReportStatus, MiseEnDemeureStatus, RelationshipManagerResponse, RelationshipManagerStatus, UpdateIndividualInfoCommand } from '../models/customer.models';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { PaginatedList } from '../../../helpers/pagination';
 import { AutoCompleteOnSelectEvent } from 'primeng/autocomplete';
 import Swal from 'sweetalert2';
 import { CorporateOrIndividual } from '../../transactions/models/transactions.model';
+import { UserType } from '../../users/user.models';
+import { UserRoleEnum } from 'src/app/helpers/UserRoleEnum';
 
 @Component({
   selector: 'app-individual',
   templateUrl: './individual.component.html'
 })
 export class IndividualComponent implements OnInit {
+  UserRoleEnum = UserRoleEnum;
+  UserType = UserType;
   individuals: IndividualResponse[] = [];
   loading = false;
   individualDialog = false;
   createIndividualForm!: FormGroup;
   isSubmitted = false;
-  isEditing = false;
   assignManagerDialog = false;
   assignManagerForm!: FormGroup;
   filteredManagers: RelationshipManagerResponse[] = [];
@@ -51,13 +54,12 @@ export class IndividualComponent implements OnInit {
       searchTerm: ['']
     });
     this.createIndividualForm = this.fb.group({
-      individualId: [''],
+      individualId: ['', Validators.required],
       name: ['', Validators.required],
       niu: ['', Validators.required],
-      address: ['', Validators.required],
-      city: ['', Validators.required],
+      address: [''],
       email: ['', [Validators.required, Validators.email]],
-      phone: ['', Validators.required],
+      phone: [''],
       accountNumber: ['', Validators.required],
       branch: ['', Validators.required]
     });
@@ -97,7 +99,7 @@ export class IndividualComponent implements OnInit {
     if (name || niu) {
       this.pageNumber = 1; // Reset to first page when searching
     }
-    
+
     this.loading = true;
     const query = {
       name,
@@ -124,8 +126,8 @@ export class IndividualComponent implements OnInit {
     this.createIndividualForm.reset();
   }
 
-  openEditIndividualDialog(individual: IndividualResponse) {
-    this.isEditing = true;
+ /*  openEditIndividualDialog(individual: IndividualResponse) {
+
     this.individualDialog = true;
     this.isSubmitted = false;
     this.createIndividualForm.patchValue({
@@ -133,13 +135,12 @@ export class IndividualComponent implements OnInit {
       name: individual.name,
       niu: individual.niu,
       address: individual.address,
-      city: individual.city,
       email: individual.email,
       phone: individual.phone,
       accountNumber: individual.bankAccount?.accountNumber,
       branch: individual.bankAccount?.branchCode
     });
-  }
+  } */
 
   suspendIndividual(id: string) {
     this.customerService.suspendIndividual(id).subscribe({
@@ -174,7 +175,7 @@ export class IndividualComponent implements OnInit {
       confirmButtonText: 'Yes, delete it',
       cancelButtonText: 'Cancel'
     });
-    
+
     this.dialogOperationSwal.fire().then((result) => {
       if (result.isConfirmed) {
         this.deleteIndividual(individual.id);
@@ -239,6 +240,9 @@ export class IndividualComponent implements OnInit {
         name: customer.name,
         niu: customer.niu,
         address: customer.address,
+        email: customer.email,
+        phone: customer.phone,
+        individualId: customer.clientId,
       });
       this.canSearchAccount = true; // Enable account search after customer selection
     }
@@ -294,44 +298,19 @@ export class IndividualComponent implements OnInit {
     if (this.createIndividualForm.valid) {
       this.isSubmitted = true;
       const formValue = this.createIndividualForm.value;
-      if (this.isEditing) {
-        // Call update endpoint
-        // ...
-        this.customerService.updateIndividualInfo({
-          individualId: formValue.individualId,
-          name: formValue.name,
-          niu: formValue.niu,
-          address: formValue.address,
-          city: formValue.city,
-          email: formValue.email,
-          phone: formValue.phone,
-          accountNumber: formValue.accountNumber,
-          branch: formValue.branch
-        }).subscribe({
-          next: () => {
-            this.isEditing = false;
-            this.individualDialog = false;
-            this.isSubmitted = false;
-            this.loadIndividuals();
-            this.dialogOperationSwal.fire();
-          },
-          error: (error) => {
-            this.isSubmitted = false;
-            this.handleError(error);
-          }
-        });
-      } else {
+
         const command: CreateIndividualCommand = {
-          individualId: formValue.individualId?.clientId || '',
+          individualId: formValue.individualId || '',
           name: formValue.name,
           niu: formValue.niu,
           address: formValue.address,
-          city: formValue.city,
           email: formValue.email,
           phone: formValue.phone,
           accountNumber: formValue.accountNumber.accountNumber || formValue.accountNumber,
           branch: formValue.branch
         };
+
+        console.log('Creating individual with command:', command);
 
         this.customerService.createIndividual(command).subscribe({
           next: () => {
@@ -346,7 +325,25 @@ export class IndividualComponent implements OnInit {
           }
         });
       }
-    }
+
+  }
+
+  updateIndividual(individual : IndividualResponse) {
+
+    this.customerService.updateIndividualInfo({individualId : individual.id} as UpdateIndividualInfoCommand).subscribe({
+      next: () => {
+        this.loadIndividuals();
+        this.dialogOperationSwal.update({
+          title: 'Success',
+          text: 'Individual updated successfully!',
+          icon: 'success'
+        });
+        this.dialogOperationSwal.fire();
+      },
+      error: (error) => {
+        this.handleError(error);
+      }
+    });
   }
 
     getStatusString(status: IndividualStatus): string {
@@ -458,8 +455,9 @@ export class IndividualComponent implements OnInit {
       searchManagers(event: { query: string }) {
         const query = {
           name: event.query,
+          relationshipManagerStatus: RelationshipManagerStatus.Active,
           pageNumber: 1,
-          pageSize: 10
+          pageSize: 15
         };
 
         this.customerService.getRelationshipManagers(query).subscribe({
@@ -476,7 +474,7 @@ export class IndividualComponent implements OnInit {
       assignManager() {
         if (this.assignManagerForm.valid && this.selectedIndividual) {
           const relationshipManager = this.assignManagerForm.value.relationshipManager;
-          
+
           this.customerService.assignIndividualManager(
             this.selectedIndividual.id,
             relationshipManager.id

@@ -48,6 +48,10 @@ export interface UserResponse {
   createdAt: Date | null;
   updatedBy: string | null;
   updatedAt: Date | null;
+  isLocked: boolean;
+  failedLoginAttempts: number;
+  lastLoginIp: string | null;
+  lastLoginAttempt: Date | null;
 }
 
 export interface LoginRequest {
@@ -88,3 +92,8 @@ export interface EntityIdLookupName {
   name: string;
 }
 
+export interface ChangePasswordCommand {
+  userId: string;
+  currentPassword: string;
+  newPassword: string;
+}

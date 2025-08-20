@@ -1,0 +1,119 @@
+<!-- Role Visibility Directive Usage Examples -->
+
+<!-- Example 1: Show element only for specific roles -->
+<div appRoleVisibility [requiredRoles]="[1, 9, 10]" [requiredUserTypes]="[1, 2]">
+  <button class="btn btn-primary">Create Transaction</button>
+  <!-- This will show only for TradeInitiator (1), Admin (9), or SuperAdmin (10) -->
+  <!-- And only for Internal (1) or External (2) users -->
+</div>
+
+<!-- Example 2: Show element only for Admin and SuperAdmin, Internal users only -->
+<div appRoleVisibility [requiredRoles]="[9, 10]" [requiredUserTypes]="[1]">
+  <button class="btn btn-warning">Admin Only - Internal</button>
+</div>
+
+<!-- Example 3: Show for TradeInitiator role only, any user type -->
+<div appRoleVisibility [requiredRoles]="[1]">
+  <button class="btn btn-success">Trade Initiator Only</button>
+</div>
+
+<!-- Example 4: Show for Internal users only, any role -->
+<div appRoleVisibility [requiredUserTypes]="[1]">
+  <div class="alert alert-info">Internal Users Only</div>
+</div>
+
+<!-- Example 5: Hide mode - Hide element when user has specific roles -->
+<div appRoleVisibility [requiredRoles]="[8]" [hideMode]="true">
+  <button class="btn btn-danger">Hidden for ViewOnly users</button>
+  <!-- This will be hidden for ViewOnly (8) users, shown for all others -->
+</div>
+
+<!-- Example 6: Complex role-based navigation items -->
+<ul class="nav">
+  <li appRoleVisibility [requiredRoles]="[1]" [requiredUserTypes]="[1, 2]">
+    <a href="/admin/transaction/create-transaction">New Transaction</a>
+  </li>
+  
+  <li appRoleVisibility [requiredRoles]="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]" [requiredUserTypes]="[1, 2]">
+    <a href="/admin/transaction/view-transaction">View Transactions</a>
+  </li>
+  
+  <li appRoleVisibility [requiredRoles]="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]" [requiredUserTypes]="[1]">
+    <a href="/admin/customer/corporate">Corporates</a>
+  </li>
+  
+  <li appRoleVisibility [requiredRoles]="[9, 10]" [requiredUserTypes]="[1]">
+    <a href="/admin/users">User Management</a>
+  </li>
+</ul>
+
+<!-- Example 7: Role-based form sections -->
+<form>
+  <div class="row">
+    <div class="col-md-6">
+      <label>Transaction Amount</label>
+      <input type="number" class="form-control" />
+    </div>
+    
+    <!-- Only show approval section for authorized roles -->
+    <div class="col-md-6" appRoleVisibility [requiredRoles]="[3, 4, 5, 6, 7, 9, 10]">
+      <label>Approval Status</label>
+      <select class="form-control">
+        <option>Pending</option>
+        <option>Approved</option>
+        <option>Rejected</option>
+      </select>
+    </div>
+  </div>
+  
+  <!-- Admin-only section -->
+  <div class="row" appRoleVisibility [requiredRoles]="[9, 10]">
+    <div class="col-md-12">
+      <h4>Administrative Settings</h4>
+      <p>This section is only visible to Admins and SuperAdmins.</p>
+    </div>
+  </div>
+</form>
+
+<!-- Example 8: Dynamic role arrays from component -->
+<div appRoleVisibility [requiredRoles]="allowedRoles" [requiredUserTypes]="allowedUserTypes">
+  <button class="btn btn-outline-primary">Dynamic Permissions</button>
+</div>
+
+<!-- Example 9: Table actions based on roles -->
+<table class="table">
+  <thead>
+    <tr>
+      <th>Transaction ID</th>
+      <th>Amount</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let transaction of transactions">
+      <td>{{ transaction.id }}</td>
+      <td>{{ transaction.amount }}</td>
+      <td>{{ transaction.status }}</td>
+      <td>
+        <!-- Edit button for specific roles -->
+        <button class="btn btn-sm btn-primary me-2" 
+                appRoleVisibility [requiredRoles]="[1, 9, 10]">
+          Edit
+        </button>
+        
+        <!-- Approve button for authorizers only -->
+        <button class="btn btn-sm btn-success me-2" 
+                appRoleVisibility [requiredRoles]="[3, 4, 5, 6, 7]">
+          Approve
+        </button>
+        
+        <!-- Delete button for admins only -->
+        <button class="btn btn-sm btn-danger" 
+                appRoleVisibility [requiredRoles]="[9, 10]">
+          Delete
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>

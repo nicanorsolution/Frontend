@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { UserService } from '../content/users/user.service';
 import { AuthService } from '../content/users/auth.service';
 import * as Forge from 'node-forge';
 
@@ -27,7 +26,7 @@ B70i9Ku7K7hkcNbf/QIDAQAB
   errorMessages = "";
   showPassword = false;
 
-  constructor(private route: Router, private fb: FormBuilder, private authService: AuthService) { }
+  constructor(private readonly route: Router, private readonly fb: FormBuilder, private readonly authService: AuthService) { }
 
   ngOnInit() {
     this.loginForm.valueChanges.subscribe(() => {
@@ -40,25 +39,45 @@ B70i9Ku7K7hkcNbf/QIDAQAB
   }
 
   login() {
-
-  //  this.route.navigate(['/admin/transaction/view-transaction']);
-
     if (this.loginForm.invalid) {
       this.errorMessages = "All Fields are required";
       return;
     }
-    // initiator@ubagroup.com
-    //
+
     this.authService.loginAppUser({
       userName: this.encryptValue(this.loginForm.value.email),
       password: this.encryptValue( this.loginForm.value.password),
       otp: this.loginForm.value.token
-    }).subscribe((res) => {
-      console.log('login success then renavigate', res);
-      this.route.navigate(['/admin/dashboard']);
-
-    }, (error) => {
-      this.errorMessages = "Invalid Username or password or token";
+    }).subscribe({
+      next: (res) => {
+        console.log('login success then renavigate', res);
+        // Use setTimeout to ensure token is stored before navigation
+       /*  setTimeout(() => {
+          // Check if user needs to reset password
+          const shouldResetPassword = this.authService.redirectToResetPasswordPage();
+          console.log('LoginComponent: Should reset password:', shouldResetPassword);
+          if (shouldResetPassword) {
+            console.log('User needs to reset password, redirecting to reset-password page');
+            this.route.navigate(['/reset-password']);
+          } else {
+            console.log('User does not need to reset password, redirecting to dashboard');
+            this.route.navigate(['/admin/dashboard']);
+          }
+        }, 10000); */
+         // Check if user needs to reset password
+          const shouldResetPassword = this.authService.redirectToResetPasswordPage();
+          console.log('LoginComponent: Should reset password:', shouldResetPassword);
+          if (shouldResetPassword) {
+            console.log('User needs to reset password, redirecting to reset-password page');
+            this.route.navigate(['/reset-password']);
+          } else {
+            console.log('User does not need to reset password, redirecting to dashboard');
+            this.route.navigate(['/admin/dashboard']);
+          }
+      },
+      error: (error) => {
+        this.errorMessages = "Invalid Username or password or token";
+      }
     });
   }
 

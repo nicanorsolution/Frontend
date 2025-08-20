@@ -8,7 +8,7 @@
           </div>
 
           <div class="content">
-            <p-fieldset legend="Menu">
+            <p-fieldset legend="Menu" appRoleVisibility [requiredUserTypes]="[UserType.InternalUser]">
               <div class="flex justify-content-end">
                 <button
                   pButton
@@ -160,6 +160,7 @@
                         : 'pi pi-file-export'
                     "
                     iconPos="left"
+                    appRoleVisibility [requiredUserTypes]="[UserType.InternalUser]"
                     [disabled]="createReportForm.invalid || isSubmitted"
                   ></button>
                 </div>

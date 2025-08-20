@@ -29,8 +29,13 @@
 
                 <div class="col-6">
                   <div class="flex justify-content-end">
-                    <button pButton type="button" label="New Special Rate" icon="pi pi-plus"
-                      class="p-button-outlined p-button-success" (click)="openCreateSpecialRateDialog()"></button>
+                    <button pButton type="button"
+                            label="New Special Rate"
+                            icon="pi pi-plus"
+                            class="p-button-outlined p-button-success"
+                             appRoleVisibility [requiredRoles]="[UserRoleEnum.TreasuryAuthorizer]"
+                            (click)="openCreateSpecialRateDialog()">
+                      </button>
                   </div>
                 </div>
               </form>
@@ -120,13 +125,23 @@
                           </div>
                         </div>
                         <hr />
-                        <div class="flex justify-content-end mt-3">
-                          <button pButton type="button" label="Update Rate" icon="pi pi-pencil"
-                            class="p-button-outlined p-button-info mr-2" (click)="openUpdateRateDialog(rate)"
-                            [disabled]="rate.isDeleted"></button>
-                          <button pButton type="button" label="Delete Rate" icon="pi pi-trash"
-                            class="p-button-outlined p-button-danger" (click)="deleteRate(rate)"
-                            [disabled]="rate.isDeleted"></button>
+                        <div class="flex justify-content-end mt-3"
+                             appRoleVisibility [requiredRoles]="[UserRoleEnum.TreasuryAuthorizer]">
+                          <button pButton type="button"
+                                  label="Update Rate"
+                                  icon="pi pi-pencil"
+                                  class="p-button-outlined p-button-info mr-2"
+                                  (click)="openUpdateRateDialog(rate)"
+                                   [disabled]="rate.isDeleted">
+                          </button>
+
+                          <button pButton type="button"
+                                  label="Delete Rate"
+                                  icon="pi pi-trash"
+                                   class="p-button-outlined p-button-danger"
+                                   (click)="deleteRate(rate)"
+                                  [disabled]="rate.isDeleted">
+                          </button>
                         </div>
                       </div>
                     </td>
@@ -142,8 +157,8 @@
 </div>
 
 <!-- Create Special Rate Dialog -->
-<p-dialog [(visible)]="specialRateDialog" 
-  [style]="{ width: '50vw' }" 
+<p-dialog [(visible)]="specialRateDialog"
+  [style]="{ width: '50vw' }"
   [header]="isUpdateMode ? 'Update Special Individual Rate' : 'Create Special Individual Rate'">
   <form [formGroup]="createSpecialRateForm" (ngSubmit)="onDialogSubmit()">
     <div class="grid p-fluid mt-3">
@@ -188,7 +203,7 @@
       </div>
       <div class="field col-12">
         <span class="p-float-label">
-          <p-inputNumber formControlName="spreadInPercentage" [min]="0" 
+          <p-inputNumber formControlName="spreadInPercentage" [min]="0"
                 mode="decimal" [maxFractionDigits]="3"
             [minFractionDigits]="3" id="spreadInPercentage">
           </p-inputNumber>

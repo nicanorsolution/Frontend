@@ -65,7 +65,7 @@ export class CustomersService {
       command
     );
   }
-  
+
   removeBankAccount(corporateId: string, accountNumber: string): Observable<void> {
     return this.http.delete<void>(
       `${this.baseUrl}/corporate/${corporateId}/remove-bank-account/${accountNumber}`
@@ -78,7 +78,7 @@ export class CustomersService {
       command
     );
   }
-  
+
   removeCorporateContact(command: RemoveCorporateContactCommand): Observable<void> {
     return this.http.delete<void>(
       `${this.baseUrl}/corporate/`+command.corporateId +`/contact/`+command.corporateContactId
@@ -104,8 +104,8 @@ export class CustomersService {
       `${this.baseUrl}/corporate/${corporateId}`
     );
   }
-  
-  
+
+
    //* RM
   getRelationshipManagers(query: RelationshipManagerQuery): Observable<PaginatedList<RelationshipManagerResponse>> {
     let params = new HttpParams()
@@ -114,6 +114,9 @@ export class CustomersService {
 
     if (query.name) {
       params = params.append('name', query.name);
+    }
+    if (query.relationshipManagerStatus) {
+      params = params.append('relationshipManagerStatus', query.relationshipManagerStatus.toString());
     }
 
     return this.http.get<PaginatedList<RelationshipManagerResponse>>(`${this.baseUrl}/relationship-managers`, { params });

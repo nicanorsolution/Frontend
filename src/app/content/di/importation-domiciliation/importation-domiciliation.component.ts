@@ -3,12 +3,15 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DI, DIStatus, UpdateGoodsDescriptionCommand, DIAttestationGenerationResponse, TypeAttestation, DIAttestationGenerationStatus, DIImputationResponse, ImputationStatus, DIGoodsUnit } from '../models/di.models';
 import { DIService } from '../services/di.services';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
+import { UserRoleEnum, UserType } from 'src/app/helpers/UserRoleEnum';
 
 @Component({
   selector: 'app-importation-domiciliation',
   templateUrl: './importation-domiciliation.component.html'
 })
 export class ImportationDomiciliationComponent implements OnInit {
+  UserRoleEnum = UserRoleEnum;
+  UserType = UserType;
   dis: DI[] = [];
   loading = false;
   totalRecords = 0;
@@ -65,8 +68,8 @@ export class ImportationDomiciliationComponent implements OnInit {
 
   private initializeForm() {
     this.updateDescriptionForm = this.fb.group({
-      amountInCurrency : ['', Validators.required],    
-      currency : [''],  
+      amountInCurrency : ['', Validators.required],
+      currency : [''],
       goodsDescription: [''],
       goodQuantity: [null],
       goodsUnit: [null], // Changed to null to work better with dropdown
@@ -79,7 +82,7 @@ export class ImportationDomiciliationComponent implements OnInit {
   loadDIs() {
     this.loading = true;
     const searchCriteria = this.searchForm.value;
-    
+
     console.log(searchCriteria);
 
     this.diService.getDIs(
@@ -120,7 +123,7 @@ export class ImportationDomiciliationComponent implements OnInit {
     this.pageSize = event.rows;
 
     console.log(event);
-    
+
     this.loadDIs();
   }
 

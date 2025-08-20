@@ -35,6 +35,7 @@ import { file } from 'googleapis/build/src/apis/file';
 import { PermissionDirective } from '../content/users/permission.direction';
 import { RoleAdminDirective } from '../content/users/admin.action.directive';
 import { TransactionalRoleDirective } from '../content/users/transactionalrole.directive';
+import { RoleVisibilityDirective } from './role-visibility.directive';
 
 @NgModule({
   declarations: [
@@ -42,6 +43,7 @@ import { TransactionalRoleDirective } from '../content/users/transactionalrole.d
     PermissionDirective,
     RoleAdminDirective,
     TransactionalRoleDirective,
+    RoleVisibilityDirective,
     NumberWithCommasPipe,
     FileSizePipe
   ],
@@ -103,6 +105,7 @@ import { TransactionalRoleDirective } from '../content/users/transactionalrole.d
     PermissionDirective,
     RoleAdminDirective,
     TransactionalRoleDirective,
+    RoleVisibilityDirective,
     NumberWithCommasPipe,
     FileSizePipe,
     ProgressSpinnerModule,

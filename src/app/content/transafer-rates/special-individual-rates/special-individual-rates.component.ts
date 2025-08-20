@@ -8,12 +8,16 @@ import {
 } from '../models/transfer-rates.models';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { SwiftCodeService } from '../services/swiftcode.services';
+import { UserType } from '../../users/user.models';
+import { UserRoleEnum } from 'src/app/helpers/UserRoleEnum';
 
 @Component({
   selector: 'app-special-individual-rates',
   templateUrl: './special-individual-rates.component.html'
 })
 export class SpecialIndividualRatesComponent implements OnInit {
+  UserRoleEnum = UserRoleEnum;
+  UserType = UserType;
   @ViewChild('dialog_operation_swal') dialogOperationSwal!: SwalComponent;
 
   searchForm!: FormGroup;
@@ -123,7 +127,7 @@ export class SpecialIndividualRatesComponent implements OnInit {
       commissionInPercentageForNonFinanceTransfer: formValue.commissionInPercentageForNonFinanceTransfer,
       commissionInPercentageForFinanceTransfer: formValue.commissionInPercentageForFinanceTransfer
     };
-    
+
     console.log('Creating special rate with command:', command);
 
 this.transferRatesService.createSpecialPricingForIndividual(command)

@@ -6,6 +6,7 @@ import { ExportationService } from '../services/exportation.service';
 import { CorporateOrIndividual } from '../../transactions/models/transactions.model';
 import { DEResponse } from '../../de/models/de.models';
 import Swal from 'sweetalert2';
+import { UserRoleEnum, UserType } from 'src/app/helpers/UserRoleEnum';
 
 @Component({
   selector: 'app-create-exportation',
@@ -13,6 +14,8 @@ import Swal from 'sweetalert2';
   styles: []
 })
 export class CreateExportationComponent implements OnInit {
+  UserRoleEnum = UserRoleEnum;
+  UserType = UserType;
   createExportationForm!: FormGroup;
   selectCustomerDialog = false;
   searchCustomerForm!: FormGroup;
@@ -130,7 +133,7 @@ export class CreateExportationComponent implements OnInit {
     const isCustomerCorporate = customerType === CustomerType.Corporate;
 
     this.createExportationForm.patchValue({
-      corporateOrIndividual: isCustomerCorporate ? 
+      corporateOrIndividual: isCustomerCorporate ?
         CorporateOrIndividual.Corporate : CorporateOrIndividual.Individual,
       corporateId: isCustomerCorporate ? this.selectedCustomer.id : '',
       individualId: !isCustomerCorporate ? this.selectedCustomer.id : '',

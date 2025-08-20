@@ -5,17 +5,29 @@ import { CreateExportationComponent } from './create-exportation/create-exportat
 import { ViewExportationsComponent } from './view-exportations/view-exportations.component';
 import { DocumentationExportationComponent } from './documentation-exportation/documentation-exportation.component';
 import { ExportationDocumentationResolver } from './resolvers/exportation-documentation.resolver';
+import { UserRoleEnum, UserType } from 'src/app/helpers/UserRoleEnum';
 
 const routes: Routes = [
   {
     path: 'create-exportation',
     component: CreateExportationComponent,
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
+     data: {
+          roles: [UserRoleEnum.TradeInitiator],
+          userType: [UserType.InternalUser, UserType.ExternalUser]
+        }
   },
   {
     path: 'view-exportations',
     component: ViewExportationsComponent,
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
+     data: {
+      roles: [UserRoleEnum.TradeInitiator, UserRoleEnum.Admin, UserRoleEnum.SuperAdmin, UserRoleEnum.TradeInitiator,
+              UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer, UserRoleEnum.TreasuryAuthorizer,
+              UserRoleEnum.TreasuryOperationAuthorizer, UserRoleEnum.TradeOperationAuthorizer,
+              UserRoleEnum.TradeDeskAuthorizer, UserRoleEnum.ViewOnly],
+      userType: [UserType.InternalUser, UserType.ExternalUser]
+    }
   },
   {
     path: 'documentation-exportation',
@@ -23,7 +35,14 @@ const routes: Routes = [
     resolve: {
       exportation: ExportationDocumentationResolver
     },
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
+     data: {
+      roles: [UserRoleEnum.TradeInitiator, UserRoleEnum.Admin, UserRoleEnum.SuperAdmin, UserRoleEnum.TradeInitiator,
+              UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer, UserRoleEnum.TreasuryAuthorizer,
+              UserRoleEnum.TreasuryOperationAuthorizer, UserRoleEnum.TradeOperationAuthorizer,
+              UserRoleEnum.TradeDeskAuthorizer, UserRoleEnum.ViewOnly],
+      userType: [UserType.InternalUser, UserType.ExternalUser]
+    }
   }
 ];
 

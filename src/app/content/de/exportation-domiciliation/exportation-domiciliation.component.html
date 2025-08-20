@@ -51,7 +51,9 @@
                     </div>
                   </form>
                 </div>
-                <div class="col-2" style="text-align: right">
+                <div class="col-2" style="text-align: right"
+                    appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator]"
+                                      [requiredUserTypes]="[UserType.InternalUser]">
                   <p-fileUpload mode="basic" chooseLabel="Import DE" [auto]="true" accept=".xlsx,.xls" [maxFileSize]="1000000"
                     (onSelect)="handleFileInput($event)" styleClass="p-button-outlined p-button-success">
                   </p-fileUpload>
@@ -117,7 +119,7 @@
                           <div class="col-4">
                             <div class="text-left p-3">{{ de.clientNameFromBook }}</div>
                           </div>
-                          
+
                           <div class="col-2">
                             <div class="text-left p-3 font-bold">Creation Date</div>
                           </div>
@@ -175,6 +177,7 @@
                           </div>
                         </div>
                       </div>
+                      <hr/>
                     </div>
                   </td>
                 </tr>

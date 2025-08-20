@@ -4,12 +4,15 @@ import { DocumentationService } from '../../services/documentation.service';
 import { AppurementRequired, TransactionDirection, TransactionTypeResponse, TransactionTypeStatus } from '../../models/transaction-type.models';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { DocumentResponse, DocumentStatus, DocumentSubmissionOption } from '../../models/document.models';
+import { UserRoleEnum, UserType } from 'src/app/helpers/UserRoleEnum';
 
 @Component({
   selector: 'app-transaction-type',
   templateUrl: './transaction-type.component.html'
 })
 export class TransactionTypeComponent implements OnInit {
+  UserRoleEnum = UserRoleEnum;
+  UserType = UserType;
   readonly TransactionTypeStatus = TransactionTypeStatus;
   transactionTypes: TransactionTypeResponse[] = [];
   transactionTypeDialog = false;
@@ -28,7 +31,7 @@ export class TransactionTypeComponent implements OnInit {
   transactionDirections = Object.values(TransactionDirection)
                                .filter(value => typeof value === 'number')
                                .map(value => ({ label: TransactionDirection[value as number], value: value }));
- 
+
   appurementRequiredOptions = Object.values(AppurementRequired)
                                     .filter(value => typeof value === 'number')
                                     .map(value => ({ label: AppurementRequired[value as number], value: value }));
@@ -205,7 +208,7 @@ export class TransactionTypeComponent implements OnInit {
   }
   colorDirection(status : TransactionDirection )
   {
-     
+
     switch(status) {
       case TransactionDirection.Exportation:
         return 'info';

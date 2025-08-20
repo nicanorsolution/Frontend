@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { DEResponse } from '../models/de.models';
 import { PaginatedList } from '../../../helpers/pagination';
@@ -13,7 +13,7 @@ export class DEService {
 
   constructor(private http: HttpClient) {}
 
-  getDEs(pageNumber: number, pageSize: number, eForceReference?: string, clientName?: string, domiciliationReference?: string, 
+  getDEs(pageNumber: number, pageSize: number, eForceReference?: string, clientName?: string, domiciliationReference?: string,
          startDate?: Date, endDate?: Date): Observable<PaginatedList<DEResponse>> {
     let params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
@@ -24,6 +24,8 @@ export class DEService {
     if (domiciliationReference) params = params.set('domiciliationReference', domiciliationReference);
     if (startDate) params = params.set('startDate', startDate.toISOString());
     if (endDate) params = params.set('endDate', endDate.toISOString());
+
+    console.log('DEService: Fetching DEs with params:', params.toString());
 
     return this.http.get<PaginatedList<DEResponse>>(`${this.baseUrl}/des`, { params });
   }

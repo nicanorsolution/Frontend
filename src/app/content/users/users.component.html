@@ -33,7 +33,9 @@
                       optionValue="value"
                       placeholder="User Type"
                       [showClear]="true"
-                      styleClass="w-10rem">
+                      styleClass="w-10rem"
+                      appRoleVisibility [requiredUserTypes]="[UserType.InternalUser]"
+                      >
                     </p-dropdown>
                     <button
                       pButton
@@ -45,9 +47,12 @@
                   </form>
                 </div>
                 <div class="col-4">
-                  <div class="flex justify-content-end">
+                  <div class="flex justify-content-end"
+                  >
                     <button
                       pButton
+                      appRoleVisibility [requiredRoles]="[UserRoleEnum.SuperAdmin,UserRoleEnum.Admin]"
+                                        [requiredUserTypes]="[UserType.InternalUser]"
                       label="New User"
                       class="p-button-outlined p-button-success"
                       (click)="openAddUserDialog()"
@@ -215,6 +220,33 @@
                         <div class="col-3">
                           <div class="text-left p-3">{{(user.updatedAt | date:'medium') || 'Pending'}}</div>
                         </div>
+                        <div class="col-3">
+                          <div class="text-left p-3 font-bold">Is Locked</div>
+                        </div>
+                        <div class="col-3">
+                          <div class="text-left p-3">
+                            <p-tag [value]="user.isLocked ? 'Yes' : 'No'" [severity]="user.isLocked ? 'danger' : 'success'"></p-tag>
+                          </div>
+                        </div>
+                        <div class="col-3">
+                          <div class="text-left p-3 font-bold">Failed Login Attempts</div>
+                        </div>
+                        <div class="col-3">
+                          <div class="text-left p-3">{{user.failedLoginAttempts || 0}}</div>
+                        </div>
+
+                        <div class="col-3">
+                          <div class="text-left p-3 font-bold">Last Login IP</div>
+                        </div>
+                        <div class="col-3">
+                          <div class="text-left p-3">{{user.lastLoginIp || 'N/A'}}</div>
+                        </div>
+                        <div class="col-3">
+                          <div class="text-left p-3 font-bold">Last Login Attempt</div>
+                        </div>
+                        <div class="col-3">
+                          <div class="text-left p-3">{{(user.lastLoginAttempt | date:'medium') || 'N/A'}}</div>
+                        </div>
                       </div>
                     </div>
                     <br/>
@@ -222,9 +254,12 @@
                       <hr/>
                       <div class="flex flex-row-reverse flex-wrap">
 
+
+
                         <button pButton type="button" label="Cancel"
                           *ngIf="user.status == 'Created'"
-                          [appRole]="[UserRoles.SuperAdmin.toString(),UserRoles.Admin.toString()]"
+                          appRoleVisibility [requiredRoles]="[UserRoleEnum.SuperAdmin,UserRoleEnum.Admin]"
+                                        [requiredUserTypes]="[UserType.InternalUser]"
                           class="p-button-outlined p-button-danger"
                           icon="pi pi-times" iconPos="left"
                           (click)="checkerDecision(user,CheckerDecision.CanceledCurrentAction)"
@@ -233,19 +268,51 @@
 
                         <button pButton type="button" label="Delete"
                           *ngIf="user.status == 'Approved'"
-                          [appRole]="[UserRoles.SuperAdmin.toString(),UserRoles.Admin.toString()]"
+                          appRoleVisibility [requiredRoles]="[UserRoleEnum.SuperAdmin,UserRoleEnum.Admin]"
+                                        [requiredUserTypes]="[UserType.InternalUser]"
                           class="p-button-outlined p-button-danger"
                           icon="pi pi-trash" iconPos="left"
                           (click)="deleteUser(user)"
                           style="margin-right: 10px">
                         </button>
 
-                          <button pButton type="button" label="Approve"
+                         <button pButton type="button" label="Approve"
                           *ngIf="user.status == 'Created'"
-                          [appRole]="[UserRoles.SuperAdmin.toString(),UserRoles.Admin.toString()]"
+                          appRoleVisibility [requiredRoles]="[UserRoleEnum.SuperAdmin,UserRoleEnum.Admin]"
+                                        [requiredUserTypes]="[UserType.InternalUser]"
                           class="p-button-outlined p-button-success"
                           icon="pi pi-check" iconPos="left"
                           (click)="checkerDecision(user,CheckerDecision.ApprovedCurrentAction)"
+                          style="margin-right: 10px">
+                        </button>
+
+                        <button pButton type="button" label="Reset Password"
+                          *ngIf="user.status == 'Approved'"
+                          appRoleVisibility [requiredRoles]="[UserRoleEnum.SuperAdmin,UserRoleEnum.Admin]"
+                                        [requiredUserTypes]="[UserType.InternalUser]"
+                          class="p-button-outlined p-button-success"
+                          icon="pi pi-sync" iconPos="left"
+                          (click)="resetUserPassword(user)"
+                          style="margin-right: 10px">
+                        </button>
+
+                        <button pButton type="button" label="Lock"
+                          *ngIf="user.status == 'Approved' && !user.isLocked"
+                         appRoleVisibility [requiredRoles]="[UserRoleEnum.SuperAdmin,UserRoleEnum.Admin]"
+                                        [requiredUserTypes]="[UserType.InternalUser]"
+                          class="p-button-outlined p-button-success"
+                          icon="pi pi-lock" iconPos="left"
+                          (click)="lockUser(user)"
+                          style="margin-right: 10px">
+                        </button>
+
+                        <button pButton type="button" label="Unlock"
+                          *ngIf="user.status == 'Approved' && user.isLocked"
+                         appRoleVisibility [requiredRoles]="[UserRoleEnum.SuperAdmin,UserRoleEnum.Admin]"
+                                        [requiredUserTypes]="[UserType.InternalUser]"
+                          class="p-button-outlined p-button-success"
+                          icon="pi pi-lock-open" iconPos="left"
+                          (click)="unlockUser(user)"
                           style="margin-right: 10px">
                         </button>
                       </div>
@@ -378,7 +445,7 @@
                     [suggestions]="corporateOptions"
                     (completeMethod)="searchCorporate($event)"
                     field="name"
-                    [dropdown]="true"
+                    [dropdown]="false"
                     placeholder="Search and select corporate">
                   </p-autoComplete>
                   <label for="corporateOrIndividualId">Corporate</label>

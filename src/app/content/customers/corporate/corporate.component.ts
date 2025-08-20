@@ -14,7 +14,8 @@ import {
   RelationshipManagerResponse,
   CorporateStatus,
   MiseEnDemeureStatus,
-  ADNAReportStatus
+  ADNAReportStatus,
+  RelationshipManagerStatus
 } from '../models/customer.models';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { PaginatedList } from '../../../helpers/pagination';
@@ -23,19 +24,22 @@ import { ApiErrorResponse } from '../../../helpers/response-error';
 import Swal from 'sweetalert2';
 import { CorporateOrIndividual } from '../../transactions/models/transactions.model';
 import { interval, Subscription } from 'rxjs';
+import { UserRoleEnum, UserType } from 'src/app/helpers/UserRoleEnum';
 
 @Component({
   selector: 'app-corporate',
   templateUrl: './corporate.component.html'
 })
 export class CorporateComponent implements OnInit, OnDestroy {
+  UserRoleEnum = UserRoleEnum;
+  UserType = UserType;
   corporates: CorporateResponse[] = [];
   loading = false;
   corporateDialog = false;
   createCorporateForm!: FormGroup;
   isSubmitted = false;
 
-  
+
   totalRows = 0;
   pageSize = 2;
   pageNumber = 1;
@@ -81,8 +85,8 @@ export class CorporateComponent implements OnInit, OnDestroy {
       corporateId: [''], // Add this new control
       name: ['', Validators.required],
       niu: ['', Validators.required],
-      address: ['', Validators.required],
-      registrationNumber: ['', Validators.required]
+      address: [''],
+      registrationNumber: ['']
     });
 
     this.createBankAccountForm = this.fb.group({
@@ -160,12 +164,12 @@ export class CorporateComponent implements OnInit, OnDestroy {
     const searchTerm = this.searchForm.get('searchTerm')?.value;
     this.loadCorporates(searchTerm);
   }
-  
+
   loadCorporates(name?: string, niu?: string) {
     if (name || niu) {
       this.pageNumber = 1; // Reset to first page when searching
     }
-    
+
     this.loading = true;
     const query = {
       name,
@@ -179,7 +183,7 @@ export class CorporateComponent implements OnInit, OnDestroy {
         this.corporates = response.items;
         this.totalRows = response.totalCount;
         this.loading = false;
-        
+
         // Start auto-refresh if there are running reports
         if (this.hasRunningReports() && !this.refreshSubscription) {
           this.startAutoRefresh();
@@ -222,9 +226,28 @@ export class CorporateComponent implements OnInit, OnDestroy {
     }
   }
 
+  updateCorporate(corporate: CorporateResponse) {
+    this.customerService.updateCorporate({
+      corporateId: corporate.id
+    }).subscribe({
+      next: () => {
+        this.loadCorporates();
+        this.dialogOperationSwal.update({
+          title: 'Success',
+          text: 'Corporate updated successfully!',
+          icon: 'success'
+        });
+        this.dialogOperationSwal.fire(); // Show success message
+      },
+      error: (error) => {
+        this.handleError(error);
+      }
+    });
+  }
+
   // Update onPageChange method to handle pagination events from PrimeNG
   onPageChange(event: any) {
-   
+
     this.pageNumber = event.first / event.rows + 1;
     this.pageSize = event.rows;
     console.log(event);
@@ -291,6 +314,11 @@ export class CorporateComponent implements OnInit, OnDestroy {
           this.addContactDialog = false;
           this.loadCorporates();
           this.selectedCorporate = undefined;
+          this.dialogOperationSwal.update({
+            title: 'Success',
+            text: 'Contact added successfully!',
+            icon: 'success'
+          });
           this.dialogOperationSwal.fire(); // Show success message
         },
         error: (error) => {
@@ -313,7 +341,7 @@ export class CorporateComponent implements OnInit, OnDestroy {
           this.loadCorporates();
 
           this.dialogOperationSwal.update({
-            
+
             title: 'Success',
             text: 'Relationship Manager assigned successfully!',
             icon: 'success'
@@ -337,7 +365,12 @@ export class CorporateComponent implements OnInit, OnDestroy {
     this.customerService.removeCorporateContact(command).subscribe({
       next: () => {
         this.loadCorporates();
-        this.dialogOperationSwal.fire(); // Show success message
+         this.dialogOperationSwal.update({
+            title: 'Success',
+            text: 'Contact removed successfully!',
+            icon: 'success'
+          });
+          this.dialogOperationSwal.fire(); // Show success message
       },
       error: (error) => {
         this.handleError(error);
@@ -359,6 +392,11 @@ export class CorporateComponent implements OnInit, OnDestroy {
         this.customerService.removeBankAccount(corporateId, accountNumber).subscribe({
           next: () => {
             this.loadCorporates();
+            this.dialogOperationSwal.update({
+              title: 'Success',
+              text: 'Bank account removed successfully!',
+              icon: 'success'
+            });
             this.dialogOperationSwal.fire();
           },
           error: (error) => {
@@ -398,6 +436,7 @@ export class CorporateComponent implements OnInit, OnDestroy {
         name: customer.name,
         niu: customer.niu,
         address: customer.address,
+        registrationNumber: customer.registrationNumber
       });
     }
   }
@@ -408,6 +447,7 @@ export class CorporateComponent implements OnInit, OnDestroy {
       name: '',
       niu: '',
       address: '',
+      registrationNumber: ''
     });
   }
 
@@ -433,8 +473,9 @@ export class CorporateComponent implements OnInit, OnDestroy {
   searchManagers(event: { query: string }) {
     const query = {
       name: event.query,
+      relationshipManagerStatus: RelationshipManagerStatus.Active,
       pageNumber: 1,
-      pageSize: 10
+      pageSize: 15
     };
 
     this.customerService.getRelationshipManagers(query).subscribe({
@@ -539,7 +580,7 @@ export class CorporateComponent implements OnInit, OnDestroy {
       next: () => {
         this.loadCorporates();
         this.dialogOperationSwal.update({
-          
+
           title: 'Request Successful',
           text: 'The ADNA request has been sent successfully.'
         })
@@ -561,14 +602,14 @@ export class CorporateComponent implements OnInit, OnDestroy {
       confirmButtonText: 'Yes, delete it',
       cancelButtonText: 'Cancel'
     });
-    
+
     this.dialogOperationSwal.fire().then((result) => {
       if (result.isConfirmed) {
         this.deleteCorporate(corporate.id);
       }
     });
   }
-  
+
   deleteCorporate(corporateId: string) {
     this.customerService.deleteCorporate(corporateId).subscribe({
       next: () => {

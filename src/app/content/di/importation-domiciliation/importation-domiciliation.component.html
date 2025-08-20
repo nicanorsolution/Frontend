@@ -59,8 +59,10 @@
                 </div>
               </form>
               </div>
-              <div class="col-2" style="text-align: right">
-             
+              <div class="col-2" style="text-align: right"
+                appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator]"
+                                  [requiredUserTypes]="[UserType.InternalUser]">
+
                 <p-fileUpload
                   mode="basic"
                   chooseLabel="Import DI"
@@ -332,10 +334,10 @@
 
                           <div class="col-2">
                             <div class="text-left p-3 font-bold">
-                             <!-- when DI is uploaded with new data 
-                              particulary a new initial amount then we flag as 
+                             <!-- when DI is uploaded with new data
+                              particulary a new initial amount then we flag as
                               DI has been modified-->
-                              Has Data Being Modified 
+                              Has Data Being Modified
                             </div>
                           </div>
                           <div class="col-4">
@@ -357,6 +359,8 @@
                             icon="pi pi-refresh"
                             iconPos="left"
                             label="DI Update History"
+                            appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator,UserRoleEnum.TradeAuthorizer,UserRoleEnum.Verifier]"
+                                  [requiredUserTypes]="[UserType.InternalUser]"
                             (click)="openUpdateDescriptionDialog(di)"
                             style="margin-right: 10px"
                           ></button>
@@ -367,6 +371,8 @@
                             icon="pi pi-pencil"
                             iconPos="left"
                             label="Update Description"
+                            appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator,UserRoleEnum.TradeAuthorizer,UserRoleEnum.Verifier]"
+                                  [requiredUserTypes]="[UserType.InternalUser]"
                             (click)="openUpdateDescriptionDialog(di)"
                             style="margin-right: 10px"
                           ></button>
@@ -377,6 +383,8 @@
                             icon="pi pi-info"
                             iconPos="left"
                             label="Request Attestation"
+                            appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator,UserRoleEnum.TradeAuthorizer,UserRoleEnum.Verifier]"
+                                  [requiredUserTypes]="[UserType.InternalUser]"
                             (click)="requestDIAttestation(di.id)"
                             style="margin-right: 10px"
                           ></button>
@@ -387,6 +395,8 @@
                             icon="pi pi-file-pdf"
                             iconPos="left"
                             label="View Attestations Generated"
+                            appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator,UserRoleEnum.TradeAuthorizer,UserRoleEnum.Verifier]"
+                                  [requiredUserTypes]="[UserType.InternalUser]"
                             (click)="viewDIAttestations(di.id)"
                             style="margin-right: 10px"
                           ></button>
@@ -436,8 +446,8 @@
           />
           <label for="amountInCurrency">Amount In Currency </label>
           <small
-            *ngIf="updateDescriptionForm.get('amountInCurrency')?.invalid && 
-                   (updateDescriptionForm.get('amountInCurrency')?.dirty || 
+            *ngIf="updateDescriptionForm.get('amountInCurrency')?.invalid &&
+                   (updateDescriptionForm.get('amountInCurrency')?.dirty ||
                     updateDescriptionForm.get('amountInCurrency')?.touched)"
                 class="p-error">Amount reference is required.</small>      </span>
        </div>
@@ -452,13 +462,13 @@
           />
           <label for="currency">Currency </label>
           <small
-            *ngIf="updateDescriptionForm.get('currency')?.invalid && 
-                   (updateDescriptionForm.get('currency')?.dirty || 
+            *ngIf="updateDescriptionForm.get('currency')?.invalid &&
+                   (updateDescriptionForm.get('currency')?.dirty ||
                     updateDescriptionForm.get('currency')?.touched)"
                 class="p-error">Currency reference is required.</small>      </span>
       </div>
 
-     
+
       <div class="field col-6">
         <span class="p-float-label p-input-filled">
           <input
@@ -469,8 +479,8 @@
           />
           <label for="billReference">Bill Reference</label>
           <small
-            *ngIf="updateDescriptionForm.get('billReference')?.invalid && 
-                   (updateDescriptionForm.get('billReference')?.dirty || 
+            *ngIf="updateDescriptionForm.get('billReference')?.invalid &&
+                   (updateDescriptionForm.get('billReference')?.dirty ||
                     updateDescriptionForm.get('billReference')?.touched)"
             class="p-error">Bill reference is required.</small>
         </span>
@@ -485,8 +495,8 @@
           ></p-calendar>
           <label for="billExpiringDate">Bill Expiring Date</label>
           <small
-            *ngIf="updateDescriptionForm.get('billExpiringDate')?.invalid && 
-                   (updateDescriptionForm.get('billExpiringDate')?.dirty || 
+            *ngIf="updateDescriptionForm.get('billExpiringDate')?.invalid &&
+                   (updateDescriptionForm.get('billExpiringDate')?.dirty ||
                     updateDescriptionForm.get('billExpiringDate')?.touched)"
             class="p-error">Expiring date is required.</small>
         </span>
@@ -501,8 +511,8 @@
             pInputText
           />
           <label for="goodQuantity">Good Quantity</label>  <small
-            *ngIf="updateDescriptionForm.get('goodQuantity')?.invalid && 
-                   (updateDescriptionForm.get('goodQuantity')?.dirty || 
+            *ngIf="updateDescriptionForm.get('goodQuantity')?.invalid &&
+                   (updateDescriptionForm.get('goodQuantity')?.dirty ||
                     updateDescriptionForm.get('goodQuantity')?.touched)"
             class="p-error">Good Quantity is required.</small>
         </span>
@@ -520,8 +530,8 @@
           ></p-dropdown>
           <label for="goodsUnit">Goods Unit</label>
           <small
-            *ngIf="updateDescriptionForm.get('goodsUnit')?.invalid && 
-                   (updateDescriptionForm.get('goodsUnit')?.dirty || 
+            *ngIf="updateDescriptionForm.get('goodsUnit')?.invalid &&
+                   (updateDescriptionForm.get('goodsUnit')?.dirty ||
                     updateDescriptionForm.get('goodsUnit')?.touched)"
             class="p-error">Goods Unit is required.</small>
         </span>
@@ -537,13 +547,13 @@
           />
           <label for="goodsDescription">Goods Description</label>
          <!--  <small
-            *ngIf="updateDescriptionForm.get('goodsDescription')?.invalid && 
-                   (updateDescriptionForm.get('goodsDescription')?.dirty || 
+            *ngIf="updateDescriptionForm.get('goodsDescription')?.invalid &&
+                   (updateDescriptionForm.get('goodsDescription')?.dirty ||
                     updateDescriptionForm.get('goodsDescription')?.touched)"
             class="p-error">Goods Unit is required.</small> -->
         </span>
       </div>
-      
+
       <div class="field col-9"></div>
       <div class="field col-3">
         <br />
@@ -576,7 +586,9 @@
         <th>Type</th>
         <th>Status</th>
         <th>Date Generated</th>
-        <th>Action</th>
+        <th appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator,UserRoleEnum.TradeAuthorizer,UserRoleEnum.Verifier]"
+                                  [requiredUserTypes]="[UserType.InternalUser]">
+            Action</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-attestation>
@@ -601,13 +613,15 @@
           </p-tag>
         </td>
         <td>{{ attestation.dateGenerated | date : "medium" }}</td>
-        <td>
+        <td appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator,UserRoleEnum.TradeAuthorizer,UserRoleEnum.Verifier]"
+                                  [requiredUserTypes]="[UserType.InternalUser]">
           <button
             pButton
             type="button"
             icon="pi pi-download"
             class="p-button-rounded p-button-text"
             [disabled]="attestation.diAttestationGenerationStatus != 1"
+
             (click)="downloadAttestation(attestation)"
           ></button>
         </td>

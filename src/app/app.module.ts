@@ -14,6 +14,7 @@ import { SidebarModule } from './sidebar/sidebar.module';
 
 import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
 import { LoginComponent } from './login/login.component';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { AuthInterceptor } from './helpers/auth-interceptor';
 import { NgxPermissionsModule } from 'ngx-permissions';
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
@@ -24,8 +25,9 @@ import { TagModule } from 'primeng/tag';
   declarations: [
     AppComponent,
     AdminLayoutComponent,
-    LoginComponent
-   
+    LoginComponent,
+    ResetPasswordComponent
+
   ],
   imports: [
     BrowserModule,

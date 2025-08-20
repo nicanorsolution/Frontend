@@ -20,6 +20,8 @@
                         class="ml-auto p-button-outlined p-button-success"
                         label="Select Customer"
                         icon="pi pi-search"
+                        appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator]"
+                                               [requiredUserTypes]="[UserType.InternalUser]"
                         (click)="openSelectCustomerDialog()">
                       </button>
                     </div>
@@ -77,6 +79,8 @@
                         class="ml-auto p-button-outlined p-button-success"
                         label="Search DE"
                         icon="pi pi-search"
+                        appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator]"
+                                               [requiredUserTypes]="[UserType.InternalUser]"
                         (click)="openSearchDEDialog()">
                       </button>
                     </div>
@@ -169,7 +173,9 @@
                   class="p-button-outlined p-button-success"
                   [label]="isSubmitting ? 'Submitting...' : 'Create Exportation'"
                   [icon]="isSubmitting ? 'pi pi-spinner pi-spin' : 'pi pi-check'"
-                  [disabled]="createExportationForm.invalid || isSubmitting">
+                  [disabled]="createExportationForm.invalid || isSubmitting"
+                  appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator]"
+                                               [requiredUserTypes]="[UserType.InternalUser]">
                 </button>
               </div>
             </form>

@@ -1,4 +1,4 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, HostListener, OnInit} from '@angular/core';
 import { Location, PopStateEvent } from '@angular/common';
 import { Router, NavigationEnd, NavigationStart } from '@angular/router';
 import PerfectScrollbar from 'perfect-scrollbar';
@@ -10,13 +10,19 @@ import { filter, Subscription } from 'rxjs';
   styleUrls: ['./admin-layout.component.scss']
 })
 export class AdminLayoutComponent implements OnInit {
- // private _router: Subscription   ;
+  isMobile: boolean = false;
   private lastPoppedUrl: string | undefined;
   private yScrollStack: number[] = [];
 
   constructor( public location: Location, private router: Router) {}
 
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.updateSidebarVisibility();
+  }
+
    ngOnInit() {
+    this.updateSidebarVisibility();
     console.log(this.router)
       const isWindows = navigator.platform.indexOf('Win') > -1 ? true : false;
 
@@ -77,6 +83,10 @@ export class AdminLayoutComponent implements OnInit {
           bool = true;
       }
       return bool;
+  }
+
+  private updateSidebarVisibility() {
+    this.isMobile = window.innerWidth <= 991;
   }
 
 }

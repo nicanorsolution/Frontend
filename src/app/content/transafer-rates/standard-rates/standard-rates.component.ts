@@ -4,12 +4,15 @@ import { TransferRatesService } from '../services/transfer-rates.services';
 import { StandardTransferRateResponse } from '../models/transfer-rates.models';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import Swal from 'sweetalert2';
+import { UserRoleEnum } from 'src/app/helpers/UserRoleEnum';
 
 @Component({
   selector: 'app-standard-rates',
   templateUrl: './standard-rates.component.html'
 })
 export class StandardRatesComponent implements OnInit {
+
+  UserRoleEnum = UserRoleEnum;
   rates : StandardTransferRateResponse[] = [];
   loading = false;
   expandedRows: { [key: string]: boolean } = {};

@@ -7,3 +7,11 @@
 {
   display: none !important;
 }
+
+.wrapper.sidebar-hidden .sidebar {
+  display: none;
+}
+
+.wrapper.sidebar-hidden .main-panel {
+  width: 100%;
+}

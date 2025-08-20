@@ -4,12 +4,15 @@ import { CustomersService } from '../services/customers.services';
 import { RelationshipManagerResponse, RelationshipManagerStatus } from '../models/customer.models';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { PaginatedList } from '../../../helpers/pagination';
+import { UserRoleEnum, UserType } from 'src/app/helpers/UserRoleEnum';
 
 @Component({
   selector: 'app-relationshipmanager',
   templateUrl: './relationshipmanager.component.html'
 })
 export class RelationshipmanagerComponent implements OnInit {
+  UserRoleEnum = UserRoleEnum;
+  UserType = UserType;
   managers: RelationshipManagerResponse[] = [];
   loading = false;
   managerDialog = false;
@@ -84,8 +87,6 @@ export class RelationshipmanagerComponent implements OnInit {
 
   createManager() {
     if (this.createManagerForm.valid) {
-      this.dialogOperationSwal.fire().then((result) => {
-        if (result.isConfirmed) {
           this.isSubmitted = true;
           const command = {
             name: this.createManagerForm.value.name,
@@ -97,14 +98,18 @@ export class RelationshipmanagerComponent implements OnInit {
               this.managerDialog = false;
               this.loadManagers();
               this.isSubmitted = false;
-              //this.dialogOperationSwal.fire();
+              this.dialogOperationSwal.update({
+                title: 'Manager Created',
+                text: 'Relationship Manager has been created successfully.',
+                icon: 'success'
+
+              });
+              this.dialogOperationSwal.fire();
             },
             error: () => {
               this.isSubmitted = false;
             }
           });
-        }
-      });
     }
   }
 
@@ -119,9 +124,7 @@ export class RelationshipmanagerComponent implements OnInit {
 
   updateManager() {
     if (this.editManagerForm.valid && this.selectedManager) {
-      this.dialogOperationSwal.fire().then((result) => {
-        if (result.isConfirmed) {
-          this.isSubmitted = true;
+       this.isSubmitted = true;
           const command = {
             relationshipManagerId: this.selectedManager!.id,
             name: this.editManagerForm.value.name,
@@ -133,22 +136,45 @@ export class RelationshipmanagerComponent implements OnInit {
               this.editManagerDialog = false;
               this.loadManagers();
               this.isSubmitted = false;
+              this.dialogOperationSwal.update({
+                title: 'Manager Updated',
+                text: 'Relationship Manager has been updated successfully.',
+                icon: 'success'
+              });
+              this.dialogOperationSwal.fire();
             },
             error: () => {
               this.isSubmitted = false;
             }
           });
-        }
-      });
     }
   }
 
   deleteManager(managerId: string) {
+
+    this.dialogOperationSwal.update({
+      title: 'Are you sure?',
+      text: 'This action cannot be undone',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, proceed'
+    });
+
     this.dialogOperationSwal.fire().then((result) => {
       if (result.isConfirmed) {
         this.customerService.deleteRelationshipManager(managerId).subscribe({
           next: () => {
             this.loadManagers();
+            this.dialogOperationSwal.update({
+              title: 'Manager Deleted',
+              text: 'Relationship Manager has been deleted successfully.',
+              icon: 'success',
+              showCancelButton: false,
+              showConfirmButton : false,
+              showCloseButton: true,
+              closeButtonAriaLabel: 'Close'
+            });
+            this.dialogOperationSwal.fire();
           }
         });
       }

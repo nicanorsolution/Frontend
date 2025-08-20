@@ -108,6 +108,7 @@ export interface IndividualQuery {
 
 export interface RelationshipManagerQuery {
   name?: string;
+  relationshipManagerStatus?: RelationshipManagerStatus;
   pageNumber: number;
   pageSize: number;
 }
@@ -149,10 +150,6 @@ export interface RemoveRelationshipManagerCommand {
 
 export interface UpdateCorporateCommand {
   corporateId: string;
-  name: string;
-  address: string;
-  registrationNumber: string;
-  niu: string;
 }
 
 export interface CorporateResponse {
@@ -189,6 +186,7 @@ export interface CustomerInfoResponse {
   phone?: string;
   email?: string;
   customerType: CustomerType;
+  registrationNumber?: string;
 }
 
 
@@ -292,13 +290,13 @@ export interface RemoveRelationshipManagerCommand {
   corporateId: string;
 }
 
-export interface UpdateCorporateCommand {
+/* export interface UpdateCorporateCommand {
   corporateId: string;
   name: string;
   address: string;
   registrationNumber: string;
   niu: string;
-}
+} */
 
 export interface ActivateRelationshipManagerCommand {
   relationshipManagerId: string;
@@ -339,7 +337,6 @@ export interface CreateIndividualCommand {
   individualId: string;
   name: string;
   address?: string;
-  city?: string;
   email?: string;
   phone?: string;
   accountNumber: string;

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { UserResponse,  UserDeleteRequest, CreateUserCommand, RoleResponse, ChangeRolePermissionCommand, ApproveOrRejectChangeCommand, EntityIdLookupName, UserType } from './user.models';
+import { UserResponse,  UserDeleteRequest, CreateUserCommand, RoleResponse, ChangeRolePermissionCommand, ApproveOrRejectChangeCommand, EntityIdLookupName, UserType, ChangePasswordCommand } from './user.models';
 import { PaginatedList } from 'src/app/helpers/pagination';
 import { CustomersService } from '../customers/services/customers.services';
 import { CorporateQuery, IndividualQuery } from '../customers/models/customer.models';
@@ -34,6 +34,24 @@ export class UserService {
     return this.http.post(this.baseUrl + '/delete', { ...request });
   }
 
+  LockUser(userId: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/lock/${userId}`, {  });
+  }
+
+  UnlockUser(userId: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/unlock/${userId}`, {  });
+  }
+
+  ResetUserPassword(userId: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/reset-password/${userId}`, {  });
+  }
+  ChangeUserPassword(changePasswordCommand: ChangePasswordCommand): Observable<any> {
+    return this.http.post(`${this.baseUrl}/change-password`, { ...changePasswordCommand });
+  }
+
+  ForcePasswordChange(userId: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/force-password-change/${userId}`, {  });
+  }
 
   getUsers(userName: string, pageNumber: number = 1, pageSize: number = 10, userType?: UserType): Observable<PaginatedList<UserResponse>> {
     let params = new HttpParams()

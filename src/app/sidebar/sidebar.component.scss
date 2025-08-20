@@ -1,0 +1,396 @@
+// Corporate Sidebar Styling
+.corporate-sidebar {
+  background: linear-gradient(180deg, #2a2a2a 0%, #1c1c1c 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+  // animation: slideInLeft 0.4s ease-out;
+  position: relative;
+  width: 280px;
+  min-height: 100vh;
+
+  // Add subtle pattern overlay
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(ellipse at top left, rgba(217, 35, 45, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom right, rgba(217, 35, 45, 0.08) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .sidebar-header {
+    padding: 32px 28px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    z-index: 2;
+
+    .company-logo {
+      .logo-icon {
+        font-size: 26px;
+        color: #ffffff;
+        background: linear-gradient(135deg, #d9232d 0%, #b3121b 100%);
+        padding: 16px;
+        border-radius: 16px;
+        display: block;
+        width: 58px;
+        height: 58px;
+        text-align: center;
+        line-height: 26px;
+        box-shadow: 0 8px 32px rgba(217, 35, 45, 0.3),
+                    0 2px 8px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &:hover {
+          transform: translateY(-2px) scale(1.05);
+          box-shadow: 0 12px 40px rgba(217, 35, 45, 0.4),
+                      0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+      }
+    }
+
+    .company-name {
+      h3 {
+        color: #ffffff;
+        font-size: 22px;
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: -0.02em;
+        font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+        line-height: 1.2;
+      }
+
+      .subtitle {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin-top: 4px;
+        font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      }
+    }
+  }
+
+  .sidebar-nav {
+    padding: 28px 0;
+    height: calc(100vh - 180px);
+    overflow-y: auto;
+    position: relative;
+    z-index: 2;
+
+    // Custom scrollbar styling
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+      transition: background 0.3s ease;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+  }
+
+  .nav-section {
+    margin-bottom: 40px;
+
+    &:last-child {
+      margin-bottom: 20px;
+    }
+
+    .nav-section-title {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 15px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      padding: 0 28px 18px;
+      margin: 0 0 12px 0;
+      position: relative;
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 10px;
+        left: 28px;
+        right: 28px;
+        height: 1px;
+        background: linear-gradient(90deg,
+          rgba(255, 255, 255, 0.1) 0%,
+          rgba(255, 255, 255, 0.05) 50%,
+          transparent 100%);
+      }
+    }
+
+    .nav-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+  }
+
+  .nav-item {
+    position: relative;
+    margin: 2px 0;
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 14px 28px;
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      border-radius: 0 28px 28px 0;
+      margin-right: 16px;
+      backdrop-filter: blur(10px);
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 0;
+        background: linear-gradient(135deg,
+          rgba(217, 35, 45, 0.15) 0%,
+          rgba(179, 18, 27, 0.1) 50%,
+          rgba(217, 35, 45, 0.05) 100%);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 0 28px 28px 0;
+      }
+
+      &::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 0;
+        background: linear-gradient(135deg, #d9232d 0%, #b3121b 100%);
+        border-radius: 0 3px 3px 0;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 0 12px rgba(217, 35, 45, 0.4);
+      }
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.04);
+        color: #ffffff;
+        text-decoration: none;
+        transform: translateX(4px);
+
+        &::before {
+          width: 100%;
+        }
+
+        &::after {
+          height: 12px;
+        }
+
+        .nav-icon {
+          transform: scale(1.075);
+          color: #ffffff;
+        }
+      }
+
+      .nav-icon {
+        font-size: 20.4px;
+        margin-right: 20px;
+        width: 20px;
+        text-align: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      .nav-text {
+        font-size: 17.5px;
+        font-weight: 500;
+        flex: 1;
+        letter-spacing: -0.01em;
+        font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+        line-height: 1.4;
+      }
+    }
+
+    &.active {
+      .nav-link {
+        background: rgba(255, 255, 255, 0.12);
+        color: #ffffff;
+        font-weight: 600;
+        transform: translateX(4px);
+
+        &::before {
+          width: 100%;
+          background: linear-gradient(135deg,
+            rgba(217, 35, 45, 0.2) 0%,
+            rgba(179, 18, 27, 0.15) 50%,
+            rgba(217, 35, 45, 0.1) 100%);
+        }
+
+        &::after {
+          height: 16px;
+          background: linear-gradient(135deg, #d9232d 0%, #b3121b 100%);
+          box-shadow: 0 0 16px rgba(217, 35, 45, 0.6);
+        }
+
+        .nav-icon {
+          color: #ffffff;
+          transform: scale(1.075);
+        }
+
+        .nav-text {
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}
+
+// Override default sidebar styles for corporate look
+::ng-deep {
+  .sidebar.corporate-sidebar {
+    &:after, &:before {
+      display: none !important;
+    }
+  }
+
+  // Ensure proper spacing for main panel
+  .main-panel {
+    width: calc(100% - 280px) !important;
+    margin-left: 280px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  // Professional body styling
+  body {
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-feature-settings: 'cv01', 'cv02', 'cv03', 'cv04';
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 991px) {
+  .corporate-sidebar {
+    width: 260px;
+
+    .sidebar-header {
+      padding: 24px 20px;
+
+      .company-name h3 {
+        font-size: 20px;
+      }
+
+      .company-logo .logo-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 22px;
+        line-height: 18px;
+      }
+    }
+
+    .nav-item .nav-link {
+      padding: 12px 24px;
+      margin-right: 12px;
+
+      .nav-text {
+        font-size: 16.25px;
+      }
+
+      .nav-icon {
+        font-size: 19.2px;
+        margin-right: 18px;
+      }
+    }
+
+    .nav-section .nav-section-title {
+      padding: 0 24px 16px;
+      font-size: 10px;
+
+      &::after {
+        left: 24px;
+        right: 24px;
+      }
+    }
+  }
+
+  ::ng-deep .main-panel {
+    width: calc(100% - 260px) !important;
+    margin-left: 260px;
+  }
+}
+
+@media (max-width: 768px) {
+  .corporate-sidebar {
+    display: none;
+  }
+
+  ::ng-deep .main-panel {
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+}
+
+/* // Animation for smooth loading
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+} */
+
+// Focus states for accessibility
+.nav-item .nav-link {
+  &:focus {
+    outline: 2px solid rgba(217, 35, 45, 0.5);
+    outline-offset: 2px;
+    border-radius: 0 28px 28px 0;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #d9232d;
+    outline-offset: 2px;
+  }
+}
+
+// Professional spacing for content
+.sidebar-nav .nav-section:first-child {
+  margin-top: 8px;
+}
+
+// Enhanced hover effects for better UX
+.nav-item {
+  &:hover {
+    .nav-link::before {
+      background: linear-gradient(135deg,
+        rgba(217, 35, 45, 0.2) 0%,
+        rgba(179, 18, 27, 0.15) 50%,
+        rgba(217, 35, 45, 0.1) 100%);
+    }
+  }
+}
+
+// Smooth transitions for all interactive elements
+.corporate-sidebar * {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}

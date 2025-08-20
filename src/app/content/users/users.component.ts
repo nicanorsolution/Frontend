@@ -9,6 +9,7 @@ import { UserService } from './user.service';
 import { CheckerDecision } from 'src/app/helpers/checker-decision';
 import { error } from 'console';
 import { Observable, of } from 'rxjs';
+import { UserRoleEnum } from 'src/app/helpers/UserRoleEnum';
 
 @Component({
   selector: 'app-users',
@@ -16,6 +17,8 @@ import { Observable, of } from 'rxjs';
 })
 export class UsersComponent implements OnInit {
 
+   UserRoleEnum = UserRoleEnum
+   UserType = UserType;
   users: UserResponse[] = [];
   createUserForm!: FormGroup;
   searchForm!: FormGroup;
@@ -155,6 +158,42 @@ export class UsersComponent implements OnInit {
       )
   }
 
+  lockUser(user: UserResponse) {
+    this.userService.LockUser(user.id)
+      .subscribe(
+        (data) => {
+          this.display_success_or_failed_operation("User successfully locked", true);
+          this.getUser();
+        },
+        (error) => {
+          this.display_success_or_failed_operation("Failed to lock user", false);
+        }
+      );
+  }
+  unlockUser(user: UserResponse) {
+    this.userService.UnlockUser(user.id)
+      .subscribe(
+        (data) => {
+          this.display_success_or_failed_operation("User successfully unlocked", true);
+          this.getUser();
+        },
+        (error) => {
+          this.display_success_or_failed_operation("Failed to unlock user", false);
+        }
+      );
+  }
+  resetUserPassword(user: UserResponse) {
+    this.userService.ResetUserPassword(user.id)
+      .subscribe(
+        (data) => {
+          this.display_success_or_failed_operation("User password reset successfully", true);
+          this.getUser();
+        },
+        (error) => {
+          this.display_success_or_failed_operation("Failed to reset user password", false);
+        }
+      );
+  }
 
   getUser(reset: boolean = false) {
     if (reset) {
@@ -205,7 +244,7 @@ export class UsersComponent implements OnInit {
     return userType === UserType.InternalUser ? 'Internal User' : 'External User';
   }
 
-  UserType = UserType;
+//  UserType = UserType;
 
   onUserTypeChange() {
     this.selectedUserType = this.createUserForm.get('userType')?.value;

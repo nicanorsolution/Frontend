@@ -53,6 +53,7 @@
                       label="New Special Rate"
                       icon="pi pi-plus"
                       class="p-button-outlined p-button-success"
+                      appRoleVisibility [requiredRoles]="[UserRoleEnum.TreasuryAuthorizer]"
                       (click)="openCreateSpecialRateDialog()"
                     ></button>
                   </div>
@@ -157,7 +158,8 @@
                           </div>
                         </div>
                         <hr />
-                        <div class="flex justify-content-end mt-3">
+                        <div class="flex justify-content-end mt-3"
+                             appRoleVisibility [requiredRoles]="[UserRoleEnum.TreasuryAuthorizer]">
                           <button
                             pButton
                             type="button"
@@ -166,6 +168,7 @@
                             class="p-button-outlined p-button-info mr-2"
                             (click)="openUpdateRateDialog(rate)"
                             [disabled]="rate.isDeleted"
+
                           ></button>
                           <button
                             pButton
@@ -175,6 +178,7 @@
                             class="p-button-outlined p-button-danger"
                             (click)="deleteRate(rate)"
                             [disabled]="rate.isDeleted"
+
                           ></button>
                         </div>
                       </div>

@@ -101,6 +101,7 @@
                             class="p-button-outlined"
                             icon="pi pi-pencil" iconPos="left"
                             label="Edit"
+                            appRoleVisibility [requiredRoles]="[UserRoleEnum.TreasuryAuthorizer]"
                             (click)="openEditStandardRateDialog(rate)"
                             style="margin-right: 10px">
                           </button>

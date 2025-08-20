@@ -24,6 +24,7 @@
                     </span>
                     <button
                       pButton
+                       appRoleVisibility [requiredUserTypes]="[UserType.InternalUser]"
                       type="submit"
                       label="Search"
                       icon="pi pi-search"
@@ -36,6 +37,8 @@
                   <button pButton label="New Individual"
                   class="p-button-outlined p-button-success"
                   (click)="openAddIndividualDialog()"
+                   appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
+                                    [requiredUserTypes]="[UserType.InternalUser]"
                   icon="pi pi-plus" iconPos="left">
                   </button>
                   </div>
@@ -89,7 +92,7 @@
                   <td>
                      <p-tag
                       [value]="individual.relationshipManagerName || 'Not Assigned'"
-                      severity="info">                      
+                      severity="info">
                     </p-tag>
                   </td>
                   <td>
@@ -156,10 +159,16 @@
                               </div>
 
                               <div class="col-2">
-                                <div class="text-left p-3 font-bold">Bank Account</div>
+                                <div class="text-left p-3 font-bold">Account Number</div>
                               </div>
                               <div class="col-4">
                                 <div class="text-left p-3">{{individual.bankAccount?.accountNumber}}</div>
+                              </div>
+                               <div class="col-2">
+                                <div class="text-left p-3 font-bold">Account Name</div>
+                              </div>
+                              <div class="col-4">
+                                <div class="text-left p-3"> {{individual.bankAccount?.accountName}}</div>
                               </div>
                               <div class="col-2">
                                 <div class="text-left p-3 font-bold">Branch</div>
@@ -227,6 +236,8 @@
                             icon="pi pi-trash" iconPos="left"
                             label="Delete Individual"
                             *ngIf="individual.individualStatus !== individualStatus.Delete"
+                             appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
+                                    [requiredUserTypes]="[UserType.InternalUser]"
                             (click)="confirmDeleteIndividual(individual)"
                             style="margin-right: 25px">
                           </button>
@@ -236,10 +247,14 @@
                             label="Download ADNA"
                             (click)="downloadADNA(individual)"
                             [disabled]="individual.adnaReportStatus!=ADNAReportStatus.Available"
+                             appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
+                                    [requiredUserTypes]="[UserType.InternalUser]"
                             style="margin-right: 10px">
                           </button>
                              <button pButton type="button"
                               *ngIf="individual.individualStatus !== individualStatus.Delete"
+                               appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
+                                    [requiredUserTypes]="[UserType.InternalUser]"
                             class="p-button-outlined p-button-info"
                             icon="pi pi-chevron-down" iconPos="left"
                             label="Request ADNA"
@@ -248,6 +263,8 @@
                           </button>
                           <button pButton type="button"
                            *ngIf="individual.individualStatus !== individualStatus.Delete"
+                            appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
+                                    [requiredUserTypes]="[UserType.InternalUser]"
                             class="p-button-outlined p-button-info"
                             icon="pi pi-user" iconPos="left"
                             label="Assign RM"
@@ -256,10 +273,12 @@
                           </button>
                           <button pButton type="button"
                            *ngIf="individual.individualStatus !== individualStatus.Delete"
+                            appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
+                                    [requiredUserTypes]="[UserType.InternalUser]"
                             class="p-button-outlined"
-                            icon="pi pi-pencil" iconPos="left"
-                            label="Edit"
-                            (click)="openEditIndividualDialog(individual)"
+                            icon="pi pi-sync" iconPos="left"
+                            label="Refresh"
+                            (click)="updateIndividual(individual)"
                             style="margin-right: 10px">
                           </button>
                           <!-- <ng-container [ngSwitch]="individual.individualStatus">
@@ -304,7 +323,7 @@
                         (completeMethod)="searchCustomer($event)"
                         (onSelect)="onCustomerSelect($event)"
                         (onClear)="clearCustomerSelection()"
-                        [dropdown]="true"
+                        [dropdown]="false"
                         [forceSelection]="true"
                         [field]="'clientId'"
                         [style]="{'width':'100%'}"
@@ -320,45 +339,45 @@
                   <!-- Form Fields -->
                   <div class="field col-12">
                     <span class="p-float-label p-input-filled">
-                      <input formControlName="name" type="text" id="name" pInputText />
+                      <input formControlName="name" type="text" id="name" pInputText [readOnly]="true" />
                       <label for="name">Name</label>
                     </span>
                   </div>
 
                   <div class="field col-12">
                     <span class="p-float-label p-input-filled">
-                      <input formControlName="niu" type="text" id="niu" pInputText />
+                      <input formControlName="niu" type="text" id="niu" pInputText  [readOnly]="true" />
                       <label for="niu">NIU</label>
                     </span>
                   </div>
 
                   <div class="field col-12">
                     <span class="p-float-label p-input-filled">
-                      <input formControlName="email" type="email" id="email" pInputText />
+                      <input formControlName="email" type="email" id="email" pInputText [readOnly]="true"  />
                       <label for="email">Email</label>
                     </span>
                   </div>
 
                   <div class="field col-12">
                     <span class="p-float-label p-input-filled">
-                      <input formControlName="phone" type="text" id="phone" pInputText />
+                      <input formControlName="phone" type="text" id="phone" pInputText [readOnly]="true"  />
                       <label for="phone">Phone</label>
                     </span>
                   </div>
 
                   <div class="field col-12">
                     <span class="p-float-label p-input-filled">
-                      <input formControlName="address" type="text" id="address" pInputText />
+                      <input formControlName="address" type="text" id="address" pInputText [readOnly]="true" />
                       <label for="address">Address</label>
                     </span>
                   </div>
 
-                  <div class="field col-12">
+                 <!--  <div class="field col-12">
                     <span class="p-float-label p-input-filled">
                       <input formControlName="city" type="text" id="city" pInputText />
                       <label for="city">City</label>
                     </span>
-                  </div>
+                  </div> -->
 
                   <!-- Add account fields after existing form fields -->
                   <div class="field col-12">
@@ -368,7 +387,7 @@
                         (completeMethod)="searchAccount($event)"
                         (onSelect)="onAccountSelect($event)"
                         (onClear)="clearAccountSelection()"
-                        [dropdown]="true"
+                        [dropdown]="false"
                         [forceSelection]="true"
                         [field]="'accountNumber'"
                         [style]="{'width':'100%'}"
@@ -396,7 +415,9 @@
                       [label]="isSubmitted ? 'Submitting...' : 'Save'"
                       [icon]="isSubmitted ? 'pi pi-spinner pi-spin' : 'pi pi-save'"
                       iconPos="left"
-                      [disabled]="createIndividualForm.invalid || isSubmitted">
+                      [disabled]="createIndividualForm.invalid || isSubmitted"
+                       appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
+                                    [requiredUserTypes]="[UserType.InternalUser]">
                     </button>
                   </div>
                 </div>
@@ -431,7 +452,9 @@
           label="Assign"
           icon="pi pi-check"
           iconPos="left"
-          [disabled]="assignManagerForm.invalid">
+          [disabled]="assignManagerForm.invalid"
+           appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
+                                    [requiredUserTypes]="[UserType.InternalUser]">
         </button>
       </div>
     </div>

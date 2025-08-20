@@ -5,28 +5,57 @@ import { SpecialCorporateRatesComponent } from './special-corporate-rates/specia
 import { SpecialIndividualRatesComponent } from './special-individual-rates/special-individual-rates.component';
 import { NgModule } from '@angular/core';
 import { SwiftcodesComponent } from './swiftcodes/swiftcodes.component';
+import { UserRoleEnum, UserType } from 'src/app/helpers/UserRoleEnum';
 
 const routes: Routes = [
   {
     path: 'standard-rates',
     component: StandardRatesComponent,
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
+     data: {
+          roles: [UserRoleEnum.Admin, UserRoleEnum.SuperAdmin, UserRoleEnum.TradeInitiator,
+                  UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer, UserRoleEnum.TreasuryAuthorizer,
+                  UserRoleEnum.TreasuryOperationAuthorizer, UserRoleEnum.TradeOperationAuthorizer,
+                  UserRoleEnum.TradeDeskAuthorizer, UserRoleEnum.ViewOnly],
+          userType: [UserType.InternalUser, UserType.ExternalUser]
+        }
   },
   {
     path: 'special-corporate-rates',
     component: SpecialCorporateRatesComponent,
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
+     data: {
+      roles: [UserRoleEnum.Admin, UserRoleEnum.SuperAdmin, UserRoleEnum.TradeInitiator,
+              UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer, UserRoleEnum.TreasuryAuthorizer,
+              UserRoleEnum.TreasuryOperationAuthorizer, UserRoleEnum.TradeOperationAuthorizer,
+              UserRoleEnum.TradeDeskAuthorizer, UserRoleEnum.ViewOnly],
+      userType: [UserType.InternalUser]
+    }
   },
   {
-    path: 'special-individu-rates',
+    path: 'special-individual-rates',
     component: SpecialIndividualRatesComponent,
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
+     data: {
+      roles: [UserRoleEnum.Admin, UserRoleEnum.SuperAdmin, UserRoleEnum.TradeInitiator,
+              UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer, UserRoleEnum.TreasuryAuthorizer,
+              UserRoleEnum.TreasuryOperationAuthorizer, UserRoleEnum.TradeOperationAuthorizer,
+              UserRoleEnum.TradeDeskAuthorizer, UserRoleEnum.ViewOnly],
+      userType: [UserType.InternalUser]
+    }
   },
 
   {
     path: 'swiftcodes',
     component: SwiftcodesComponent,
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
+     data: {
+      roles: [UserRoleEnum.Admin, UserRoleEnum.SuperAdmin, UserRoleEnum.TradeInitiator,
+              UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer, UserRoleEnum.TreasuryAuthorizer,
+              UserRoleEnum.TreasuryOperationAuthorizer, UserRoleEnum.TradeOperationAuthorizer,
+              UserRoleEnum.TradeDeskAuthorizer, UserRoleEnum.ViewOnly],
+      userType: [UserType.InternalUser]
+    }
   }
 ];
 

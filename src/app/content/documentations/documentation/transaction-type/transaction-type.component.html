@@ -8,7 +8,7 @@
           </div>
 
           <div class="content">
-            <p-fieldset legend="Menu">
+            <p-fieldset legend="Menu" appRoleVisibility [requiredRoles]="[UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]">
               <div class="inline-block m-2" style="float: right">
                 <button
                   pButton
@@ -64,12 +64,12 @@
                   <td>{{ type.transactionTypeNameFr }}</td>
                   <td>{{ type.transactionTypeNameEn }}</td>
                   <td>
-                    <p-tag [value]="getTransactionDirectionString(type.transactionDirection)" 
+                    <p-tag [value]="getTransactionDirectionString(type.transactionDirection)"
                     [severity]="colorDirection(type.transactionDirection)">
                     </p-tag>
                   </td>
                   <td>
-                    <p-tag [value]="getAppurementRequiredString(type.appurementRequired)" 
+                    <p-tag [value]="getAppurementRequiredString(type.appurementRequired)"
                     [severity]="colorAppurement(type.appurementRequired)"></p-tag>
                   </td>
                   <td>
@@ -91,7 +91,7 @@
                       <br />
                       <div class="p-col-12">
                         <div class="grid">
-                         
+
                           <div class="col-2">
                             <div class="text-left p-3 font-bold">Name (FR)</div>
                           </div>
@@ -154,6 +154,7 @@
                             pButton
                             type="button"
                             *ngIf="type.transactionTypeStatus !== TransactionTypeStatus.Delete"
+                            appRoleVisibility [requiredRoles]="[UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
                             class="p-button-outlined p-button-danger"
                             icon="pi pi-trash"
                             iconPos="left"
@@ -165,6 +166,7 @@
                             pButton
                             type="button"
                             *ngIf="type.transactionTypeStatus !== TransactionTypeStatus.Delete"
+                            appRoleVisibility [requiredRoles]="[UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
                             class="p-button-outlined p-button-info"
                             icon="pi pi-file"
                             iconPos="left"
@@ -261,7 +263,7 @@
                       [options]="transactionDirections"
                       formControlName="transactionDirection"
                       placeholder="Select Direction">
-                    
+
                     </p-dropdown>
                     <label for="transactionDirection"
                       >Transaction Direction</label
@@ -274,7 +276,7 @@
                     <p-dropdown
                       [options]="appurementRequiredOptions"
                       formControlName="appurementRequired"
-                      placeholder="Select Appurement Required">                   
+                      placeholder="Select Appurement Required">
                     </p-dropdown>
                     <label for="appurementRequired">Appurement Required</label>
                   </span>
@@ -346,7 +348,7 @@
               </div>
             </div>
           </p-dialog>
-         
+
            <!-- View documents for  Transaction -->
           <p-dialog
             [(visible)]="viewDocumentsDialog"

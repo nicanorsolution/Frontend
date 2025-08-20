@@ -8,10 +8,11 @@ import { DocumentControl, DocumentControlType, DocumentSubmissionOption } from '
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { AuthService } from '../../users/auth.service';
 import Swal from 'sweetalert2';
-import { UserRoles } from '../../users/user.models';
+import { UserRoles, UserType } from '../../users/user.models';
 import { ExportationDocumentationData } from '../resolvers/exportation-documentation.resolver';
 import { SwiftParserService } from '../services/parse.service';  // Add this import
 import { ExceptionResolverContactResponse } from '../../transactions/models/transactions.model';
+import { UserRoleEnum } from 'src/app/helpers/UserRoleEnum';
 
 @Component({
   selector: 'app-documentation-exportation',
@@ -20,6 +21,8 @@ import { ExceptionResolverContactResponse } from '../../transactions/models/tran
   providers: [ConfirmationService]
 })
 export class DocumentationExportationComponent implements OnInit {
+  UserRoleEnum = UserRoleEnum;
+  UserType = UserType;
   exportation?: ExportationResponse | null;
   loading = true;
   documents: ExportationFileResponse[] = [];
@@ -135,7 +138,7 @@ export class DocumentationExportationComponent implements OnInit {
     // Initialize update exception form
     this.updateExceptionForm = this.fb.group({
       internalNote: ['', Validators.required],
-      exceptionStatus: ['', Validators.required] 
+      exceptionStatus: ['', Validators.required]
     });
   }
 
@@ -155,11 +158,11 @@ export class DocumentationExportationComponent implements OnInit {
 
     getPanelClass() {
       console.log('UserRoles', this.authService.getDecodedToken());
-  
+
       const roles = this.authService.getDecodedToken().UserRoles;
-  
+
       console.log('UserRoles', roles );
-  
+
       if (roles == UserRoles.TradeDeskAuthorizer)
       {
         console.log('panelNumber', 3);
@@ -271,7 +274,7 @@ export class DocumentationExportationComponent implements OnInit {
       });
   }
 
-  ExportationStatus = ExportationStatus;  
+  ExportationStatus = ExportationStatus;
   submitExportation() {
     if (!this.exportation) return;
 
@@ -475,7 +478,7 @@ export class DocumentationExportationComponent implements OnInit {
 
   openDocumentsReviewSummary(){
      if (!this.exportation?.id) return;
-    
+
         this.loading = true;
         this.exportationService.getExportationFiles(this.exportation.id)
           .subscribe({
@@ -655,7 +658,7 @@ export class DocumentationExportationComponent implements OnInit {
     this.incomingDialog = true;
     this.selectedIncomingSwiftFile = undefined;
     this.selectedIncomingData = undefined;
-    
+
     // Pre-fill exportation details
     this.incomingForm.patchValue({
       exportationId: exportation.id,
@@ -712,7 +715,7 @@ export class DocumentationExportationComponent implements OnInit {
           });
         },
         error: (error) => {
-          
+
           console.log("🚀 submitIncomingRegistration => error", error);
 
           Swal.fire({
@@ -912,11 +915,11 @@ export class DocumentationExportationComponent implements OnInit {
             // Get file extension from content type
             const contentType = blob.type;
             let extension = 'txt';
-            
+
             if (contentType.includes('eml')) {
               extension = 'eml';
             } else if (contentType.includes('pdf')) {
-              extension = 'pdf'; 
+              extension = 'pdf';
             } else if (contentType.includes('doc')) {
               extension = 'doc';
             } else if (contentType.includes('docx')) {
@@ -931,7 +934,7 @@ export class DocumentationExportationComponent implements OnInit {
               }
               }
             }
-            
+
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -941,7 +944,7 @@ export class DocumentationExportationComponent implements OnInit {
           },
           error: (error : any) => {
             Swal.fire({
-              title: 'Error', 
+              title: 'Error',
               text: error?.error?.detail || 'Failed to download attachment',
               icon: 'error'
             });
@@ -1010,7 +1013,7 @@ export class DocumentationExportationComponent implements OnInit {
         }
       });
     }
-  
+
      getExportationMessageType(status: ExportationMessageType): string {
        switch (status) {
          case ExportationMessageType.ExportationRelated:
@@ -1032,7 +1035,7 @@ export class DocumentationExportationComponent implements OnInit {
          default:
            return 'Unknown';
        }
-     } 
+     }
 
     getExportationMessageTypeName(messageType: string) {
     //Document Status
@@ -1042,7 +1045,7 @@ export class DocumentationExportationComponent implements OnInit {
       case 'ExportationDrafted':
         return 'Drafted';
       case 'ExportationInitiated':
-        return 'Exportation Initiated';    
+        return 'Exportation Initiated';
       case 'ExportationCancelled':
         return 'Exportation Cancelled';
       case 'ExportationCompleted':
@@ -1100,7 +1103,7 @@ export class DocumentationExportationComponent implements OnInit {
       case 'PaymentProcessed':
         return 'Payment Processed';
       case 'PaymentFailed':
-        return 'Payment Failed';   
+        return 'Payment Failed';
       default:
         return 'Unknown';
     }
@@ -1165,7 +1168,7 @@ export class DocumentationExportationComponent implements OnInit {
         return 'success';
       case 'Deleted':
         return 'danger';
-        
+
       default:
         return 'info';
     }

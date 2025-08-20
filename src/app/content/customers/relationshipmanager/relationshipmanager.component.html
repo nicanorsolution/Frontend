@@ -26,6 +26,8 @@
                 <div class="col-4">
                   <div class="flex justify-content-end">
                     <button pButton label="New Manager"
+                      appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
+                                    [requiredUserTypes]="[UserType.InternalUser]"
                       class="p-button-outlined p-button-success"
                       (click)="openAddManagerDialog()"
                       icon="pi pi-plus" iconPos="left">
@@ -147,7 +149,9 @@
                         </div>
                       <div class="p-col-12">
                         <hr/>
-                        <div class="flex flex-row-reverse flex-wrap">
+                        <div class="flex flex-row-reverse flex-wrap"
+                             appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
+                                               [requiredUserTypes]="[UserType.InternalUser]">
                           <ng-container *ngIf="manager.relationshipManagerStatus !== 3">
                             <button pButton type="button"
                               class="p-button-outlined p-button-danger"
@@ -164,7 +168,7 @@
                               style="margin-right: 10px">
                             </button>
                           </ng-container>
-                          <ng-container [ngSwitch]="manager.relationshipManagerStatus">
+                          <!-- <ng-container [ngSwitch]="manager.relationshipManagerStatus">
                             <button *ngSwitchCase="1" pButton type="button"
                               class="p-button-outlined p-button-warning"
                               icon="pi pi-pause" iconPos="left"
@@ -179,7 +183,7 @@
                               (click)="activateManager(manager.id)"
                               style="margin-right: 10px">
                             </button>
-                          </ng-container>
+                          </ng-container> -->
                         </div>
                       </div>
                     </div>
@@ -258,9 +262,6 @@
 
 <swal
   #dialog_operation_swal
-  [title]="'Are you sure?'"
-  [text]="'This action cannot be undone'"
-  [icon]="'question'"
-  [showCancelButton]="true"
-  [confirmButtonText]="'Yes, proceed'">
+  
+  >
 </swal>

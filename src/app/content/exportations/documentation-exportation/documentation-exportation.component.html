@@ -108,7 +108,9 @@
                       <th>Currency</th>
                       <th>Uploaded Date</th>
                       <th>Status</th>
-                      <th>Actions</th>
+                      <th  appRoleVisibility [requiredUserTypes]="[UserType.InternalUser]">
+                        Actions
+                      </th>
                     </tr>
                   </ng-template>
                   <ng-template pTemplate="body" let-incoming>
@@ -125,20 +127,21 @@
                         </p-tag>
                       </td>
                       <td>
-                        <div class="flex gap-2">
+                        <div class="flex gap-2"
+                        appRoleVisibility [requiredUserTypes]="[UserType.InternalUser]">
+
                           <button pButton icon="pi pi-download"
                                   class="p-button-rounded p-button-info"
                                   [disabled]="!incoming.hasIncomingSwiftFilePath"
                                   (click)="downloadIncomingSwift(exportation.id, incoming.serialNumber)"
+                                  appRoleVisibility [requiredUserTypes]="[UserType.InternalUser]"
                                   pTooltip="Download Swift">
                           </button>
+
                           <button pButton icon="pi pi-trash"
                                   class="p-button-rounded p-button-danger"
                                   (click)="deleteIncoming(exportation.id, incoming.serialNumber)"
-                                     appAdminRole
-                                    [Roles]="[
-                                      UserRoles.TradeDeskAuthorizer.toString()
-                                    ]"
+                                   appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeDeskAuthorizer]"
                                   pTooltip="Delete">
                           </button>
                         </div>
@@ -164,10 +167,8 @@
                             icon="pi pi-upload" iconPos="left"
                             label="Upload Documents"
                             (click)="openUploadDocumentsDialog()"
-                                appAdminRole
-                                [Roles]="[UserRoles.TradeInitiator.toString(),
-                                  UserRoles.TradeDeskAuthorizer.toString()
-                                ]"
+                             appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.TradeDeskAuthorizer]"
+                                               [requiredUserTypes]="[UserType.InternalUser]"
                             style="margin-right: 10px">
                  </button>
                 <button pButton type="button"
@@ -175,10 +176,8 @@
                             icon="pi pi-file" iconPos="left"
                             label="Apurement"
                             (click)="openApurementExportationOptionDialog()"
-                                appAdminRole
-                                [Roles]="[
-                                  UserRoles.TradeDeskAuthorizer.toString()
-                                ]"
+                            appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeDeskAuthorizer]"
+                                               [requiredUserTypes]="[UserType.InternalUser]"
                             style="margin-right: 10px">
                  </button>
 
@@ -187,21 +186,19 @@
                             icon="pi pi-wallet" iconPos="left"
                             label="DE Fee Payment"
                             (click)="collectDeFee(exportation.id)"
-                                appAdminRole
-                                [Roles]="[UserRoles.TradeInitiator.toString()
-                                ]"
+                            appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator]"
+                                               [requiredUserTypes]="[UserType.InternalUser]"
                             style="margin-right: 10px">
                  </button>
 
-                   <button pButton type="button"
+                 <button pButton type="button"
                             class="p-button-outlined"
                             icon="pi pi-arrow-down" iconPos="left"
                             label="Incoming Registration"
                             (click)="incomingRegistrationDialog(exportation)"
-                                appAdminRole
-                                [Roles]="[
-                                  UserRoles.TradeDeskAuthorizer.toString()
-                                ]"
+                            appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeDeskAuthorizer]"
+                                               [requiredUserTypes]="[UserType.InternalUser]"
+                               
                             style="margin-right: 10px">
                  </button>
 
@@ -211,6 +208,8 @@
                             icon="pi pi-exclamation-triangle" iconPos="left"
                             label="Raise Exception"
                             (click)="openRaiseExceptionDialog()"
+                            appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.TradeDeskAuthorizer]"
+                                               [requiredUserTypes]="[UserType.InternalUser]"
                             style="margin-right: 10px">
                   </button>
                    <button pButton type="button"
@@ -218,6 +217,7 @@
                             icon="pi pi-pencil" iconPos="left"
                             [label]="'View/Update Exceptions ('+exportation.exportationExceptionsCount+')'"
                             (click)="openViewExceptionsDialog()"
+                            appRoleVisibility  [requiredUserTypes]="[UserType.InternalUser]"
                             style="margin-right: 10px">
                  </button>
                  </div>
@@ -372,6 +372,8 @@
                                 icon="pi pi-check"
                                 [disabled]="!isCheckDocumentEnabled()"
                                 (click)="openReviewDialog()"
+                                appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeDeskAuthorizer]"
+                                                  [requiredUserTypes]="[UserType.InternalUser]"
                                 class="p-button-outlined p-button-rounded p-button-success">
                         </button>
                       </div>
@@ -379,7 +381,7 @@
                     </div>
                   </div>
                          <hr/>
-
+                   <div appRoleVisibility [requiredUserTypes]="[UserType.InternalUser]">
                     <div style="margin: auto;width: 50%;">
                           <button pButton pRipple type="button" label="Exportation Audit"  icon="pi pi-history"
                           (click)="getExportationMessages()"
@@ -403,6 +405,7 @@
                         </div>
 
                     </div>
+                   </div>
                 </div>
               </ng-container>
 

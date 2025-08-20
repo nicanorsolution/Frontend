@@ -4,12 +4,14 @@ import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { ReportService } from './services/reports.service';
 import { CreateReportCommand, ReportFormat, ReportResponse, ReportStatus, ReportType } from './models/reports.models';
 import { interval, Subscription } from 'rxjs';
+import { UserType } from '../users/user.models';
 
 @Component({
   selector: 'app-reports',
   templateUrl: './reports.component.html'
 })
 export class ReportsComponent implements OnInit, OnDestroy {
+  UserType = UserType;
   reports: ReportResponse[] = [];
   createReportForm!: FormGroup;
   reportDialog = false;

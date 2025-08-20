@@ -8,7 +8,7 @@
           </div>
 
           <div class="content">
-            <p-fieldset legend="Menu">
+            <p-fieldset legend="Menu" appRoleVisibility [requiredRoles]="[UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]">
               <div class="inline-block m-2" style="float: right;">
                 <button pButton label="New Document"
                   class="p-button-outlined p-button-success"
@@ -128,13 +128,14 @@
                         <div class="flex flex-row-reverse flex-wrap">
                           <button pButton type="button"
                             *ngIf="doc.documentStatus !== DocumentStatus.Delete"
+                            appRoleVisibility [requiredRoles]="[UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
                             class="p-button-outlined p-button-danger"
                             (click)="deleteDocument(doc.documentId)"
                             icon="pi pi-trash" iconPos="left"
                             label="Delete Document"
                             style="margin-right: 25px">
                           </button>
-                         
+
                           <button pButton type="button"
                               class="p-button-outlined p-button-info"
                               icon="pi pi-eye" iconPos="left"
@@ -144,13 +145,14 @@
                           </button>
                           <button pButton type="button"
                             *ngIf="doc.documentStatus !== DocumentStatus.Delete"
+                            appRoleVisibility [requiredRoles]="[UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
                             label="Add New Control To Documents"
                             icon="pi pi-plus"
                             (click)="openAddControlDialog(doc!)"
                             class="p-button-outlined p-button-success"
                             style="margin-right: 10px">
                           </button>
-                         
+
                         </div>
                       </div>
                     </div>
@@ -160,10 +162,10 @@
             </p-table>
 
               <!--  Create Document Dialog -->
-          <p-dialog [(visible)]="documentDialog" 
-                    [style]="{width: '50vw', height: '50vh'}" 
+          <p-dialog [(visible)]="documentDialog"
+                    [style]="{width: '50vw', height: '50vh'}"
                     [position]="'top'">
-                    
+
             <ng-template pTemplate="header">
               <div class="text-center">
                 <h3 class="title">Create Document</h3>
@@ -224,7 +226,7 @@
                   <th>Control Name</th>
                   <th>Detail</th>
                   <th>Type</th>
-                  <th>Actions</th>
+                  <th appRoleVisibility [requiredUserTypes]="[UserType.InternalUser]">Actions</th>
                 </tr>
               </ng-template>
               <ng-template pTemplate="body" let-control>
@@ -236,9 +238,10 @@
                       [severity]="getControlTypeSeverity(control.documentControlType)">
                     </p-tag>
                   </td>
-                  <td>
+                  <td  appRoleVisibility [requiredUserTypes]="[UserType.InternalUser]">
                     <button pButton type="button"
                       *ngIf="statusOfDocumentBeingControls !== DocumentStatus.Delete"
+
                       class="p-button-outlined p-button-danger"
                       icon="pi pi-trash"
                       (click)="removeDocumentControl(selectedDocument!.documentId, control.documentControlId)">
@@ -259,9 +262,9 @@
           </p-dialog>
 
           <!-- Add Control Dialog -->
-          <p-dialog [(visible)]="addControlDialog" 
-                   [style]="{width: '60vw', height: '50vh'}" 
-                   [modal]="true" 
+          <p-dialog [(visible)]="addControlDialog"
+                   [style]="{width: '60vw', height: '50vh'}"
+                   [modal]="true"
                    header="Add Document Control">
             <br/>
             <br/>
@@ -307,7 +310,7 @@
           </p-dialog>
           </div>
 
-        
+
         </div>
       </div>
     </div>

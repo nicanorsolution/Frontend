@@ -8,12 +8,16 @@ import {
 } from '../models/transfer-rates.models';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { SwiftCodeService } from '../services/swiftcode.services';
+import { UserRoleEnum, UserType } from 'src/app/helpers/UserRoleEnum';
 
 @Component({
   selector: 'app-special-corporate-rates',
   templateUrl: './special-corporate-rates.component.html'
 })
 export class SpecialCorporateRatesComponent implements OnInit {
+  UserRoleEnum = UserRoleEnum;
+  UserType = UserType;
+
   @ViewChild('dialog_operation_swal') dialogOperationSwal!: SwalComponent;
 
   searchForm!: FormGroup;
@@ -29,7 +33,7 @@ export class SpecialCorporateRatesComponent implements OnInit {
   currencies: string[] = []; // Add other currencies as needed
 
   expandedRows: { [key: string]: boolean } = {};
- 
+
   selectedRate: SpecialPricingForCorporateResponse | null = null;
   isUpdateMode = false;
 

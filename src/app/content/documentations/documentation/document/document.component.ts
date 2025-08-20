@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DocumentationService } from '../../services/documentation.service';
 import { DocumentResponse, DocumentStatus, DocumentSubmissionOption,  DocumentControl, DocumentControlType, CreateDocumentCommand } from '../../models/document.models';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
+import { UserRoleEnum, UserType } from 'src/app/helpers/UserRoleEnum';
 
 @Component({
   selector: 'app-document',
@@ -10,7 +11,8 @@ import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 })
 export class DocumentComponent implements OnInit {
   readonly DocumentStatus = DocumentStatus;
-  
+  UserRoleEnum = UserRoleEnum;
+  UserType = UserType;
   documents: DocumentResponse[] = [];
   documentDialog = false;
   createDocumentForm: FormGroup;
@@ -77,7 +79,7 @@ export class DocumentComponent implements OnInit {
     if (this.createDocumentForm.valid) {
       this.isSubmitted = true;
       const command = this.createDocumentForm.value as CreateDocumentCommand;
-      
+
       command.documentOriginalRequired = false; // finally i did need
 
       this.documentationService.createDocument(command).subscribe({
@@ -114,7 +116,7 @@ export class DocumentComponent implements OnInit {
 
   openDocumentControlsDialog(document: DocumentResponse) {
     console.log(document);
-    this.selectedDocument = document;  
+    this.selectedDocument = document;
     this.selectedDocumentControls = document.documentControls;
     this.statusOfDocumentBeingControls = document.documentStatus;
     this.documentControlsDialog = true;
@@ -204,7 +206,7 @@ export class DocumentComponent implements OnInit {
       default:
         return 'info';
     }
-  } 
+  }
   getStatusString(status: DocumentStatus): string {
     return DocumentStatus[status];
   }
@@ -219,9 +221,9 @@ export class DocumentComponent implements OnInit {
       case DocumentSubmissionOption.SubmissionForPartialApurement:
         return 'Submission For Partial Apurement';
       case DocumentSubmissionOption.SubmissionForFailureToApurement:
-        return 'Submission For Failure To Apurement';   
+        return 'Submission For Failure To Apurement';
       case DocumentSubmissionOption.DoNotMatters:
-        return 'Do not matter';   
+        return 'Do not matter';
     }
   }
 

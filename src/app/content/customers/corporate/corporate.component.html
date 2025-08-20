@@ -25,6 +25,7 @@
                     <button
                       pButton
                       type="submit"
+                      appRoleVisibility [requiredUserTypes]="[UserType.InternalUser]"
                       label="Search"
                       icon="pi pi-search"
                       class="p-button-outlined"
@@ -35,14 +36,15 @@
                    <div class="flex justify-content-end">
                      <button pButton label="New Corporate"
                   class="p-button-outlined p-button-success"
-
+                  appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
+                                    [requiredUserTypes]="[UserType.InternalUser]"
                   (click)="openAddCorporateDialog()"
                   icon="pi pi-plus" iconPos="left">
                 </button>
                   </div>
                 </div>
               </div>
-            
+
             </p-fieldset>
 
             <br />
@@ -88,9 +90,9 @@
                   <td>
                     <p-tag
                       [value]="corporate.relationshipManagerName || 'Not Assigned'"
-                      severity="info">                      
+                      severity="info">
                     </p-tag>
-                   
+
                   </td>
                   <td>
                       <p-tag
@@ -98,7 +100,7 @@
                        [severity]="colorMiseEnDemeureStatus(corporate.miseEnDemeureStatus)">
                      </p-tag>
                   </td>
-                 
+
                   <td>
                     <p-tag
                       [value]="getStatusString(corporate.corporateStatus)"
@@ -166,7 +168,7 @@
                                 <div class="col-2">
                                   <div class="text-left p-3">{{corporate.lastUpdatedDate | date:'medium'}}</div>
                                 </div>
-                                
+
                                 <div class="col-2">
                                   <div class="text-left p-3 font-bold">Mise En Demeure</div>
                                 </div>
@@ -202,7 +204,9 @@
                                     <th>Account Name</th>
                                     <th>Account Number</th>
                                     <th>Branch</th>
-                                    <th style="width: 4rem"></th>
+                                    <th style="width: 4rem"
+                                     appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
+                                    [requiredUserTypes]="[UserType.InternalUser]"></th>
                                   </tr>
                                 </ng-template>
                                 <ng-template pTemplate="body" let-account>
@@ -210,7 +214,8 @@
                                     <td>{{account.accountName}}</td>
                                     <td>{{account.accountNumber}}</td>
                                     <td>{{account.branchCode}}</td>
-                                    <td>
+                                    <td  appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
+                                                           [requiredUserTypes]="[UserType.InternalUser]">
                                       <button pButton pRipple
                                         [disabled]="corporate.corporateStatus === corporateStatus.Delete"
                                         type="button"
@@ -225,6 +230,8 @@
                               <div class="flex justify-content-end mt-2">
                                 <button pButton type="button"
                                   *ngIf="corporate.corporateStatus !== corporateStatus.Delete"
+                                  appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
+                                    [requiredUserTypes]="[UserType.InternalUser]"
                                   label="Add Account"
                                   icon="pi pi-plus"
                                   class="p-button-outlined p-button-success"
@@ -244,7 +251,8 @@
                                     <th>Position</th>
                                     <th>Email</th>
                                     <th>Phone</th>
-                                    <th style="width: 4rem"></th>
+                                    <th style="width: 4rem" appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
+                                                           [requiredUserTypes]="[UserType.InternalUser]"></th>
                                   </tr>
                                 </ng-template>
                                 <ng-template pTemplate="body" let-contact>
@@ -253,9 +261,11 @@
                                     <td>{{contact.position}}</td>
                                     <td>{{contact.contactEmail}}</td>
                                     <td>{{contact.contactPhone}}</td>
-                                    <td>
+                                    <td appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
+                                                           [requiredUserTypes]="[UserType.InternalUser]">
                                       <button pButton pRipple
                                         [disabled]="corporate.corporateStatus === corporateStatus.Delete"
+
                                         type="button"
                                         icon="pi pi-trash"
                                         class="p-button-rounded p-button-danger p-button-text"
@@ -268,6 +278,8 @@
                               <div class="flex justify-content-end mt-2">
                                 <button pButton type="button"
                                   *ngIf="corporate.corporateStatus !== corporateStatus.Delete"
+                                   appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
+                                    [requiredUserTypes]="[UserType.InternalUser]"
                                   label="Add Contact"
                                   icon="pi pi-plus"
                                   class="p-button-outlined p-button-success"
@@ -287,20 +299,26 @@
                             icon="pi pi-trash" iconPos="left"
                             label="Delete Corporate"
                             *ngIf="corporate.corporateStatus !== corporateStatus.Delete"
+                             appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
+                                    [requiredUserTypes]="[UserType.InternalUser]"
                             (click)="confirmDeleteCorporate(corporate)"
                             style="margin-right: 25px">
                           </button>
-                          
+
                           <button pButton type="button"
                             class="p-button-outlined p-button-info"
                             icon="pi pi-download" iconPos="left"
                             label="Download ADNA"
                             (click)="downloadADNA(corporate)"
                             [disabled]="corporate.adnaReportStatus!=ADNAReportStatus.Available"
+                             appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
+                                    [requiredUserTypes]="[UserType.InternalUser]"
                             style="margin-right: 10px">
                           </button>
                              <button pButton type="button"
                              *ngIf="corporate.corporateStatus !== corporateStatus.Delete"
+                              appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
+                                    [requiredUserTypes]="[UserType.InternalUser]"
                             class="p-button-outlined p-button-info"
                             icon="pi pi-chevron-down" iconPos="left"
                             label="Request ADNA"
@@ -309,10 +327,23 @@
                           </button>
                           <button pButton type="button"
                             *ngIf="corporate.corporateStatus !== corporateStatus.Delete"
+                             appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
+                                    [requiredUserTypes]="[UserType.InternalUser]"
                             class="p-button-outlined p-button-info"
                             icon="pi pi-user" iconPos="left"
                             label="Assign RM"
                             (click)="openAssignManagerDialog(corporate)"
+                            style="margin-right: 10px">
+                          </button>
+
+                           <button pButton type="button"
+                             *ngIf="corporate.corporateStatus !== corporateStatus.Delete"
+                             appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
+                                    [requiredUserTypes]="[UserType.InternalUser]"
+                            class="p-button-outlined"
+                            icon="pi pi-sync" iconPos="left"
+                            label="Refresh"
+                            (click)="updateCorporate(corporate)"
                             style="margin-right: 10px">
                           </button>
 
@@ -343,7 +374,7 @@
                       (completeMethod)="searchCustomer($event)"
                       (onSelect)="onCustomerSelect($event)"
                       (onClear)="clearCustomerSelection()"
-                      [dropdown]="true"
+                      [dropdown]="false"
                       [forceSelection]="true"
                       [field]="'clientId'"
                       [style]="{'width':'100%'}"
@@ -358,28 +389,28 @@
 
                 <div class="field col-12">
                   <span class="p-float-label p-input-filled">
-                    <input formControlName="name" type="text" id="name" pInputText />
+                    <input formControlName="name" type="text" id="name" pInputText [readOnly]="true" />
                     <label for="name">Corporate Name</label>
                   </span>
                 </div>
 
                 <div class="field col-12">
                   <span class="p-float-label p-input-filled">
-                    <input formControlName="niu" type="text" id="niu" pInputText />
+                    <input formControlName="niu" type="text" id="niu" pInputText [readOnly]="true" />
                     <label for="niu">NIU</label>
                   </span>
                 </div>
 
                 <div class="field col-12">
                   <span class="p-float-label p-input-filled">
-                    <input formControlName="address" type="text" id="address" pInputText />
+                    <input formControlName="address" type="text" id="address" pInputText [readOnly]="true"/>
                     <label for="address">Address</label>
                   </span>
                 </div>
 
                 <div class="field col-12">
                   <span class="p-float-label p-input-filled">
-                    <input formControlName="registrationNumber" type="text" id="registrationNumber" pInputText />
+                    <input formControlName="registrationNumber" type="text" id="registrationNumber" pInputText [readOnly]="true" />
                     <label for="registrationNumber">Registration Number</label>
                   </span>
                 </div>
@@ -390,7 +421,9 @@
                     [label]="isSubmitted ? 'Submitting...' : 'Save'"
                     [icon]="isSubmitted ? 'pi pi-spinner pi-spin' : 'pi pi-save'"
                     iconPos="left"
-                    [disabled]="createCorporateForm.invalid || isSubmitted">
+                    [disabled]="createCorporateForm.invalid || isSubmitted"
+                     appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
+                                    [requiredUserTypes]="[UserType.InternalUser]">
                   </button>
                 </div>
               </div>
@@ -414,7 +447,7 @@
 
                 <div class="field col-12">
                   <span class="p-float-label p-input-filled">
-                    <input formControlName="contactName" type="text" 
+                    <input formControlName="contactName" type="text"
                            id="contactName" pInputText
                            />
                     <label for="contactName">Contact Name</label>
@@ -438,7 +471,7 @@
                 <div class="field col-12">
                   <span class="p-float-label">
                     <textarea formControlName="comment" id="comment" rows="4"
-                     style="width:100%"  pInputTextarea></textarea>
+                     style="width:100%; font-size: medium;"  pInputTextarea></textarea>
                     <label for="comment">Comment</label>
                   </span>
                 </div>
@@ -500,7 +533,9 @@
                     [label]="isSubmitted ? 'Saving...' : 'Save'"
                     [icon]="isSubmitted ? 'pi pi-spinner pi-spin' : 'pi pi-save'"
                     iconPos="left"
-                    [disabled]="createBankAccountForm.invalid || isSubmitted">
+                    [disabled]="createBankAccountForm.invalid || isSubmitted"
+                     appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
+                                    [requiredUserTypes]="[UserType.InternalUser]">
                   </button>
                 </div>
               </div>
@@ -516,7 +551,7 @@
                     <p-autoComplete formControlName="relationshipManager"
                       [suggestions]="filteredManagers"
                       (completeMethod)="searchManagers($event)"
-                      [dropdown]="true"
+                      [dropdown]="false"
                       [forceSelection]="true"
                       [field]="'name'"
                       [style]="{'width':'100%'}"
@@ -535,7 +570,9 @@
                     label="Assign"
                     icon="pi pi-check"
                     iconPos="left"
-                    [disabled]="assignManagerForm.invalid">
+                    [disabled]="assignManagerForm.invalid"
+                     appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator, UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer]"
+                                    [requiredUserTypes]="[UserType.InternalUser]">
                   </button>
                 </div>
               </div>

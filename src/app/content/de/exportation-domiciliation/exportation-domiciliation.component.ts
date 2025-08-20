@@ -3,16 +3,19 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { DEResponse, DEStatus } from '../models/de.models';
 import { DEService } from '../services/de.services';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
+import { UserRoleEnum, UserType } from 'src/app/helpers/UserRoleEnum';
 
 @Component({
   selector: 'app-exportation-domiciliation',
   templateUrl: './exportation-domiciliation.component.html'
 })
 export class ExportationDomiciliationComponent implements OnInit {
+  UserRoleEnum = UserRoleEnum;
+  UserType = UserType;
   des: DEResponse[] = [];
   loading = false;
   totalRecords = 0;
-  pageSize = 10;
+  pageSize = 50;
   pageNumber = 1;
   expandedRows: { [key: string]: boolean } = {};
 
@@ -45,7 +48,7 @@ export class ExportationDomiciliationComponent implements OnInit {
   loadDEs() {
     this.loading = true;
     const searchCriteria = this.searchForm.value;
-    
+
     this.deService.getDEs(
       this.pageNumber,
       this.pageSize,
@@ -56,6 +59,7 @@ export class ExportationDomiciliationComponent implements OnInit {
       searchCriteria.endDate
     ).subscribe({
       next: (response) => {
+        console.log('DEService: DEs loaded:', response);
         this.des = response.items;
         this.totalRecords = response.totalCount;
         this.loading = false;
