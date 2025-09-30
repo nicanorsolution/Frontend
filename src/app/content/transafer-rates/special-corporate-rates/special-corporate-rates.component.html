@@ -40,7 +40,6 @@
                     type="submit"
                     label="Search"
                     icon="pi pi-search"
-                    [disabled]="!selectedCorporate"
                     class="p-button-outlined"
                   ></button>
                 </div>
@@ -72,7 +71,7 @@
               >
                 <ng-template pTemplate="header">
                   <tr>
-                    <th style="width: 3rem"></th>
+                    <th style="width: 4rem"></th>
                     <th>Corporate Name</th>
                     <th>Base Currency</th>
                     <th>Quote Currency</th>
@@ -105,11 +104,11 @@
                     <td>{{ rate.endDate | date : "medium" }}</td>
                     <td>{{ rate.spreadInPercentage | number : "1.3-3" }}%</td>
                     <td>
-                      <p-tag
+                      <status
                         [severity]="rate.isDeleted ? 'danger' : 'success'"
                         [value]="rate.isDeleted ? 'Deleted' : 'Active'"
                       >
-                      </p-tag>
+                      </status>
                     </td>
                   </tr>
                 </ng-template>
@@ -197,7 +196,7 @@
 <!-- Create Special Rate Dialog -->
 <p-dialog
   [(visible)]="specialRateDialog"
-  [style]="{ width: '50vw' }"
+  [style]="{ width: '50vw',height: '70vh' }"
   [header]="isUpdateMode ? 'Update Special Corporate Rate' : 'Create Special Corporate Rate'"
 >
   <form [formGroup]="createSpecialRateForm" (ngSubmit)="onDialogSubmit()">

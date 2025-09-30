@@ -96,7 +96,7 @@
             >
               <ng-template pTemplate="header">
                 <tr>
-                  <th scope="col" style="width: 3rem"></th>
+                  <th scope="col" style="width: 4rem"></th>
                   <th scope="col">Reference DI</th>
                   <th scope="col">Client Name</th>
                   <th scope="col">Provider Name</th>
@@ -105,7 +105,8 @@
                   <th scope="col">DI Amount</th>
                   <th scope="col">DI Amount Used</th>
                   <th scope="col">Status</th>
-                  <th scope="col">DI Modified</th>
+                  <th scope="col">Additional Info Provided</th>
+                  <th scope="col">Sgs Updated</th>
                 </tr>
               </ng-template>
 
@@ -133,24 +134,31 @@
                   <td>{{ di.currency }} {{ di.amountInCurrency | number:'1.2-2' }} </td>
                   <td>{{ di.currency }} {{ di.soldeInCurrency | number:'1.2-2' }} </td>
                   <td>
-                    <p-tag
+                    <status
                       [value]="getDIStatusString(di.diStatus)"
                       [severity]="colorStatus(di.diStatus)"
                     >
-                    </p-tag>
+                    </status>
+                  </td>
+
+                   <td>
+                        <status
+                                [value]="di.diComplementaryInfoIsUpdated ? 'Yes' : 'No'"
+                                [severity]="di.diComplementaryInfoIsUpdated ? 'success' : 'danger'"
+                              ></status>
                   </td>
                   <td>
-                        <p-tag
+                        <status
                                 [value]="di.hasDataBeingModified ? 'Yes' : 'No'"
                                 [severity]="di.hasDataBeingModified ? 'danger' : 'success'"
-                              ></p-tag>
+                              ></status>
                   </td>
                 </tr>
               </ng-template>
 
               <ng-template pTemplate="rowexpansion" let-di>
                 <tr>
-                  <td colspan="10">
+                  <td colspan="11">
                     <div class="p-grid p-nogutter">
                       <div class="p-col-12">
                         <div class="grid">
@@ -288,16 +296,7 @@
                               {{ di.billExpiringDate  | date : "medium" }}
                             </div>
                           </div>
-                          <div class="col-2">
-                            <div class="text-left p-3 font-bold">
-                              Bill Reference
-                            </div>
-                          </div>
-                          <div class="col-4">
-                            <div class="text-left p-3">
-                              {{ di.billReference }}
-                            </div>
-                          </div>
+
 
                             <div class="col-2">
                             <div class="text-left p-3 font-bold">
@@ -342,28 +341,31 @@
                           </div>
                           <div class="col-4">
                             <div class="text-left p-3">
-                              <p-tag
+                              <status
                                 [value]="di.hasDataBeingModified ? 'Yes' : 'No'"
                                 [severity]="di.hasDataBeingModified ? 'danger' : 'success'"
-                              ></p-tag>
+                              ></status>
                             </div>
                           </div>
+                              <div class="col-2">
+                            <div class="text-left p-3 font-bold">
+                             Additional Info Provided
+                            </div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">
+                               <status
+                                [value]="di.diComplementaryInfoIsUpdated ? 'Yes' : 'No'"
+                                [severity]="di.diComplementaryInfoIsUpdated ? 'success' : 'danger'"
+                              ></status>
+                            </div>
+                          </div>
+
 
                         </div>
                         <hr />
                         <div class="flex flex-row-reverse flex-wrap mt-3">
-                           <button
-                            pButton
-                            type="button"
-                            class="p-button-outlined"
-                            icon="pi pi-refresh"
-                            iconPos="left"
-                            label="DI Update History"
-                            appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator,UserRoleEnum.TradeAuthorizer,UserRoleEnum.Verifier]"
-                                  [requiredUserTypes]="[UserType.InternalUser]"
-                            (click)="openUpdateDescriptionDialog(di)"
-                            style="margin-right: 10px"
-                          ></button>
+
                           <button
                             pButton
                             type="button"
@@ -432,7 +434,7 @@
 >
 </swal>
 
-<p-dialog [(visible)]="updateDescriptionDialog" [style]="{ width: '50vw' }" [position]="'top'" [modal]="true" header="Update DI Description">
+<p-dialog [(visible)]="updateDescriptionDialog" [style]="{ width: '50vw', height: '65vh' }" [position]="'top'" [modal]="true" header="Update DI Description">
   <form [formGroup]="updateDescriptionForm" (ngSubmit)="updateDescription()">
     <div class="grid p-fluid mt-3">
 
@@ -442,7 +444,7 @@
             formControlName="amountInCurrency"
             type="text"
             id="amountInCurrency"
-            pInputText  [disabled]="true"
+            pInputText  readonly
           />
           <label for="amountInCurrency">Amount In Currency </label>
           <small
@@ -458,7 +460,7 @@
             formControlName="currency"
             type="text"
             id="currency"
-            pInputText  [disabled]="true"
+            pInputText  readonly
           />
           <label for="currency">Currency </label>
           <small
@@ -490,7 +492,6 @@
         <span class="p-float-label">
           <p-calendar
             formControlName="billExpiringDate"
-            [showTime]="true"
             id="billExpiringDate"
           ></p-calendar>
           <label for="billExpiringDate">Bill Expiring Date</label>
@@ -598,7 +599,7 @@
         <td>{{ attestation.referenceLetter }}</td>
         <td>{{ getAttestationTypeString(attestation.typeAttestation) }}</td>
         <td>
-          <p-tag
+          <status
             [value]="
               getAttestationStatusString(
                 attestation.diAttestationGenerationStatus
@@ -610,7 +611,7 @@
                 : 'danger'
             "
           >
-          </p-tag>
+          </status>
         </td>
         <td>{{ attestation.dateGenerated | date : "medium" }}</td>
         <td appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator,UserRoleEnum.TradeAuthorizer,UserRoleEnum.Verifier]"
@@ -637,7 +638,7 @@
 
 <p-dialog
   [(visible)]="imputationsDialog"
-  [style]="{ width: '60vw' }"
+  [style]="{ width: '75vw' }"
   header="DI Imputations"
 >
   <p-table
@@ -668,13 +669,13 @@
         <td>{{ imputation.imputationCurrency }}</td>
         <td>{{ imputation.imputationDate | date:'medium'  }}</td>
         <td>
-          <p-tag
+          <status
             [value]="getImputationStatusString(imputation.imputationStatus)"
             [severity]="
               imputation.imputationStatus === 0 ? 'success' : 'warning'
             "
           >
-          </p-tag>
+          </status>
         </td>
         <td>{{ imputation.comment }}</td>
       </tr>

@@ -40,5 +40,8 @@ export enum ReportType {
   DFXReport,
   TurnAroundTimeReport,
   ExportationReport,
-  IncomingReport
+  IncomingReport,
+  PairCurrenciesReport,
+  SpecialPricingReport,
+  DEReport
 }

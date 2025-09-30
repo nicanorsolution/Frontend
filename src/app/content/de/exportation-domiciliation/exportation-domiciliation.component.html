@@ -43,10 +43,16 @@
                       </span>
                     </div>
                     <div class="col-1">
-                      <button pButton type="submit" icon="pi pi-search" [disabled]="loading"></button>
+                      <button pButton type="submit"
+                       label="Search"
+                       icon="pi pi-search"
+                       class="p-button-outlined"
+                       [disabled]="loading"></button>
                     </div>
                     <div class="col-1">
-                      <button pButton type="button" icon="pi pi-refresh" class="p-button-secondary" (click)="resetSearch()">
+                      <button pButton type="button" label="Reset"
+                    icon="pi pi-refresh"
+                    class="p-button-outlined" (click)="resetSearch()">
                       </button>
                     </div>
                   </form>
@@ -54,8 +60,11 @@
                 <div class="col-2" style="text-align: right"
                     appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator]"
                                       [requiredUserTypes]="[UserType.InternalUser]">
-                  <p-fileUpload mode="basic" chooseLabel="Import DE" [auto]="true" accept=".xlsx,.xls" [maxFileSize]="1000000"
-                    (onSelect)="handleFileInput($event)" styleClass="p-button-outlined p-button-success">
+                  <p-fileUpload mode="basic" chooseLabel="Import DE"
+                      [auto]="true" accept=".xlsx,.xls" [maxFileSize]="1000000"
+                      chooseIcon="pi pi-upload"
+                     (onSelect)="handleFileInput($event)"
+                     styleClass="p-button-outlined p-button-success">
                   </p-fileUpload>
                 </div>
               </div>
@@ -63,46 +72,49 @@
 
             <br />
             <hr />
-            <p-table [value]="des" styleClass="p-datatable-striped p-datatable-gridlines"
+            <p-table [value]="des" styleClass="p-datatable-striped p-datatable-gridlines export-table"
               [expandedRowKeys]="expandedRows"
-              dataKey="eForceReference" [totalRecords]="totalRecords" [rows]="pageSize" [paginator]="true" [showCurrentPageReport]="true"
+              dataKey="eForceReference" [totalRecords]="totalRecords"
+              [rows]="pageSize" [paginator]="true" [showCurrentPageReport]="true"
               [loading]="loading" [lazy]="true"
+              [autoLayout]="true"
+              [scrollable]="true"
               currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" (onPage)="onPageChange($event)">
               <ng-template pTemplate="header">
                 <tr>
-                  <th scope="col" style="width: 3rem"></th>
-                  <th scope="col">eForce Reference</th>
-                  <th scope="col">Provider</th>
-                  <th scope="col">Buyer</th>
-                  <th scope="col">Domiciliation Reference</th>
-                  <th scope="col">Domiciliation Date</th>
-                  <th scope="col">FOB Value (CFA)</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Modified</th>
+                  <th scope="col" style="width: 50px; min-width: 50px;"></th>
+                  <th scope="col" style="width: 120px; min-width: 120px;">eForce Reference</th>
+                  <th scope="col" style="width: 150px; min-width: 150px;">Provider</th>
+                  <th scope="col" style="width: 150px; min-width: 150px;">Buyer</th>
+                  <th scope="col" style="width: 140px; min-width: 140px;">Domiciliation Reference</th>
+                  <th scope="col" style="width: 140px; min-width: 100px;">Domiciliation Date</th>
+                  <th scope="col" style="width: 120px; min-width: 120px;">FOB Value (CFA)</th>
+                  <th scope="col" style="width: 80px; min-width: 80px;">Status</th>
+                  <th scope="col" style="width: 130px; min-width: 130px;">Additional Info Provided</th>
                 </tr>
               </ng-template>
 
               <ng-template pTemplate="body" let-de let-expanded="expanded">
                 <tr>
-                  <td>
+                  <td style="text-align: center; white-space: nowrap;">
                     <button type="button" pButton pRipple [pRowToggler]="de"
                       class="p-button-text p-button-rounded p-button-plain"
                       [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
                   </td>
-                  <td>{{ de.eForceReference }}</td>
-                  <td>{{ de.provider }}</td>
-                  <td>{{ de.buyer }}</td>
-                  <td>{{ de.domiciliationReference }}</td>
-                  <td>{{ de.domiciliationDate | date : "medium" }}</td>
-                  <td>{{ de.fobValueCfa | number:'1.2-2' }}</td>
-                  <td>
-                    <p-tag [value]="getDEStatusString(de.deStatus)" [severity]="colorStatus(de.deStatus)">
-                    </p-tag>
+                  <td style="word-wrap: break-word; white-space: normal;">{{ de.eForceReference }}</td>
+                  <td style="word-wrap: break-word; white-space: normal;">{{ de.provider }}</td>
+                  <td style="word-wrap: break-word; white-space: normal;">{{ de.buyer }}</td>
+                  <td style="word-wrap: break-word; white-space: normal;">{{ de.domiciliationReference }}</td>
+                  <td style="word-wrap: break-word; white-space: normal;">{{ de.domiciliationDate | date : "mediumDate" }}</td>
+                  <td style="text-align: right; white-space: nowrap;">XAF {{ de.fobValueCfa | number:'1.2-2' }}</td>
+                  <td style="text-align: center;">
+                    <status [value]="getDEStatusString(de.deStatus)" [severity]="colorStatus(de.deStatus)">
+                    </status>
                   </td>
-                  <td>
-                    <p-tag [value]="de.hasDataBeingModified ? 'Yes' : 'No'"
-                      [severity]="de.hasDataBeingModified ? 'danger' : 'success'">
-                    </p-tag>
+                  <td style="text-align: center;">
+                    <status [value]="de.hasDataBeingModified ? 'Yes' : 'No'"
+                      [severity]="de.hasDataBeingModified ? 'success' : 'danger'">
+                    </status>
                   </td>
                 </tr>
               </ng-template>
@@ -110,6 +122,7 @@
               <ng-template pTemplate="rowexpansion" let-de>
                 <tr>
                   <td colspan="9">
+                    <div class="p-4">
                     <div class="p-grid p-nogutter">
                       <div class="p-col-12">
                         <div class="grid">
@@ -119,13 +132,82 @@
                           <div class="col-4">
                             <div class="text-left p-3">{{ de.clientNameFromBook }}</div>
                           </div>
-
                           <div class="col-2">
-                            <div class="text-left p-3 font-bold">Creation Date</div>
+                            <div class="text-left p-3 font-bold">Full Domiciliation Reference</div>
                           </div>
                           <div class="col-4">
-                            <div class="text-left p-3">{{ de.requestDate | date : "medium" }}</div>
+                            <div class="text-left p-3">{{ de.fullDomiciliationReference }}</div>
                           </div>
+
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">Request Date</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{ de.requestDate | date : "mediumDate" }}</div>
+                          </div>
+
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">Bank DE Domiciliation Date</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{ de.bankDEDomiciliationDate | date : "mediumDate" }}</div>
+                          </div>
+
+                            <div class="col-2">
+                            <div class="text-left p-3 font-bold">Fund Repatriation Period (Days)</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{ de.domiciliationValidityPeriodDays }}</div>
+                          </div>
+
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">DeadLine For Repatriation Of Funds</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{ de.deadLineForRepatriationOfFunds | date : "mediumDate" }}</div>
+                          </div>
+
+                           <div class="col-2">
+                            <div class="text-left p-3 font-bold">DE Emission Date</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{ de.deEmissionDate | date : "mediumDate" }}</div>
+                          </div>
+
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">DE Validity Period (Days)</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{ de.deValidityPeriodDays}}</div>
+                          </div>
+
+                            <div class="col-2">
+                            <div class="text-left p-3 font-bold">DE Expiration Date</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{ de.deExpirationDate | date : "mediumDate" }}</div>
+                          </div>
+
+                             <div class="col-2">
+                            <div class="text-left p-3 font-bold">Has DE Expired</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{ de.hasDEExpired ? 'Yes' : 'No' }}</div>
+                          </div>
+                          <div class="col-2">
+                            <div class="text-left p-3 font-bold">Exportation Type</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{ de.exportationType }}</div>
+                          </div>
+
+                           <div class="col-2">
+                            <div class="text-left p-3 font-bold">Goods/Services Nature</div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-left p-3">{{ de.goodOrServiceNature }}</div>
+                          </div>
+
 
                           <div class="col-2">
                             <div class="text-left p-3 font-bold">Provider</div>
@@ -140,6 +222,7 @@
                           <div class="col-4">
                             <div class="text-left p-3">{{ de.bank }}</div>
                           </div>
+
 
                           <div class="col-2">
                             <div class="text-left p-3 font-bold">Place of Destination</div>
@@ -173,11 +256,28 @@
                             <div class="text-left p-3 font-bold">Created Date</div>
                           </div>
                           <div class="col-4">
-                            <div class="text-left p-3">{{ de.createdDate | date : "medium" }}</div>
+                            <div class="text-left p-3">{{ de.createdDate | date : "MMM dd, yyyy  HH:mm:ss" }}</div>
                           </div>
                         </div>
                       </div>
                       <hr/>
+                       <div class="col-12" style="text-align: right;">
+                          <button pButton type="button" label="Delete" icon="pi pi-trash"
+                                  class="p-button-danger p-button-outlined"
+                                    appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator]"
+                                                      [requiredUserTypes]="[UserType.InternalUser]"
+                                  (click)="deleteDE(de)"
+                                  style="margin-right: 10px;">
+                          </button>
+                          <button pButton type="button" label="Edit Complementary Info" icon="pi pi-pencil"
+                                  class="p-button-warning p-button-outlined"
+                                    appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator]"
+                                                      [requiredUserTypes]="[UserType.InternalUser]"
+                                  (click)="openEditComplementaryInfoDialog(de)">
+                          </button>
+
+                        </div>
+                    </div>
                     </div>
                   </td>
                 </tr>
@@ -189,6 +289,146 @@
     </div>
   </div>
 </div>
+
+<!-- Edit Complementary Info Dialog -->
+<p-dialog [(visible)]="editComplementaryInfoDialog"
+          [style]="{width: '50vw', height: '70vh'}"
+          [modal]="true"
+          header="Edit Complementary Information"
+          [closable]="true"
+          (onHide)="closeEditComplementaryInfoDialog()">
+
+  <form [formGroup]="editComplementaryInfoForm" (ngSubmit)="submitEditComplementaryInfo()">
+    <div class="grid p-fluid mt-3">
+      <!-- DE Reference (Read-only) -->
+      <div class="field col-12">
+        <span class="p-float-label">
+          <input type="text"
+                 id="deReference"
+                 pInputText
+                 [value]="selectedDE?.eForceReference"
+                 readonly
+                 style="background-color: #f5f5f5;" />
+          <label for="deReference">eForce Reference</label>
+        </span>
+      </div>
+
+      <!-- Bank DE Domiciliation Date -->
+      <div class="field col-6">
+        <span class="p-float-label">
+          <p-calendar formControlName="bankDEDomiciliationDate"
+                      [showIcon]="true"
+                      dateFormat="dd/mm/yy"
+                      [required]="true">
+          </p-calendar>
+          <label for="bankDEDomiciliationDate">Bank DE Domiciliation Date *</label>
+        </span>
+        <small class="p-error"
+               *ngIf="editComplementaryInfoForm.get('bankDEDomiciliationDate')?.invalid && editComplementaryInfoForm.get('bankDEDomiciliationDate')?.touched">
+          Bank DE Domiciliation Date is required
+        </small>
+      </div>
+
+      <!-- DE Validity Period -->
+      <div class="field col-6">
+        <span class="p-float-label">
+          <p-inputNumber formControlName="domiciliationValidityPeriodInDays"
+                         [min]="1"
+                         [max]="365"
+                         suffix=" days"
+                         [required]="true">
+          </p-inputNumber>
+          <label for="domiciliationValidityPeriodInDays">Fund Repatriation Period (Days) *</label>
+        </span>
+        <small class="p-error"
+               *ngIf="editComplementaryInfoForm.get('domiciliationValidityPeriodInDays')?.invalid && editComplementaryInfoForm.get('domiciliationValidityPeriodInDays')?.touched">
+          Validity period must be between 1 and 365 days
+        </small>
+      </div>
+
+         <!-- de EmissionDate Date -->
+      <div class="field col-6">
+        <span class="p-float-label">
+          <p-calendar formControlName="deEmissionDate"
+                      [showIcon]="true"
+                      dateFormat="dd/mm/yy"
+                      [required]="true">
+          </p-calendar>
+          <label for="deEmissionDate">DE Emission Date *</label>
+        </span>
+        <small class="p-error"
+               *ngIf="editComplementaryInfoForm.get('deEmissionDate')?.invalid && editComplementaryInfoForm.get('deEmissionDate')?.touched">
+          DE Emission Date is required
+        </small>
+      </div>
+
+      <!-- DE Validity Period -->
+      <div class="field col-6">
+        <span class="p-float-label">
+          <p-inputNumber formControlName="deValidityPeriodInDays"
+                         [min]="1"
+                         [max]="365"
+                         suffix=" days"
+                         [required]="true">
+          </p-inputNumber>
+          <label for="deValidityPeriodInDays">DE Validity Period (Days) *</label>
+        </span>
+        <small class="p-error"
+               *ngIf="editComplementaryInfoForm.get('deValidityPeriodInDays')?.invalid && editComplementaryInfoForm.get('deValidityPeriodInDays')?.touched">
+          Validity period must be between 1 and 365 days
+        </small>
+      </div>
+      <!-- Exportation Type -->
+      <div class="field col-12">
+        <span class="p-float-label">
+          <p-dropdown formControlName="exportationType"
+                      [options]="exportationTypeOptions"
+                      placeholder="Select Exportation Type"
+                      [required]="true">
+          </p-dropdown>
+          <label for="exportationType">Exportation Type *</label>
+        </span>
+        <small class="p-error"
+               *ngIf="editComplementaryInfoForm.get('exportationType')?.invalid && editComplementaryInfoForm.get('exportationType')?.touched">
+          Exportation type is required
+        </small>
+      </div>
+
+      <!-- Nature of good Type -->
+      <div class="field col-12">
+        <span class="p-float-label">
+          <textarea formControlName="goodOrServiceNature"
+                    [rows]="5" style="width: 100%; font-size: larger;" >
+          </textarea>
+          <label for="goodOrServiceNature">Nature of Goods/Services *</label>
+        </span>
+        <small class="p-error"
+               *ngIf="editComplementaryInfoForm.get('goodOrServiceNature')?.invalid && editComplementaryInfoForm.get('goodOrServiceNature')?.touched">
+          Nature of goods/service type is required
+        </small>
+      </div>
+    </div>
+
+    <!-- Dialog Footer -->
+    <div class="flex justify-content-end mt-4 gap-2">
+      <button pButton
+              type="button"
+              label="Cancel"
+              icon="pi pi-times"
+              class="p-button-outlined p-button-secondary"
+              [disabled]="isSubmitting"
+              (click)="closeEditComplementaryInfoDialog()">
+      </button>
+      <button pButton
+              type="submit"
+              [label]="isSubmitting ? 'Updating...' : 'Update'"
+              [icon]="isSubmitting ? 'pi pi-spinner pi-spin' : 'pi pi-save'"
+              class="p-button-outlined p-button-success"
+              [disabled]="editComplementaryInfoForm.invalid || isSubmitting">
+      </button>
+    </div>
+  </form>
+</p-dialog>
 
 <swal #dialog_operation_swal title="Success" text="Operation completed successfully" icon="success">
 </swal>

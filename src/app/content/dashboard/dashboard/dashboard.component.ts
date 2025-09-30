@@ -1,7 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { DashboardService } from '../services/dashboard.service';
-import { BankDashboardResponse, CustomerDistribution, DashboardStats, DocumentStatusDistribution, RecentTransaction, TransactionTrend } from '../models/dashboard.models';
-import { ChartConfiguration, ChartData, ChartEvent, ChartType } from 'chart.js';
+import { BankDashboardResponse, DashboardStats, ExchangeRateReport, RecentImportExportReport, RecentTransaction } from '../models/dashboard.models';
+import { DashboardResolverData } from '../resolvers/dashboard.resolver';
+import { ChartConfiguration, ChartData } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 
 @Component({
@@ -11,9 +13,11 @@ import { BaseChartDirective } from 'ng2-charts';
 })
 export class DashboardComponent implements OnInit {
     @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
-    
-    stats!: DashboardStats;
-    recentTransactions: RecentTransaction[] = [];
+
+    // Resolved data properties
+    recentImportExports: RecentImportExportReport[] = [];
+    bankDashboard: BankDashboardResponse | null = null;
+    topCurrenciesExchangeRates: ExchangeRateReport[] = [];
 
     public lineChartData: ChartConfiguration<'line'>['data'] = {
         labels: [],
@@ -47,13 +51,16 @@ export class DashboardComponent implements OnInit {
                 beginAtZero: true
             }
         }
-    };    public documentStatusChartData: ChartData<'pie'> = {
+    };
+     public documentStatusChartData: ChartData<'pie'> = {
         labels: [],
         datasets: [{
             data: [],
             backgroundColor: ['#4BC0C0', '#FF6384', '#FFCE56']
         }]
     };
+
+
 
     public pieChartOptions: ChartConfiguration<'pie'>['options'] = {
         responsive: true,
@@ -73,57 +80,135 @@ export class DashboardComponent implements OnInit {
         }]
     };
 
-    bankDashboard : BankDashboardResponse | null = null;
+   importationStatusChartData: ChartData<'pie'> = {
+        labels: [],
+        datasets: [{
+            data: [],
+            backgroundColor: ['#238328ff', '#FF6384', '#FFCE56','#9b2a36ff','#5f5dd4ff','#941c7aff']
+        }]
+    };
 
-    constructor(private dashboardService: DashboardService) {       
+    exportationStatusChartData: ChartData<'pie'> = {
+        labels: [],
+        datasets: [{
+            data: [],
+            backgroundColor: ['#238328ff', '#FF6384', '#FFCE56']
+        }]
+    };
 
-    }
+    importExportLineChartData: ChartConfiguration<'line'>['data'] = {
+        labels: [],
+        datasets: [
+            {
+                data: [],
+                label: 'Importation Volume',
+                fill: true,
+                tension: 0.5,
+                borderColor: 'rgba(148,159,177,1)',
+                backgroundColor: 'rgba(148,159,177,0.2)'
+            },
+             {
+                data: [],
+                label: 'Exportation Volume',
+                fill: true,
+                tension: 0.5,
+                borderColor: 'rgb(42, 78, 76)',
+                backgroundColor: 'rgba(170, 100, 79, 0.74)'
+            }
+        ]
+    };
+
+    constructor(
+        private readonly route: ActivatedRoute,
+        private readonly dashboardService: DashboardService
+    ) {}
 
     ngOnInit(): void {
-     
-      this.dashboardService.getBankDashboard().subscribe((response) => {
+        // Get resolved data from route
+        const resolvedData: DashboardResolverData = this.route.snapshot.data['dashboardData'];
 
-            console.log(response);
-            
-            this.bankDashboard = response;
-        });
+        console.log('Dashboard component received resolved data:', resolvedData);
 
-        this.loadDashboardData();        
+        // Set resolved data to component properties
+        this.bankDashboard = resolvedData.bankDashboard;
+
+        // Process bank dashboard data if available
+        if (this.bankDashboard) {
+            this.processBankDashboardData(this.bankDashboard);
+        }
     }
 
-    private loadDashboardData(): void {
-        // Load dashboard statistics
-        this.dashboardService.getDashboardStats().subscribe(stats => {
-            this.stats = stats;
-        });
+    private processBankDashboardData(response: BankDashboardResponse): void {
+        // Importation Status
+        this.importationStatusChartData.labels = response.importStatusReports.map(d => d.status);
+        this.importationStatusChartData.datasets[0].data = response.importStatusReports.map(d => d.count);
 
-        // Load transaction trends for line chart
-        this.dashboardService.getTransactionTrends().subscribe((trends: TransactionTrend[]) => {
-            this.lineChartData.labels = trends.map(t => t.month);
-            this.lineChartData.datasets[0].data = trends.map(t => t.value);
-        });
+        console.log('Processed importation status chart data:', this.importationStatusChartData);
 
-         // Load transaction trends for line chart
-        this.dashboardService.getExportationTrends().subscribe((trends: TransactionTrend[]) => {
-            this.lineChartData.labels = trends.map(t => t.month);
-            this.lineChartData.datasets[1].data = trends.map(t => t.value);
-        });
+        // Exportation Status
+        this.exportationStatusChartData.labels = response.exportStatusReports.map(d => d.status);
+        this.exportationStatusChartData.datasets[0].data = response.exportStatusReports.map(d => d.count);
 
-        // Load document status distribution for pie chart
-        this.dashboardService.getDocumentStatusDistribution().subscribe((distribution: DocumentStatusDistribution[]) => {
-            this.documentStatusChartData.labels = distribution.map(d => d.status);
-            this.documentStatusChartData.datasets[0].data = distribution.map(d => d.count);
-        });
+        console.log('Processed exportation status chart data:', this.exportationStatusChartData);
 
-        // Load customer distribution for pie chart
-        this.dashboardService.getCustomerDistribution().subscribe((distribution: CustomerDistribution[]) => {
-            this.customerDistributionChartData.labels = distribution.map(d => d.type);
-            this.customerDistributionChartData.datasets[0].data = distribution.map(d => d.count);
-        });
+        // Import/Export Line Chart
+        if (response.importNumberByMonthReports?.length > 0 && response.exportNumberByMonthReports?.length > 0) {
+            this.importExportLineChartData.labels = response.importNumberByMonthReports.map(d => d.month);
+            this.importExportLineChartData.datasets[0].data = response.importNumberByMonthReports.map(d => d.value);
+            this.importExportLineChartData.datasets[1].data = response.exportNumberByMonthReports.map(d => d.value);
 
-        // Load recent transactions
-        this.dashboardService.getRecentTransactions().subscribe(transactions => {
-            this.recentTransactions = transactions;
+            console.log('Processed import/export line chart data:', this.importExportLineChartData);
+        }
+
+        // Recent ImportExport
+        this.recentImportExports = response.recentImportExportReports;
+
+        // Top currencies
+        this.topCurrenciesExchangeRates = response.exchangeRateReports;
+        console.log('Processed currencies:', this.topCurrenciesExchangeRates);
+    }
+
+    getTransactionStatusSeverity(status: string): string {
+        switch (status?.toLowerCase()) {
+            case 'completed':
+                return 'success';
+            case 'processing':
+                return 'warning';
+            case 'pending':
+                return 'info';
+            case 'failed':
+            case 'rejected':
+                return 'danger';
+            default:
+                return 'secondary';
+        }
+    }
+
+    getVariationClass(variation: number): string {
+        return variation >= 0 ? 'up' : 'down';
+    }
+
+    getVariationIcon(variation: number): string {
+        return variation >= 0 ? 'fa-caret-up' : 'fa-caret-down';
+    }
+
+    getFormattedVariation(variation: number): string {
+        return Math.abs(variation).toFixed(2);
+    }
+
+    getLastUpdateDate(): string {
+        if (this.topCurrenciesExchangeRates.length > 0) {
+            const latestDate = this.topCurrenciesExchangeRates[0].date;
+            return new Date(latestDate).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
+        return new Date().toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
         });
     }
 }

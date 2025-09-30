@@ -22,7 +22,9 @@ export interface ExportationResponse {
     customerName: string;
     exportationStatus: ExportationStatus;
     exportationApurementStatus: ExportationApurementStatus;
+    exportationApurementDate: Date | null;
     deDetails: DEDetails;
+    deFeeAmount: number;
     deFeeStatus: DEFeeStatus;
     deFeeCollectionDate: Date | null;
     deFeeCollectionMessage: string | null;
@@ -30,6 +32,12 @@ export interface ExportationResponse {
     exportationExceptionsPendingCount: number;
     numberDaysSinceDomiciliation : number;
     incomingResponses: IncomingResponse[];
+    incomingRetrocessionResponses: IncomingRetrocessionResponse[];
+    referenceFactureDefinitive: string | null;
+    amountFactureDefinitive: number | null;
+    referenceBonForEmbarquement: string | null;
+    amountBonForEmbarquement: number | null;
+    dateBonForEmbarquement: Date | null;
 }
 
 export interface IncomingResponse {
@@ -42,7 +50,22 @@ export interface IncomingResponse {
     incomingAmount: number;
     incomingAccountNumber: string;
     incomingStatus: IncomingStatus;
-    
+
+}
+
+export interface IncomingRetrocessionResponse {
+  serialNumber: string;
+  registrationDate: Date;
+  currency: string;
+  amountThatShouldBeRefund: number;
+  refundReference: string;
+  hasRefundSwiftFilePath: boolean;
+  incomingRetrocessionStatus: IncomingRetrocessionStatus;
+}
+
+export enum IncomingRetrocessionStatus {
+    Created = 0,
+    Deleted = 1
 }
 
 export enum IncomingStatus {
@@ -73,15 +96,22 @@ export enum DEFeeStatus
 }
 
 export interface DEDetails {
-    eForceReference: string;
-    fileNumber: string;
-    requestDate: Date;
-    domiciliationReference: string;
-    domiciliationDate: Date;
-    provider: string;
-    buyer: string;
-    placeOfDestination: string;
-    fobValueCfa: number;
+  eForceReference: string;
+  fileNumber: string;
+  requestDate: Date | null;
+  domiciliationReference: string;
+  domiciliationDate: Date | null;
+  provider: string;
+  buyer: string;
+  placeOfDestination: string;
+  fobValueCfa: number;
+  bankDEDomiciliationDate: Date | null;
+  deadLineForRepatriationOfFunds: Date | null;
+  exportationType: string | null;
+  deEmissionDate: Date | null;
+  deExpirationDate: Date | null;
+  fullDomiciliationReference: string | null;
+  goodOrServiceNature: string | null;
 }
 
 export interface GetExportationsQuery {
@@ -166,6 +196,13 @@ export interface CreateExportationIncomingCommand {
     swiftFile: File;
 }
 
+export interface CreateExportationIncomingRetrocessionCommand {
+  exportationId: string;
+  amountThatShouldBeRefund: number;
+  refundReference: string;
+  swiftFile: File;
+}
+
 export interface ReviewExportationFileCommand {
     exportationId: string;
     exportationFileId: string;
@@ -198,9 +235,21 @@ export enum Severity {
 export interface UpdateExportationExceptionCommand {
     exportationId: number;
     exportationExceptionId: string;
-  
+
     internalNote: string;
     exceptionStatus: ExceptionStatus;
+}
+export interface UpdateExportationFactureDefinitiveCommand {
+  exportationId: string;
+  referenceFactureDefinitive: string;
+  amountFactureDefinitive: number;
+}
+
+export interface UpdateExportationBonForEmbarquementCommand {
+  exportationId: string;
+  referenceBonForEmbarquement: string;
+  amountBonForEmbarquement: number;
+  dateBonForEmbarquement: Date;
 }
 
 export enum ExceptionStatus {
@@ -226,4 +275,5 @@ export interface ExportationExceptionResponse {
     exceptionDirectedTo: ExceptionDirectedTo;
     exportationFileCausingException: string[];
     isExportationFileReviewNoteAdded: boolean;
+    exceptionRaiserName: string;
 }

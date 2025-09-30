@@ -78,7 +78,7 @@ export class UploadDocumentsComponent implements OnInit {
     // Create file input element
     const fileInput = window.document.createElement('input');
     fileInput.type = 'file';
-    fileInput.accept = '.pdf,.doc,.docx,.xls,.xlsx'; // Add accepted file types
+    fileInput.accept ='.pdf'; // '.pdf,.doc,.docx,.xls,.xlsx'; // Add accepted file types
 
     fileInput.onchange = (event: any) => {
       const file = event.target.files[0];

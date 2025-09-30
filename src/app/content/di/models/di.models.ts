@@ -50,6 +50,7 @@ export interface DI {
   soldeInCurrency?: number;
   diStatus: DIStatus;
   hasDataBeingModified: boolean;
+  diComplementaryInfoIsUpdated:boolean;
   dateDiExpired?: Date;
   goodsDescription?: string;
   goodQuantity?: number;

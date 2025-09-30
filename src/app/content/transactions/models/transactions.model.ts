@@ -175,6 +175,9 @@ export interface TransactionResponse {
   correctionDate?: Date;
   correctionUserName?: string;
   isCorrected?: boolean;
+  correspondingBankBic?: string ;
+  correspondingBankAccountNumber?: string;
+  correspondingBankAccountName?: string;
 }
 
 
@@ -300,7 +303,23 @@ export enum ProcessingType {
   OwnReservesFinancing = 3,
   Undefined = 4
 }
-
+export interface SetCorrespondingBankInfoRequest {
+  transactionId: string;
+  accountNumber: string;
+}
+export interface NostroAccountResponse {
+  nostroAccountId: number;
+  accountNumber: string;
+  accountName: string;
+  currency: string;
+  bankBic: string;
+  nostroPurpose: NostroPurpose;
+}
+export enum NostroPurpose {
+  ForPaymentBaseOnPrefinanceReserve = 1,
+  ForPaymentBaseOnOurReserve = 2,
+  ForBoth = 3
+}
 export enum InitiationMethod {
   Manual = 1,
   Api = 2
@@ -316,6 +335,7 @@ export interface DIByClientResponse {
   providerName: string | null;
   dateCreationDiInEforce?: Date;
   hasDataBeingModified: boolean;
+  diComplementaryInfoIsUpdated : boolean;
   soldeInCurrency?: number;
 
   // this added to the response to be used in actual imputation

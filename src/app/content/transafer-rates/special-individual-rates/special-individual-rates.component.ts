@@ -80,9 +80,11 @@ export class SpecialIndividualRatesComponent implements OnInit {
   }
 
   searchSpecialRates(): void {
-    if (!this.selectedIndividual) return;
+    let individualId = 'all';
+    if (this.selectedIndividual) individualId = this.selectedIndividual.individualId;
+    console.log('searchSpecialRates', individualId);
     this.loading = true;
-    this.transferRatesService.getSpecialPricingForIndividuals(this.selectedIndividual.individualId)
+    this.transferRatesService.getSpecialPricingForIndividuals(individualId)
       .subscribe({
         next: (data) => {
           this.specialRates = data;

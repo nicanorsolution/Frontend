@@ -17,6 +17,10 @@
 @import "primeflex/primeflex.css";
 //@import "primeflex/themes/primeone-light.css ";
 
+// import Quill styles in styles.scss
+@import "../node_modules/quill/dist/quill.core.css";
+@import "../node_modules/quill/dist/quill.snow.css";
+
 body
 {
   padding: 0;
@@ -180,5 +184,55 @@ body
   100% {
     -webkit-transform: translateZ(0) rotateY(0);
             transform: translateZ(0) rotateY(0);
+  }
+}
+
+// Global PrimeNG Table Fixes to Prevent Column Shifting on Row Expansion
+.p-datatable {
+  .p-datatable-table {
+    table-layout: fixed;
+  }
+
+  // Prevent column width changes during row expansion
+  &:not(.p-datatable-scrollable) .p-datatable-table {
+    width: 100%;
+  }
+
+  // Ensure scrollable tables maintain fixed column widths
+  &.p-datatable-scrollable {
+    .p-datatable-scrollable-header-table,
+    .p-datatable-scrollable-body-table {
+      table-layout: fixed;
+    }
+  }
+
+  // Row expansion content styling
+  .p-datatable-row-expansion td {
+    padding: 0 !important;
+
+    > div {
+      width: 100%;
+      overflow: hidden;
+    }
+  }
+}
+
+// Export Table Specific Fixes
+.export-table {
+  td {
+    vertical-align: top;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+  }
+}
+
+// Document Table Specific Fixes
+.document-table {
+  td {
+    vertical-align: top;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
   }
 }

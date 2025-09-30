@@ -14,7 +14,8 @@ export interface CorporateResponse {
   corporateStatus: CorporateStatus;
   bankAccounts: Account[];
   corporateContacts: CorporateContact[];
-  miseEnDemeureStatus: MiseEnDemeureStatus;
+  miseEnDemeureStatusForExport: MiseEnDemeureStatus;
+  miseEnDemeureStatusForImport: MiseEnDemeureStatus;
   adnaReportStatus: ADNAReportStatus;
 }
 
@@ -64,7 +65,8 @@ export interface IndividualResponse {
   relationshipManagerName?: string;
   individualStatus: IndividualStatus;
   bankAccount: Account;
-  miseEnDemeureStatus: MiseEnDemeureStatus;
+  miseEnDemeureStatusForExport: MiseEnDemeureStatus;
+  miseEnDemeureStatusForImport: MiseEnDemeureStatus;
   adnaReportStatus: ADNAReportStatus;
 }
 

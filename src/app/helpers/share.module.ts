@@ -31,11 +31,11 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { EditorModule } from 'primeng/editor';
 import {  ConfirmDialogModule } from 'primeng/confirmdialog';
 
-import { file } from 'googleapis/build/src/apis/file';
 import { PermissionDirective } from '../content/users/permission.direction';
 import { RoleAdminDirective } from '../content/users/admin.action.directive';
 import { TransactionalRoleDirective } from '../content/users/transactionalrole.directive';
 import { RoleVisibilityDirective } from './role-visibility.directive';
+import { StatusComponent } from './status/status.component';
 
 @NgModule({
   declarations: [
@@ -45,7 +45,8 @@ import { RoleVisibilityDirective } from './role-visibility.directive';
     TransactionalRoleDirective,
     RoleVisibilityDirective,
     NumberWithCommasPipe,
-    FileSizePipe
+    FileSizePipe,
+    StatusComponent
   ],
   imports: [
     CommonModule,
@@ -76,6 +77,7 @@ import { RoleVisibilityDirective } from './role-visibility.directive';
     CheckboxModule,
     MultiSelectModule,
     EditorModule,
+
     ConfirmDialogModule
   ],
   exports: [
@@ -108,12 +110,14 @@ import { RoleVisibilityDirective } from './role-visibility.directive';
     RoleVisibilityDirective,
     NumberWithCommasPipe,
     FileSizePipe,
+    StatusComponent,
     ProgressSpinnerModule,
     ListboxModule,
     NgxExtendedPdfViewerModule,
     CheckboxModule,
     MultiSelectModule,
     EditorModule,
+
     ConfirmDialogModule
   ]
 })

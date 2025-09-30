@@ -45,9 +45,9 @@
                   <td>{{ ReportType[report.reportType] }}</td>
                   <td>{{ ReportFormat[report.reportFormat] }}</td>
                   <td>
-                    <p-tag [severity]="report.reportStatus == ReportStatus.Success ? 'success' : report.reportStatus == ReportStatus.Failed ? 'danger' : 'warning' "
+                    <status [severity]="report.reportStatus == ReportStatus.Success ? 'success' : report.reportStatus == ReportStatus.Failed ? 'danger' : 'warning' "
                           [value]="ReportStatus[report.reportStatus]"  class="p-mr-2">
-                    </p-tag>
+                    </status>
                   </td>
                   <td>{{ report.reportMessage}}</td>
                   <td>{{ report.reportDateRequested | date : "medium" }}</td>

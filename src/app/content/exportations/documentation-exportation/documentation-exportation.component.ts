@@ -1,10 +1,10 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { ExportationService } from '../services/exportation.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ConfirmationService } from 'primeng/api';
-import { ExportationResponse, ExportationFileResponse, ExportationStatus, ExportationApurementStatus, ExportationFileStatus, DEFeeStatus, ExportationFileHistoryResponse, CreateExportationIncomingCommand, IncomingStatus, Severity, ExceptionDirectedTo, RaiseExportationExceptionCommand, ExportationExceptionResponse, ExceptionStatus, ExportationMessageType } from '../models/exportation.models';
-import { DocumentControl, DocumentControlType, DocumentSubmissionOption } from '../../documentations/models/document.models';
+import { ExportationResponse, ExportationFileResponse, ExportationStatus, ExportationApurementStatus, ExportationFileStatus, DEFeeStatus, ExportationFileHistoryResponse, CreateExportationIncomingCommand, IncomingStatus, Severity, ExceptionDirectedTo, RaiseExportationExceptionCommand, ExportationExceptionResponse, ExceptionStatus, ExportationMessageType, CreateExportationIncomingRetrocessionCommand, IncomingRetrocessionStatus, UpdateExportationFactureDefinitiveCommand, UpdateExportationBonForEmbarquementCommand } from '../models/exportation.models';
+import { ComplemetaryInformationRequiredFor, DocumentControl, DocumentControlType, DocumentSubmissionOption } from '../../documentations/models/document.models';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { AuthService } from '../../users/auth.service';
 import Swal from 'sweetalert2';
@@ -13,6 +13,7 @@ import { ExportationDocumentationData } from '../resolvers/exportation-documenta
 import { SwiftParserService } from '../services/parse.service';  // Add this import
 import { ExceptionResolverContactResponse } from '../../transactions/models/transactions.model';
 import { UserRoleEnum } from 'src/app/helpers/UserRoleEnum';
+import { DEResponse } from '../../de/models/de.models';
 
 @Component({
   selector: 'app-documentation-exportation',
@@ -29,7 +30,12 @@ export class DocumentationExportationComponent implements OnInit {
   selectedDocument?: ExportationFileResponse;
   documentControls?: DocumentControl[] = [];
   selectedControls: DocumentControl[] = [];
+  ComplemetaryInformationRequiredFor = ComplemetaryInformationRequiredFor;
+  selectedComplemetaryInformationRequiredFor: ComplemetaryInformationRequiredFor | null = null;
   fileBLob?: Blob | null = null;
+  fileBase64?: string | null = null;
+  pdfLoadingError?: string | null = null;
+  downloadUrl?: string | null = null;
   reviewDialog = false;
   reviewForm: FormGroup;
   panelNumber: number = 1;
@@ -58,8 +64,23 @@ export class DocumentationExportationComponent implements OnInit {
   incomingForm: FormGroup;
   selectedIncomingSwiftFile?: File;
   selectedIncomingData?: any;
-
+  searchDEForm!: FormGroup;
+  searchDEDialog = false;
+  selectedDEDetails?: DEResponse;
   // Add near the top with other component properties
+
+  // Incoming Retrocession state
+  incomingRetrocessionDialog = false;
+  incomingRetrocessionForm!: FormGroup;
+  selectedIncomingRetrocessionSwiftFile?: File;
+
+  // Update complementary info dialogs state
+  updateFactureDefinitiveDialog = false;
+  updateBonEmbarquementDialog = false;
+  updateFactureDefinitiveForm!: FormGroup;
+  updateBonEmbarquementForm!: FormGroup;
+
+
   documentReviewStatus = [
     { label: 'Review OK', value: ExportationFileStatus.DocumentReviewOk, code: ExportationFileStatus.DocumentReviewOk },
     { label: 'Review Failed', value: ExportationFileStatus.DocumentReviewFailed, code: ExportationFileStatus.DocumentReviewFailed },
@@ -98,12 +119,13 @@ export class DocumentationExportationComponent implements OnInit {
   private dialogOperationSwal!: SwalComponent;
 
   constructor(
-    private route: ActivatedRoute,
-    private authService: AuthService,
-    private exportationService: ExportationService,
-    private swiftParserService: SwiftParserService,
-    private fb: FormBuilder,
-    public confirmationService: ConfirmationService
+    private readonly route: ActivatedRoute,
+    private readonly authService: AuthService,
+    private readonly exportationService: ExportationService,
+    private readonly swiftParserService: SwiftParserService,
+    private readonly fb: FormBuilder,
+    public confirmationService: ConfirmationService,
+    private readonly cdr: ChangeDetectorRef  // Add this
   ) {
     this.reviewForm = this.fb.group({
       exportationFileStatus: [null, Validators.required], // Changed from transactionFileStatus
@@ -140,10 +162,28 @@ export class DocumentationExportationComponent implements OnInit {
       internalNote: ['', Validators.required],
       exceptionStatus: ['', Validators.required]
     });
+
+    // Initialize incoming retrocession form (no parser involved)
+    this.incomingRetrocessionForm = this.fb.group({
+      refundReference: ['', Validators.required],
+      amountThatShouldBeRefund: [null, [Validators.required, Validators.min(0.01)]]
+    });
+
+    // Initialize complementary info forms
+    this.updateFactureDefinitiveForm = this.fb.group({
+      referenceFactureDefinitive: ['', Validators.required],
+      amountFactureDefinitive: [null, [Validators.required, Validators.min(0.01)]]
+    });
+
+    this.updateBonEmbarquementForm = this.fb.group({
+      referenceBonForEmbarquement: ['', Validators.required],
+      amountBonForEmbarquement: [null, [Validators.required, Validators.min(0.01)]],
+      dateBonForEmbarquement: [null, Validators.required]
+    });
   }
 
   ngOnInit() {
-     this.route.data.subscribe({
+      this.route.data.subscribe({
          next: (data) => {
            const resolvedData = data['exportation'] as ExportationDocumentationData;
 
@@ -154,6 +194,191 @@ export class DocumentationExportationComponent implements OnInit {
            this.panelNumber = this.getPanelClass();
          }
        });
+
+      this.searchDEForm = this.fb.group({
+        eForceReference: ['', Validators.required]
+      });
+  }
+
+  // ========== Update Facture Definitive / Bon pour Embarquement ==========
+  openUpdateFactureDefinitiveDialog(): void {
+    if (!this.exportation) return;
+    this.updateFactureDefinitiveForm.reset();
+    this.updateFactureDefinitiveForm.patchValue({
+      referenceFactureDefinitive: this.exportation.referenceFactureDefinitive || '',
+      amountFactureDefinitive: this.exportation.amountFactureDefinitive ?? null
+    });
+    this.updateFactureDefinitiveDialog = true;
+  }
+
+  submitUpdateFactureDefinitive(): void {
+    if (!this.exportation || this.updateFactureDefinitiveForm.invalid) return;
+    const command: UpdateExportationFactureDefinitiveCommand = {
+      exportationId: this.exportation.id,
+      referenceFactureDefinitive: this.updateFactureDefinitiveForm.value.referenceFactureDefinitive,
+      amountFactureDefinitive: this.updateFactureDefinitiveForm.value.amountFactureDefinitive
+    };
+    this.exportationService.updateExportationFactureDefinitive(command).subscribe({
+      next: () => {
+        this.updateFactureDefinitiveDialog = false;
+        Swal.fire({
+          title: 'Success',
+          text: 'Facture définitive updated successfully',
+          icon: 'success'
+        }).then(() => window.location.reload());
+      },
+      error: (error) => {
+        Swal.fire({
+          title: 'Error',
+          text: error?.error?.detail || 'Failed to update Facture définitive',
+          icon: 'error'
+        });
+      }
+    });
+  }
+
+  openUpdateBonEmbarquementDialog(): void {
+    if (!this.exportation) return;
+    this.updateBonEmbarquementForm.reset();
+    this.updateBonEmbarquementForm.patchValue({
+      referenceBonForEmbarquement: this.exportation.referenceBonForEmbarquement || '',
+      amountBonForEmbarquement: this.exportation.amountBonForEmbarquement ?? null,
+      dateBonForEmbarquement: this.exportation.dateBonForEmbarquement ? new Date(this.exportation.dateBonForEmbarquement) : null
+    });
+    this.updateBonEmbarquementDialog = true;
+  }
+
+  submitUpdateBonEmbarquement(): void {
+    if (!this.exportation || this.updateBonEmbarquementForm.invalid) return;
+    const command: UpdateExportationBonForEmbarquementCommand = {
+      exportationId: this.exportation.id,
+      referenceBonForEmbarquement: this.updateBonEmbarquementForm.value.referenceBonForEmbarquement,
+      amountBonForEmbarquement: this.updateBonEmbarquementForm.value.amountBonForEmbarquement,
+      dateBonForEmbarquement: this.updateBonEmbarquementForm.value.dateBonForEmbarquement
+    };
+    this.exportationService.updateExportationBonForEmbarquement(command).subscribe({
+      next: () => {
+        this.updateBonEmbarquementDialog = false;
+        Swal.fire({
+          title: 'Success',
+          text: 'Bon pour embarquement updated successfully',
+          icon: 'success'
+        }).then(() => window.location.reload());
+      },
+      error: (error) => {
+        Swal.fire({
+          title: 'Error',
+          text: error?.error?.detail || 'Failed to update Bon pour embarquement',
+          icon: 'error'
+        });
+      }
+    });
+  }
+
+  // ========== Incoming Retrocession handlers ==========
+  openIncomingRetrocessionDialog(): void {
+    this.incomingRetrocessionForm.reset();
+    this.selectedIncomingRetrocessionSwiftFile = undefined;
+    this.incomingRetrocessionDialog = true;
+  }
+
+  onIncomingRetrocessionSwiftSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input?.files && input.files.length > 0) {
+      this.selectedIncomingRetrocessionSwiftFile = input.files[0];
+    } else {
+      this.selectedIncomingRetrocessionSwiftFile = undefined;
+    }
+  }
+
+  submitIncomingRetrocessionRegistration(): void {
+    if (!this.exportation) return;
+    if (!this.incomingRetrocessionForm.valid || !this.selectedIncomingRetrocessionSwiftFile) return;
+
+    const command: CreateExportationIncomingRetrocessionCommand = {
+      exportationId: this.exportation.id,
+      amountThatShouldBeRefund: this.incomingRetrocessionForm.value.amountThatShouldBeRefund,
+      refundReference: this.incomingRetrocessionForm.value.refundReference,
+      swiftFile: this.selectedIncomingRetrocessionSwiftFile
+    };
+
+    this.exportationService.createExportationIncomingRetrocession(command).subscribe({
+      next: () => {
+        this.incomingRetrocessionDialog = false;
+        this.selectedIncomingRetrocessionSwiftFile = undefined;
+        // Optionally refresh list from backend if needed
+        if (this.exportation) {
+          this.exportationService.getExportationMessages(this.exportation.id).subscribe({
+            next: () => {
+               Swal.fire({
+                title: 'Success',
+                text: 'Incoming retrocession created successfully',
+                icon: 'success'
+              }).then(() => {
+                window.location.reload();
+              });
+            },
+            error: (error) => {
+                Swal.fire({
+                  title: 'Error',
+                  text: 'Failed to create incoming retrocession ' + (error?.error?.detail || ''),
+                  icon: 'error'
+                });
+            }
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Error creating incoming retrocession:', error);
+      }
+    });
+  }
+
+  // downloadIncomingRetrocessionSwift implementation moved below (single definition retained)
+
+  deleteIncomingRetrocession(exportationId: string, serialNumber: string): void {
+    this.exportationService
+      .deleteExportationIncomingRetrocession(exportationId, serialNumber)
+      .subscribe({
+        next: () => {
+          Swal.fire({
+                title: 'Success',
+                text: 'Incoming retrocession deleted successfully',
+                icon: 'success'
+              }).then(() => {
+                window.location.reload();
+              });
+        },
+        error: (error) => {
+          Swal.fire({
+            title: 'Error',
+            text: 'Failed to delete incoming retrocession ' + (error?.error?.detail || ''),
+            icon: 'error'
+          });
+        }
+      });
+  }
+
+  getIncomingRetrocessionStatusString(status: IncomingRetrocessionStatus): string {
+    switch (status) {
+      case IncomingRetrocessionStatus.Created:
+        return 'Created';
+      case IncomingRetrocessionStatus.Deleted:
+        return 'Deleted';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  colorIncomingRetrocessionStatus(status: IncomingRetrocessionStatus): string {
+    switch (status) {
+      case IncomingRetrocessionStatus.Created:
+        return 'success';
+      case IncomingRetrocessionStatus.Deleted:
+        return 'danger';
+      default:
+        return 'info';
+    }
   }
 
     getPanelClass() {
@@ -182,24 +407,64 @@ export class DocumentationExportationComponent implements OnInit {
       .subscribe({
         next: (blob: Blob) => {
           this.fileBLob = blob;
-          console.log("🚀 => file: documentation-transaction.component.ts:63 => DocumentationTransactionComponent => onDocumentChange => blob:", blob);
+          this.pdfLoadingError = null;
+          // Create download URL for fallback
+          this.downloadUrl = URL.createObjectURL(blob);
+
+          this.blobToBase64(blob).then(base64 => {
+            this.fileBase64 = base64;
+
+          }).catch(error => {
+            console.error('Error converting blob to base64:', error);
+            this.pdfLoadingError = 'Failed to convert document for display';
+          });
         },
         error: (error) => {
-         // console.error('Error loading document:', error);
+          console.error('Error loading document:', error);
           this.fileBLob = null;
+          this.fileBase64 = null;
+          this.pdfLoadingError = 'Failed to load document from server';
         }
       });
       // Load document controls
+      console.log('Loading document controls for document ID:', this.selectedDocument);
+
       this.exportationService.getDocumentControls(this.selectedDocument.documentId)
         .subscribe({
           next: (response) => {
             this.documentControls = response.documentControls;
+            this.selectedComplemetaryInformationRequiredFor = response.complemetaryInformationRequiredFor;
           },
           error: (error) => {
             console.error('Error loading document controls:', error);
           }
         });
     }
+  }
+
+  blobToBase64(blob : Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+          const dataUrl = reader.result as string;
+          const base64 = dataUrl.split(',')[1];
+          resolve(base64);
+      };
+      reader.onerror = () => {
+        reject(new Error('Failed to read blob as data URL'));
+      };
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  onPdfLoaded(event: any): void {
+    console.log('PDF loaded successfully:', event);
+    this.pdfLoadingError = null;
+  }
+
+  onPdfLoadingFailed(event: any): void {
+    console.error('PDF loading failed:', event);
+    this.pdfLoadingError = 'Unable to display PDF document. Please check your internet connection and try again.';
   }
 
   getStatusString(status: ExportationStatus): string {
@@ -361,6 +626,68 @@ export class DocumentationExportationComponent implements OnInit {
     return isMandatoryControlsCheck && isDocumentPathProvided;
   }
 
+  clearBonEmbarquement() {
+    if (!this.exportation) return;
+
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to clear Bon pour Embarquement?',
+      header: 'Confirm Clear',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.exportationService.clearExportationBonForEmbarquement(this.exportation!.id)
+          .subscribe({
+            next: () => {
+              Swal.fire({
+                title: 'Cleared',
+                text: 'Bon pour Embarquement cleared successfully',
+                icon: 'success'
+              }).then(() => {
+                window.location.reload();
+              });
+            },
+            error: (error) => {
+              Swal.fire({
+                title: 'Error',
+                text: error?.error?.detail || 'Failed to clear Bon pour Embarquement',
+                icon: 'error'
+              });
+            }
+          });
+      }
+    });
+  }
+
+  clearFactureDefinitive() {
+    if (!this.exportation) return;
+
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to clear Facture Définitive?',
+      header: 'Confirm Clear',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.exportationService.clearExportationFactureDefinitive(this.exportation!.id)
+          .subscribe({
+            next: () => {
+              Swal.fire({
+                title: 'Cleared',
+                text: 'Facture Définitive cleared successfully',
+                icon: 'success'
+              }).then(() => {
+                window.location.reload();
+              });
+            },
+            error: (error) => {
+              Swal.fire({
+                title: 'Error',
+                text: error?.error?.detail || 'Failed to clear Facture Définitive',
+                icon: 'error'
+              });
+            }
+          });
+      }
+    });
+  }
+
   getFileStatusLabel(status: ExportationFileStatus): string {
     return ExportationFileStatus[status];
   }
@@ -424,6 +751,7 @@ export class DocumentationExportationComponent implements OnInit {
                 window.URL.revokeObjectURL(url);
               },
               error: (error) => {
+                console.error('Error downloading Zip file:', error);
                 Swal.fire({
                   title: 'Error',
                   text: error?.error?.detail || 'Failed to download Zip file',
@@ -620,6 +948,98 @@ export class DocumentationExportationComponent implements OnInit {
       });
   }
 
+  openSearchDEDialog() {
+    this.searchDEDialog = true;
+    this.searchDEForm.reset();
+    this.selectedDEDetails = undefined;
+  }
+
+  searchDE() {
+      const eForceRef = this.searchDEForm.get('eForceReference')?.value;
+      if (!eForceRef) return;
+
+      this.exportationService.getDEDetailsByEForceReference(eForceRef).subscribe({
+        next: (response) => {
+          if (response && response.length > 0) {
+            this.selectedDEDetails = response[0];
+          } else {
+            Swal.fire({
+              title: 'Not Found',
+              text: 'No DE found with the provided reference',
+              icon: 'info'
+            });
+          }
+        },
+        error: (error) => {
+            Swal.fire({
+                title: 'Error',
+                text: error?.error?.detail || 'An error occurred',
+                icon: 'error'
+              });
+        }
+      });
+  }
+
+  matchDESelection(){
+     console.log("🚀 matchDESelection => this.selectedDEDetails", this.selectedDEDetails);
+     console.log("🚀 matchDESelection => this.exportation", this.exportation);
+     if (!this.selectedDEDetails) return;
+     if (!this.exportation) return;
+
+     this.exportationService.matchDEWithExportation(this.exportation?.id ,this.selectedDEDetails.eForceReference)
+         .subscribe({
+            next: () => {
+              this.searchDEDialog = false;
+              Swal.fire({
+                title: 'Success',
+                text: 'DE matched successfully',
+                icon: 'success'
+              }).then(() => {
+                window.location.reload();
+              });
+            },
+            error: (error) => {
+              Swal.fire({
+                title: 'Error',
+                text: error?.error?.detail || 'Failed to match DE',
+                icon: 'error'
+              });
+            }
+         });
+  }
+  unmatchDE(){
+    if (!this.exportation) return;
+
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to unmatch the DE from this exportation?',
+      header: 'Unmatch Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.loading = true;
+        this.exportationService.unMatchDEWithExportation(this.exportation!.id)
+          .subscribe({
+            next: () => {
+              this.loading = false;
+              Swal.fire({
+                title: 'Success',
+                text: 'DE unmatched successfully',
+                icon: 'success'
+              }).then(() => {
+                window.location.reload();
+              });
+            },
+            error: (error) => {
+              this.loading = false;
+              Swal.fire({
+                title: 'Error',
+                text: error?.error?.detail || 'Failed to unmatch DE',
+                icon: 'error'
+              });
+            }
+          });
+      }
+    });
+  }
   collectDeFee(exportationId: string) {
     if (!this.exportation) return;
 
@@ -792,6 +1212,27 @@ export class DocumentationExportationComponent implements OnInit {
       });
   }
 
+   downloadIncomingRetrocessionSwift(exportationId: string, incomingRetrocessionId: string) {
+    this.exportationService.getExportationIncomingRetrocessionSwiftDownload(exportationId, incomingRetrocessionId)
+      .subscribe({
+        next: (blob) => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `swift-${incomingRetrocessionId}.txt`;
+          a.click();
+          window.URL.revokeObjectURL(url);
+        },
+        error: (error) => {
+          Swal.fire({
+            title: 'Error',
+            text: error?.error?.detail || 'Failed to download swift file',
+            icon: 'error'
+          });
+        }
+      });
+  }
+
   openRaiseExceptionDialog() {
     this.raiseExceptionDialog = true;
     this.exceptionForm.reset();
@@ -851,6 +1292,8 @@ export class DocumentationExportationComponent implements OnInit {
             text: 'Exception raised successfully',
             icon: 'success'
           });
+
+          window.location.reload();
         },
         error: (error) => {
           Swal.fire({
@@ -863,13 +1306,44 @@ export class DocumentationExportationComponent implements OnInit {
     }
   }
 
+  @ViewChild('internalNoteEditorForUpdateExceptionStatus') internalNoteEditorForUpdateExceptionStatus: any;
   openUpdateExceptionDialog(exception: ExportationExceptionResponse) {
     this.selectedException = exception;
+    console.log("🚀 openUpdateExceptionDialog => exception", exception);
+
+    // Show the dialog first
+    this.updateExceptionDialog = true;
+
+    // Reset and set initial values
     this.updateExceptionForm.patchValue({
-      internalNote: exception.internalNote,
+      internalNote: '',  // Start with empty value
       exceptionStatus: exception.exceptionStatus
     });
-    this.updateExceptionDialog = true;
+
+    // Wait for dialog and editor to render completely
+    setTimeout(() => {
+      if (this.internalNoteEditorForUpdateExceptionStatus && exception.internalNote) {
+        // Method 1: Try setting the value directly on the editor
+        try {
+          if (this.internalNoteEditorForUpdateExceptionStatus.getQuill) {
+            const quill = this.internalNoteEditorForUpdateExceptionStatus.getQuill();
+            quill.root.innerHTML = exception.internalNote;
+          }
+        } catch (error) {
+          console.log('Direct Quill method failed, trying form control method');
+        }
+
+        // Method 2: Set via form control
+      /*   const internalNoteControl = this.updateExceptionForm.get('internalNote');
+        if (internalNoteControl) {
+          internalNoteControl.setValue(exception.internalNote);
+          internalNoteControl.updateValueAndValidity();
+        } */
+
+        // Force change detection
+        this.cdr.detectChanges();
+      }
+    }, 500);
   }
 
   submitUpdateException() {

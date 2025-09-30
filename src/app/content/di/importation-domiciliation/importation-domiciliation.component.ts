@@ -4,6 +4,7 @@ import { DI, DIStatus, UpdateGoodsDescriptionCommand, DIAttestationGenerationRes
 import { DIService } from '../services/di.services';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { UserRoleEnum, UserType } from 'src/app/helpers/UserRoleEnum';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-importation-domiciliation',
@@ -128,7 +129,16 @@ export class ImportationDomiciliationComponent implements OnInit {
   }
 
   getDIStatusString(status: DIStatus): string {
-    return DIStatus[status];
+     switch (status) {
+          case DIStatus.NotUsed:
+            return 'Not Used';
+          case DIStatus.CompletelyUsed:
+            return 'Completely Used';
+          case DIStatus.PartiallyUsed:
+            return 'Partially Used';
+          default:
+            return 'Unknown';
+        }
   }
 
   colorStatus(status: DIStatus): string {
@@ -162,8 +172,8 @@ export class ImportationDomiciliationComponent implements OnInit {
         this.loadDIs();
         this.dialogOperationSwal.fire();
       },
-      error: () => {
-        this.dialogOperationSwal.fire();
+      error: (error) => {
+        this.handleError(error);
       }
     });
   }
@@ -250,4 +260,22 @@ export class ImportationDomiciliationComponent implements OnInit {
       });
     }
   }
+
+    private handleError(error: any) {
+      if (error?.error?.detail) {
+        Swal.fire({
+          title: 'Error',
+          text: `${error?.error?.status}: ${error?.error?.detail}`,
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+      } else {
+        Swal.fire({
+          title: 'Error',
+          text: 'An unexpected error occurred',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+      }
+    }
 }

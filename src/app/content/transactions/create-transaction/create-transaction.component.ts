@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TransactionService } from '../services/transctions.service';
 import { CorporateOrIndividual } from '../models/transactions.model';
 import { CustomersService } from '../../customers/services/customers.services';
-import { CorporateResponse, IndividualResponse, CustomerType } from '../../customers/models/customer.models';
+import { CorporateResponse, IndividualResponse, CustomerType, CorporateStatus, IndividualStatus } from '../../customers/models/customer.models';
 import Swal from 'sweetalert2';
 import { DocumentationService } from '../../documentations/services/documentation.service';
 import { TransactionTypeResponse, TransactionTypeStatus } from '../../documentations/models/transaction-type.models';
@@ -58,7 +58,7 @@ export class CreateTransactionComponent implements OnInit {
       individualId: [''],
       customerName: ['', Validators.required], // Replace customerID with customerName
       customerAccount: ['', Validators.required],
-      transactionAmount: ['', [Validators.required, Validators.min(0)]],
+      transactionAmount: ['', [Validators.required, Validators.min(1)]],
       transactionCurrency: ['', Validators.required],
       transactionTypeId: ['', Validators.required],
       beneficiaryAccount: ['', Validators.required],
@@ -144,7 +144,7 @@ export class CreateTransactionComponent implements OnInit {
         pageSize: 10
       }).subscribe({
         next: (response) => {
-          this.filteredCustomers = response.items;
+          this.filteredCustomers = response.items.filter(c => c.corporateStatus === CorporateStatus.Active);
           this.isSearching = false;
         },
         error: (error) => {
@@ -160,7 +160,7 @@ export class CreateTransactionComponent implements OnInit {
         pageSize: 10
       }).subscribe({
         next: (response) => {
-          this.filteredCustomers = response.items;
+          this.filteredCustomers = response.items.filter(i => i.individualStatus === IndividualStatus.Active);
           this.isSearching = false;
         },
         error: (error) => {

@@ -41,7 +41,7 @@ export class CorporateComponent implements OnInit, OnDestroy {
 
 
   totalRows = 0;
-  pageSize = 2;
+  pageSize = 10;
   pageNumber = 1;
   expandedRows: { [key: string]: boolean } = {};
 
@@ -532,20 +532,25 @@ export class CorporateComponent implements OnInit, OnDestroy {
   }
 
   //miseEnDemeureStatus = MiseEnDemeureStatus;
-  getMiseEndemeureStatusString(status: MiseEnDemeureStatus): string {
+  getMiseEndemeureStatusString(status: MiseEnDemeureStatus | null | undefined): string {
+
     switch (status) {
       case MiseEnDemeureStatus.No:
         return 'No';
       case MiseEnDemeureStatus.Yes:
         return 'Yes';
+      default:
+        return 'Unknown';
     }
   }
-  colorMiseEnDemeureStatus(status: MiseEnDemeureStatus): string {
+  colorMiseEnDemeureStatus(status: MiseEnDemeureStatus | null | undefined): string {
     switch (status) {
       case MiseEnDemeureStatus.No:
         return 'success';
       case MiseEnDemeureStatus.Yes:
         return 'danger';
+      default:
+        return 'secondary';
     }
   }
 

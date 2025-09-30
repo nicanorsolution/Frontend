@@ -215,7 +215,8 @@ export class UsersComponent implements OnInit {
   }
 
   onPageChange(event: any) {
-    this.currentPage = event.page + 1;
+    console.log(event);
+    this.currentPage = event.first! / event.rows! + 1;
     this.pageSize = event.rows;
     this.getUser();
   }

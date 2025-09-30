@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CustomersService } from '../../customers/services/customers.services';
-import { CustomerType } from '../../customers/models/customer.models';
+import { CorporateStatus, CustomerType, IndividualStatus } from '../../customers/models/customer.models';
 import { ExportationService } from '../services/exportation.service';
 import { CorporateOrIndividual } from '../../transactions/models/transactions.model';
 import { DEResponse } from '../../de/models/de.models';
@@ -42,16 +42,16 @@ export class CreateExportationComponent implements OnInit {
       customerNiu: ['', Validators.required],
       customerAddress: ['', Validators.required],
       registrationNumber: ['', Validators.required],
-      eForceReference: ['', Validators.required],
-      fileNumber: ['', Validators.required],
-      requestDate: ['', Validators.required],
-      domiciliationReference: ['', Validators.required],
-      domiciliationDate: ['', Validators.required],
-      provider: ['', Validators.required],
-      buyer: ['', Validators.required],
-      placeOfDestination: ['', Validators.required],
-      bank: ['', Validators.required],
-      fobValueCfa: ['', Validators.required]
+      eForceReference: [''],
+      fileNumber: [''],
+      requestDate: [''],
+      domiciliationReference: [''],
+      domiciliationDate: [''],
+      provider: [''],
+      buyer: [''],
+      placeOfDestination: [''],
+      bank: [''],
+      fobValueCfa: ['']
     });
 
     this.searchCustomerForm = this.fb.group({
@@ -96,7 +96,7 @@ export class CreateExportationComponent implements OnInit {
         pageSize: 10
       }).subscribe({
         next: (response) => {
-          this.filteredCustomers = response.items;
+          this.filteredCustomers = response.items.filter(c => c.corporateStatus === CorporateStatus.Active);
           this.isSearching = false;
         },
         error: (error) => {
@@ -111,7 +111,7 @@ export class CreateExportationComponent implements OnInit {
         pageSize: 10
       }).subscribe({
         next: (response) => {
-          this.filteredCustomers = response.items;
+          this.filteredCustomers = response.items.filter(i => i.individualStatus === IndividualStatus.Active);
           this.isSearching = false;
         },
         error: (error) => {

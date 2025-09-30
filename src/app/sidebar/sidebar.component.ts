@@ -113,14 +113,14 @@ export const ROUTES: RouteInfo[] = [
             UserRoleEnum.TradeDeskAuthorizer, UserRoleEnum.ViewOnly],
     userType: [UserType.InternalUser]
   },
-  {
+/*   {
     path: '/admin/rates/swiftcodes', title: 'Swift Codes', icon: 'pe-7s-settings', class: '',
     roles: [UserRoleEnum.Admin, UserRoleEnum.SuperAdmin, UserRoleEnum.TradeInitiator,
             UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer, UserRoleEnum.TreasuryAuthorizer,
             UserRoleEnum.TreasuryOperationAuthorizer, UserRoleEnum.TradeOperationAuthorizer,
             UserRoleEnum.TradeDeskAuthorizer, UserRoleEnum.ViewOnly],
     userType: [UserType.InternalUser, UserType.ExternalUser]
-  },
+  }, */
 
   {
     path: '/admin/di/di', title: 'Import Domiciliation', icon: 'pe-7s-info', class: '',
@@ -147,6 +147,14 @@ export const ROUTES: RouteInfo[] = [
   },
   {
     path: '/admin/reports', title: 'Reports', icon: 'pe-7s-graph3', class: '',
+    roles: [UserRoleEnum.Admin, UserRoleEnum.SuperAdmin, UserRoleEnum.TradeInitiator,
+            UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer, UserRoleEnum.TreasuryAuthorizer,
+            UserRoleEnum.TreasuryOperationAuthorizer, UserRoleEnum.TradeOperationAuthorizer,
+            UserRoleEnum.TradeDeskAuthorizer, UserRoleEnum.ViewOnly],
+    userType: [UserType.InternalUser]
+  },
+    {
+    path: '/admin/swiftcodes', title: 'Swift Bic', icon: 'pe-7s-notebook', class: '',
     roles: [UserRoleEnum.Admin, UserRoleEnum.SuperAdmin, UserRoleEnum.TradeInitiator,
             UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer, UserRoleEnum.TreasuryAuthorizer,
             UserRoleEnum.TreasuryOperationAuthorizer, UserRoleEnum.TradeOperationAuthorizer,
@@ -223,6 +231,7 @@ export class SidebarComponent implements OnInit {
     this.configMenuItems = this.menuItems.filter(item =>
       item.path.includes('documentation') ||
       item.path.includes('users') ||
+      item.path.includes('swiftcodes') ||
       item.path.includes('reports')
     );
   }

@@ -22,9 +22,9 @@
                   <div class="col-3">{{exportation.exportationReference}}</div>
                   <div class="col-3"><b>Status:</b></div>
                   <div class="col-3">
-                    <p-tag [value]="getStatusString(exportation.exportationStatus)"
+                    <status [value]="getStatusString(exportation.exportationStatus)"
                           [severity]="colorStatus(exportation.exportationStatus)">
-                    </p-tag>
+                    </status>
                   </div>
 
                   <div class="col-3"><b>Customer:</b></div>
@@ -34,28 +34,28 @@
 
                   <div class="col-3"><b>Apurement Status:</b></div>
                   <div class="col-3">
-                    <p-tag [value]="getApurementStatusString(exportation.exportationApurementStatus)"
+                    <status [value]="getApurementStatusString(exportation.exportationApurementStatus)"
                           severity="info">
-                    </p-tag>
+                    </status>
                   </div>
-                  <div class="col-3"><b>Apurement Running count:</b></div>
+                  <div class="col-3"><b>Apurement Running (150 days):</b></div>
                   <div class="col-3">
-                    <p-tag [value]="exportation.numberDaysSinceDomiciliation.toString() + ' days'"
+                    <status [value]="exportation.numberDaysSinceDomiciliation.toString() + ' days'"
                           [severity]="exportation.numberDaysSinceDomiciliation < 150 ? 'success' : 'danger'">
-                    </p-tag>
+                    </status>
                   </div>
                     <div class="col-3"><b>Exportation Exception Count:</b></div>
                     <div class="col-3">
                         <a *ngIf="!exportation.exportationExceptionsPendingCount || exportation.exportationExceptionsPendingCount === 0" >
-                          <p-tag value="0 Exception(0) pending" severity="success"></p-tag>
+                          <status value="0 Exception(0) pending" severity="success"></status>
                         </a>
                         <a *ngIf="exportation.exportationExceptionsPendingCount > 0">
-                          <p-tag [value]="exportation.exportationExceptionsPendingCount.toString() + ' Exception(s) pending'" severity="danger"></p-tag>
+                          <status [value]="exportation.exportationExceptionsPendingCount.toString() + ' Exception(s) pending'" severity="danger"></status>
                         </a>
                     </div>
                 </div>
               </p-fieldset>
-
+              <br/>
               <p-fieldset legend="DE Details" class="mt-3">
                 <div class="grid">
                   <div class="col-3"><b>eForce Reference:</b></div>
@@ -77,25 +77,85 @@
                   <div class="col-3">{{exportation.deDetails.fobValueCfa | number:'1.2-2'}}</div>
                   <div class="col-3"><b>Place of Destination:</b></div>
                   <div class="col-3">{{exportation.deDetails.placeOfDestination}}</div>
+
+                  <div class="col-3"><b>Bank DE Domiciliation Date:</b></div>
+                  <div class="col-3">{{exportation.deDetails.bankDEDomiciliationDate | date:'mediumDate'}}</div>
+
+                   <div class="col-3"><b>Deadline for Repatriation of Funds:</b></div>
+                  <div class="col-3">{{exportation.deDetails.deadLineForRepatriationOfFunds | date:'mediumDate'}}</div>
+
+                  <div class="col-3"><b>DE Emission Date:</b></div>
+                  <div class="col-3">{{exportation.deDetails.deEmissionDate | date:'mediumDate'}}</div>
+
+                  <div class="col-3"><b>DE Expiration Date:</b></div>
+                  <div class="col-3">{{exportation.deDetails.deExpirationDate | date:'mediumDate'}}</div>
+
+                  <div class="col-3"><b>Exportation Type:</b></div>
+                  <div class="col-3">{{exportation.deDetails.exportationType}}</div>
+
+                  <div class="col-3"><b>Full Domiciliation Reference:</b></div>
+                  <div class="col-3">{{exportation.deDetails.fullDomiciliationReference}}</div>
+
+                   <div class="col-3"><b>Goods/Services Nature:</b></div>
+                  <div class="col-3">{{exportation.deDetails.goodOrServiceNature}}</div>
                 </div>
               </p-fieldset>
-
+              <br/>
               <p-fieldset legend="DE Fees Details" class="mt-3">
                 <div class="grid">
                   <div class="col-3"><b>Fee Status:</b></div>
                   <div class="col-3">
-                    <p-tag [value]="getDEFeeStatusString(exportation.deFeeStatus)"
+                    <status [value]="getDEFeeStatusString(exportation.deFeeStatus)"
                           [severity]="colorDEFeeStatus(exportation.deFeeStatus)">
-                    </p-tag>
+                    </status>
                   </div>
+                   <div class="col-3"><b>Amount:</b></div>
+                  <div class="col-3">{{exportation.deFeeAmount | number:'1.2-2'}}</div>
+
                   <div class="col-3"><b>Collection Date:</b></div>
                   <div class="col-3">{{(exportation.deFeeCollectionDate | date:'medium') || 'Not collected'}}</div>
 
                   <div class="col-3"><b>Collection Message:</b></div>
-                  <div class="col-9">{{exportation.deFeeCollectionMessage || 'No message'}}</div>
+                  <div class="col-3">{{exportation.deFeeCollectionMessage || 'No message'}}</div>
                 </div>
               </p-fieldset>
 
+              <br/>
+              <p-fieldset legend="Facture Definitive " class="mt-3">
+                <div class="grid">
+                  <div class="col-3"><b>Reference Facture Definitive:</b></div>
+                  <div class="col-3">{{exportation.referenceFactureDefinitive}}</div>
+
+                  <div class="col-3"><b>Montant Facture Definitive:</b></div>
+                  <div class="col-3">{{exportation.amountFactureDefinitive |  number:'1.2-2'}}</div>
+                  <div class="col-3"><button pButton label="Clear Facture Definitive" icon="pi pi-times"
+                                                class="p-button-danger p-button-outlined p-button-rounded"
+                                               appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeDeskAuthorizer]"
+                                               (click)="clearFactureDefinitive()">
+                                    </button></div>
+                </div>
+              </p-fieldset>
+              <br/>
+              <p-fieldset legend="Bon pour Embarquement" class="mt-3">
+                <div class="grid">
+                  <div class="col-3"><b>Reference Bon pour Embarquement:</b></div>
+                  <div class="col-3">{{exportation.referenceBonForEmbarquement}}</div>
+
+                  <div class="col-3"><b>Montant Bon pour Embarquement:</b></div>
+                  <div class="col-3">{{exportation.amountBonForEmbarquement | number:'1.2-2'}}</div>
+
+                  <div class="col-3"><b>Date Bon pour Embarquement:</b></div>
+                  <div class="col-3">{{exportation.dateBonForEmbarquement | date:'mediumDate'}}</div>
+                  <div class="col-3"></div>
+                  <div class="col-3"></div>
+                  <div class="col-3"><button pButton label="Clear Bon pour Embarquement" icon="pi pi-times"
+                                                class="p-button-danger p-button-outlined p-button-rounded"
+                                               appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeDeskAuthorizer]"
+                                               (click)="clearBonEmbarquement()">
+                                    </button></div>
+                </div>
+              </p-fieldset>
+              <br/>
               <!-- Add new Incoming Responses section -->
               <p-fieldset legend="Incomings Matching" class="mt-3">
                 <p-table [value]="exportation.incomingResponses" styleClass="p-datatable-gridlines">
@@ -108,7 +168,7 @@
                       <th>Currency</th>
                       <th>Uploaded Date</th>
                       <th>Status</th>
-                      <th  appRoleVisibility [requiredUserTypes]="[UserType.InternalUser]">
+                      <th>
                         Actions
                       </th>
                     </tr>
@@ -122,9 +182,9 @@
                       <td>{{incoming.currency}}</td>
                       <td>{{incoming.incomingDate | date:'medium'}}</td>
                       <td>
-                        <p-tag [value]="getIncomingStatusString(incoming.incomingStatus)"
+                        <status [value]="getIncomingStatusString(incoming.incomingStatus)"
                               [severity]="colorIncomingStatus(incoming.incomingStatus)">
-                        </p-tag>
+                        </status>
                       </td>
                       <td>
                         <div class="flex gap-2"
@@ -150,7 +210,57 @@
                   </ng-template>
                   <ng-template pTemplate="emptymessage">
                     <tr>
-                      <td colspan="9" class="text-center">No incoming responses found</td>
+                      <td colspan="8" class="text-center">No incoming responses found</td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </p-fieldset>
+              <br/>
+              <!-- Incoming Retrocession section -->
+              <p-fieldset legend="Incomings Retrocession" class="mt-3">
+                <p-table [value]="exportation.incomingRetrocessionResponses" styleClass="p-datatable-gridlines">
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <th>Refund Reference</th>
+                      <th>Registration Date</th>
+                      <th>Amount</th>
+                      <th>Currency</th>
+                      <th>Status</th>
+                      <th appRoleVisibility [requiredUserTypes]="[UserType.InternalUser]">Actions</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-item>
+                    <tr>
+                      <td>{{item.refundReference}}</td>
+                      <td>{{item.registrationDate | date:'medium'}}</td>
+                      <td>{{item.amountThatShouldBeRefund | number:'1.2-2'}}</td>
+                      <td>{{item.currency}}</td>
+                      <td>
+                        <status [value]="getIncomingRetrocessionStatusString(item.incomingRetrocessionStatus)"
+                                [severity]="colorIncomingRetrocessionStatus(item.incomingRetrocessionStatus)">
+                        </status>
+                      </td>
+                      <td>
+                        <div class="flex gap-2" appRoleVisibility [requiredUserTypes]="[UserType.InternalUser]">
+                          <button pButton icon="pi pi-download"
+                                  class="p-button-rounded p-button-info"
+                                  [disabled]="!item.hasRefundSwiftFilePath"
+                                  (click)="downloadIncomingRetrocessionSwift(exportation.id, item.serialNumber)"
+                                  pTooltip="Download SWIFT">
+                          </button>
+                          <button pButton icon="pi pi-trash"
+                                  class="p-button-rounded p-button-danger"
+                                  (click)="deleteIncomingRetrocession(exportation.id, item.serialNumber)"
+                                  appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeDeskAuthorizer]"
+                                  pTooltip="Delete">
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="emptymessage">
+                    <tr>
+                      <td colspan="6" class="text-center">No retrocession records found</td>
                     </tr>
                   </ng-template>
                 </p-table>
@@ -181,6 +291,26 @@
                             style="margin-right: 10px">
                  </button>
 
+                    <button pButton
+                        type="button"
+                        class="p-button-outlined"
+                        label="Match DE "
+                        icon="pi pi-eye"
+                        appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator]"
+                                               [requiredUserTypes]="[UserType.InternalUser]"
+                        (click)="openSearchDEDialog()"
+                        style="margin-right: 10px">
+                      </button>
+                 <button pButton
+                        type="button"
+                        class="p-button-outlined"
+                        label="Un Match DE "
+                        icon="pi pi-eye-slash"
+                        appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeInitiator]"
+                                               [requiredUserTypes]="[UserType.InternalUser]"
+                        (click)="unmatchDE()"
+                        style="margin-right: 10px">
+                      </button>
                  <button pButton type="button"
                             class="p-button-outlined"
                             icon="pi pi-wallet" iconPos="left"
@@ -198,7 +328,17 @@
                             (click)="incomingRegistrationDialog(exportation)"
                             appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeDeskAuthorizer]"
                                                [requiredUserTypes]="[UserType.InternalUser]"
-                               
+
+                            style="margin-right: 10px">
+                 </button>
+
+                 <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-arrow-down" iconPos="left"
+                            label="Incoming Retrocession"
+                            (click)="openIncomingRetrocessionDialog()"
+                            appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeDeskAuthorizer]"
+                                               [requiredUserTypes]="[UserType.InternalUser]"
                             style="margin-right: 10px">
                  </button>
 
@@ -256,9 +396,9 @@
                     {{doc.documentName}}
                     <br/>
                     <span style="color: #444;">
-                      <p-tag [value]="getFileStatusLabel(doc.exportationFileStatus)"
+                      <status [value]="getFileStatusLabel(doc.exportationFileStatus)"
                              [severity]="getStatusSeverity(doc.exportationFileStatus)">
-                      </p-tag>
+                      </status>
                     </span>
                   </div>
                 </div>
@@ -295,10 +435,10 @@
                   <div class="col-5">
                     <h4 class="title">
                       <b>Document Status:</b>
-                      <p-tag styleClass="mr-2"
+                      <status
+                             [value]="getFileStatusLabel(selectedDocument.exportationFileStatus)"
                              [severity]="getStatusSeverity(selectedDocument.exportationFileStatus)">
-                        {{ getFileStatusLabel(selectedDocument.exportationFileStatus) }}
-                      </p-tag>
+                      </status>
                     </h4>
                   </div>
                   <div class="col-2">
@@ -315,9 +455,14 @@
                 </div>
 
                 <ngx-extended-pdf-viewer *ngIf="selectedDocument && fileBLob"
-                                     [src]="fileBLob"
+                                     [base64Src]="fileBase64"
+                                     type="application/pdf"
                                      [height]="'100vh'"
-                                     useBrowserLocale="true">
+                                     useBrowserLocale="true"
+                                     [showHandToolButton]="true"
+                                     [textLayer]="true"
+                                     (pdfLoadingFailed)="onPdfLoadingFailed($event)"
+                                     (pdfLoaded)="onPdfLoaded($event)">
                 </ngx-extended-pdf-viewer>
 
                 <div *ngIf="!fileBLob">
@@ -331,28 +476,28 @@
                   <h4 *ngIf="!selectedDocument" class="title" style="color: red;">No Document Selected</h4>
 
                   <div *ngIf="selectedDocument">
-                    <h4 class="title"><b>Controls On Document:</b> {{selectedDocument.documentName}}</h4>
+                    <h4 class="title"><b>Controls On Document :</b> {{selectedDocument.documentName}}</h4>
                     <hr/>
 
                     <p *ngIf="documentControls?.length == 0">
                       <b style="color: red;">No controls recorded for this document</b>
                     </p>
 
-                    <h4 *ngIf="documentControls?.length != 0" class="title" style="color: #D32F2F;">Controls to perform:</h4>
+                    <h4 *ngIf="documentControls?.length != 0" class="title" style="color: #D32F2F;">Controls to perform: <br/><br/></h4>
 
-                    <ol>
-                      <li *ngFor="let control of documentControls" style="padding:1rem;font-size:medium">
+                    <ol style="margin: 0;padding-left:15px">
+                      <li *ngFor="let control of documentControls" style="padding:0.1rem;font-size:medium">
                         <div class="grid">
                           <div class="col-8" style="cursor: pointer; color:#D32F2F" (click)="viewControlDetails(control)">
                             {{control.documentControlName}}
                           </div>
                           <div class="col-3">
-                            <p-tag styleClass="mr-2"
+                            <status styleClass="mr-1"
                                   [severity]="colorDocumentControlType(control.documentControlType)"
                                   [value]="getDocumentControlType(control.documentControlType)">
-                            </p-tag>
+                            </status>
                           </div>
-                          <div class="col-1" style="float: left;">
+                          <div class="col-1" style="float: left;padding-right: 0; margin-right: 0;">
                             <p-checkbox name="groupcontrol"
                                       [value]="control"
                                       [(ngModel)]="selectedControls"
@@ -365,8 +510,7 @@
                     </ol>
 
                     <div class="grid">
-                      <div class="col-3"></div>
-                      <div class="col-6" style="padding:auto;">
+                      <div class="col-12" style="padding: 1em; text-align: center;">
                         <button pButton pRipple type="button"
                                 label="Review Document"
                                 icon="pi pi-check"
@@ -375,9 +519,31 @@
                                 appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeDeskAuthorizer]"
                                                   [requiredUserTypes]="[UserType.InternalUser]"
                                 class="p-button-outlined p-button-rounded p-button-success">
+                        </button> <br/>
+                        <div *ngIf="selectedComplemetaryInformationRequiredFor == ComplemetaryInformationRequiredFor.FinalInvoice">
+                          <button pButton pRipple type="button"
+                                  label="Update Facture Definitive"
+                                  icon="pi pi-check"
+                                  [disabled]="fileBLob == null"
+                                  appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeDeskAuthorizer]"
+                                                                            [requiredUserTypes]="[UserType.InternalUser]"
+                                  (click)="openUpdateFactureDefinitiveDialog()"
+                                                          class="p-button-outlined p-button-rounded p-button-success mt-3">
+                          </button>
+                        </div>
+                        <div *ngIf="selectedComplemetaryInformationRequiredFor == ComplemetaryInformationRequiredFor.GoodForEmbacation">
+                          <button pButton pRipple type="button"
+                                label="Update Bon pour Embarquement"
+                                icon="pi pi-check"
+                                 [disabled]="fileBLob == null"
+                                appRoleVisibility [requiredRoles]="[UserRoleEnum.TradeDeskAuthorizer]"
+                                                  [requiredUserTypes]="[UserType.InternalUser]"
+                                (click)="openUpdateBonEmbarquementDialog()"
+                                class="p-button-outlined p-button-rounded p-button-success mt-3">
                         </button>
+                        </div>
+
                       </div>
-                      <div class="col-3"></div>
                     </div>
                   </div>
                          <hr/>
@@ -395,11 +561,11 @@
                                 {{item.createdDate | date :'medium'}} - By {{item.createdBy}}
                             </div>
                             <h5 style="margin-top: 0;">
-                              <p-tag [value]="getExportationMessageType(item.exportationMessageType)"
-                               [severity]="'info'" ></p-tag> -
-                              <p-tag [value]="getExportationMessageTypeName(item.messageType)"
+                              <status [value]="getExportationMessageType(item.exportationMessageType)"
+                               [severity]="'info'" ></status> -
+                              <status [value]="getExportationMessageTypeName(item.messageType)"
                               [severity]="getExportationMessageTypeColor(item.messageType)" >
-                              </p-tag></h5>
+                              </status></h5>
                             <p [innerHTML]="item.message">
                             </p>
                         </div>
@@ -470,15 +636,36 @@
 
                 <!-- Review Note -->
                 <div class="col-12 mb-3">
-                  <span class="p-float-label">
+                 <!--  <span class="p-float-label">
                     <textarea pInputTextarea
                              formControlName="reviewerNote"
                              [rows]="4"
                              [style]="{'width':'100%','font-size':'1.2em'}"
                              autoResize="true">
                     </textarea>
-                    <label>Review Notes</label>
-                  </span>
+                     <label>Review Notes</label>
+                  </span> -->
+                  <label>Review Notes</label>
+                   <p-editor formControlName="reviewerNote"[style]="{ height: '200px' }">
+                        <ng-template pTemplate="header">
+                           <span class="ql-formats">
+                          <select class="ql-size">
+                            <option value="small">Small</option>
+                            <option value="large">Large</option>
+                            <option value="huge">Big</option>
+                          </select>
+                        </span>
+                        <span class="ql-formats">
+                          <button type="button" class="ql-bold" aria-label="Bold"></button>
+                          <button type="button" class="ql-italic" aria-label="Italic"></button>
+                          <button type="button" class="ql-underline" aria-label="Underline"></button>
+                        </span>
+                        <span class="ql-formats">
+                          <button type="button" class="ql-list" value="ordered" aria-label="Ordered List"></button>
+                          <button type="button" class="ql-list" value="bullet" aria-label="Unordered List"></button>
+                        </span>
+                      </ng-template>
+                   </p-editor>
                 </div>
 
                 <!-- Submit Button -->
@@ -564,9 +751,9 @@
                       <ng-template let-doc pTemplate="item">
                         <div class="flex align-items-center gap-2">
                           <div>{{doc.documentName}}</div>
-                          <p-tag [value]="getFileStatusLabel(doc.exportationFileStatus)"
+                          <status [value]="getFileStatusLabel(doc.exportationFileStatus)"
                                 [severity]="getStatusSeverity(doc.exportationFileStatus)">
-                          </p-tag>
+                          </status>
                         </div>
                       </ng-template>
                     </p-multiSelect>
@@ -586,7 +773,9 @@
 
                 <!-- Internal Note -->
                 <div class="col-12 mb-3">
-                  <span class="p-float-label">
+                   <label>Internal Note</label>
+                    <p-editor formControlName="internalNote" [style]="{ height: '160px' }"></p-editor>
+              <!--     <span class="p-float-label">
                     <textarea pInputTextarea
                              formControlName="internalNote"
                              [rows]="3"
@@ -594,12 +783,15 @@
                              autoResize="true">
                     </textarea>
                     <label>Internal Note</label>
-                  </span>
+
+                  </span> -->
                 </div>
 
                 <!-- Client Note -->
                 <div class="col-12 mb-3">
-                  <span class="p-float-label">
+                  <label>Client Note</label>
+                  <p-editor formControlName="clientNote" [style]="{ height: '160px' }"></p-editor>
+                 <!--  <span class="p-float-label">
                     <textarea pInputTextarea
                              formControlName="clientNote"
                              [rows]="3"
@@ -607,7 +799,7 @@
                              autoResize="true">
                     </textarea>
                     <label>Client Note</label>
-                  </span>
+                  </span> -->
                 </div>
 
                 <!-- Submit Button -->
@@ -650,14 +842,14 @@
       <tr [class.selected-row]="selectedUploadDocument?.id === doc.id">
         <td>{{doc.documentName}}</td>
         <td>
-          <p-tag [value]="getFileStatusLabel(doc.exportationFileStatus)"
+          <status [value]="getFileStatusLabel(doc.exportationFileStatus)"
                  [severity]="getStatusSeverity(doc.exportationFileStatus)">
-          </p-tag>
+          </status>
         </td>
         <td>
-           <p-tag [value]="getDocumentSubmissionStatusLabel(doc.documentSubmissionOption)"
+           <status [value]="getDocumentSubmissionStatusLabel(doc.documentSubmissionOption)"
                  [severity]="getDocumentSubmissionSeverity(doc.documentSubmissionOption)">
-           </p-tag>
+           </status>
         </td>
         <td>
           <div class="flex gap-2">
@@ -681,7 +873,7 @@
         <input type="file"
                class="p-inputtext w-full"
                (change)="onFileSelected($event)"
-               accept=".pdf,.doc,.docx">
+               accept=".pdf">
       </div>
       <div class="col-4">
         <button pButton
@@ -707,6 +899,126 @@
   </ng-template>
 </p-dialog>
 
+  <!-- Update Facture Definitive Dialog -->
+  <p-dialog [(visible)]="updateFactureDefinitiveDialog"
+            [style]="{width: '40vw'}"
+            header="Update Facture Définitive"
+            [modal]="true">
+
+            <br/>
+
+    <form [formGroup]="updateFactureDefinitiveForm" (ngSubmit)="submitUpdateFactureDefinitive()" class="p-fluid">
+      <div class="grid">
+        <div class="col-12 mb-3">
+          <span class="p-float-label">
+            <input pInputText formControlName="referenceFactureDefinitive" />
+            <label>Reference Facture Définitive</label>
+          </span>
+        </div>
+        <div class="col-12 mb-3">
+          <span class="p-float-label">
+            <input pInputText type="number" formControlName="amountFactureDefinitive" />
+            <label>Amount Facture Définitive</label>
+          </span>
+        </div>
+        <div class="col-12">
+          <button pButton type="submit" label="Save" icon="pi pi-check" [disabled]="updateFactureDefinitiveForm.invalid" class="p-button-success"></button>
+        </div>
+      </div>
+    </form>
+  </p-dialog>
+
+  <!-- Update Bon pour Embarquement Dialog -->
+  <p-dialog [(visible)]="updateBonEmbarquementDialog"
+            [style]="{width: '40vw'}"
+            header="Update Bon pour Embarquement"
+            [modal]="true">
+
+             <br/>
+
+    <form [formGroup]="updateBonEmbarquementForm" (ngSubmit)="submitUpdateBonEmbarquement()" class="p-fluid">
+      <div class="grid">
+        <div class="col-12 mb-3">
+          <span class="p-float-label">
+            <input pInputText formControlName="referenceBonForEmbarquement" />
+            <label>Reference Bon pour Embarquement</label>
+          </span>
+        </div>
+        <div class="col-12 mb-3">
+          <span class="p-float-label">
+            <input pInputText type="number" formControlName="amountBonForEmbarquement" />
+            <label>Amount Bon pour Embarquement</label>
+          </span>
+        </div>
+        <div class="col-12 mb-3">
+          <span class="p-float-label">
+            <p-calendar formControlName="dateBonForEmbarquement" inputId="dateBonForEmbarquement" dateFormat="yy-mm-dd" [showIcon]="true"></p-calendar>
+            <label for="dateBonForEmbarquement">Date Bon pour Embarquement</label>
+          </span>
+        </div>
+        <div class="col-12">
+          <button pButton type="submit" label="Save" icon="pi pi-check" [disabled]="updateBonEmbarquementForm.invalid" class="p-button-success"></button>
+        </div>
+      </div>
+    </form>
+  </p-dialog>
+
+<!-- Incoming Retrocession Dialog -->
+<p-dialog [(visible)]="incomingRetrocessionDialog"
+          [style]="{width: '40vw'}"
+          [header]="'Register Incoming Retrocession'"
+          [modal]="true">
+          <br/><br/>
+  <form [formGroup]="incomingRetrocessionForm" class="p-fluid">
+    <div class="grid">
+      <div class="col-12 mb-3">
+        <span class="p-float-label">
+          <input pInputText formControlName="refundReference">
+          <label>Refund Reference</label>
+        </span>
+      </div>
+
+      <div class="col-12 mb-3">
+        <span class="p-float-label">
+          <input pInputText type="number" step="0.01" formControlName="amountThatShouldBeRefund">
+          <label>Amount To Refund</label>
+        </span>
+      </div>
+
+      <div class="col-12 mb-3">
+        <div class="p-field">
+          <label class="mb-2">Swift File (.txt) *</label>
+          <input type="file"
+                 class="p-inputtext w-full"
+                 (change)="onIncomingRetrocessionSwiftSelected($event)"
+                 accept=".txt">
+          <small class="p-error block mt-1" *ngIf="selectedIncomingRetrocessionSwiftFile">
+            Selected file: {{selectedIncomingRetrocessionSwiftFile.name}}
+          </small>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <button pButton
+            type="button"
+            label="Register"
+            icon="pi pi-check"
+            [disabled]="!incomingRetrocessionForm.valid || !selectedIncomingRetrocessionSwiftFile"
+            (click)="submitIncomingRetrocessionRegistration()"
+            class="p-button-success">
+    </button>
+    <button pButton
+            type="button"
+            label="Close"
+            icon="pi pi-times"
+            (click)="incomingRetrocessionDialog = false"
+            class="p-button-outlined">
+    </button>
+  </ng-template>
+</p-dialog>
+
 <p-dialog [(visible)]="documentHistoryDialog"
           [style]="{width: '50vw'}"
           [header]="'Document History'"
@@ -717,18 +1029,16 @@
                 {{item.lastUpdatedDate | date :'medium'}} - {{item.lastUpdateBy}}
             </div>
             <h5 style="margin-top: 0;">
-                <p-tag [value]="getDocumentHistoryStatus(item.exportationFileStatus)"
+                <status [value]="getDocumentHistoryStatus(item.exportationFileStatus)"
                       [severity]="colorDocumentHistoryStatus(item.exportationFileStatus)">
-                </p-tag>
+                </status>
             </h5>
             <p>
                 <strong>Document Name:</strong><br/>
                 {{item.documentName}}
             </p>
-            <p>
-                <strong>Review Note:</strong><br/>
-                {{item.reviewNote}}
-            </p>
+            <strong>Review Note:</strong><br/>
+            <div [innerHTML]="item.reviewNote || 'No notes'"></div>
             <p *ngIf="item.documentPath && item.documentPath.length > 0">
                 <strong>Attached Document:</strong><br/>
                 <a (click)="downloadHistoryDocument(item.exportationId, item.id, item.history, item.documentName)"
@@ -739,17 +1049,18 @@
     <ng-template pTemplate="footer">
         <button pButton type="button"
                 label="Close"
-                class="p-button-outlined"
+                class="p-button-outlined p-button-danger"
+                icon="pi pi-times"
                 (click)="documentHistoryDialog = false">
         </button>
     </ng-template>
 </p-dialog>
 
 <p-dialog [(visible)]="apurementExportationOptionDialog"
-          [style]="{width: '50vw',height: '60vh'}"
+          [style]="{width: '50vw',height: '35vh'}"
           [header]="'Set Apurement Status'"
           [modal]="true">
-     <br/> <br/> <br/> <br/>
+     <br/>
   <div class="grid">
       <div class="col-12">
                 <span class="p-float-label">
@@ -902,6 +1213,7 @@
         <th>Status</th>
         <th>Severity</th>
         <th>Created Date</th>
+        <th>Exception Raiser</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-exception let-expanded="expanded">
@@ -915,9 +1227,9 @@
         </td>
         <td>E-{{exception.exceptionSerialNumber}}</td>
         <td>
-          <p-tag [value]="getExceptionDirectedToLabel(exception.exceptionDirectedTo)"
+          <status [value]="getExceptionDirectedToLabel(exception.exceptionDirectedTo)"
                 severity="info">
-          </p-tag>
+          </status>
         </td>
         <td>
           <div class="flex flex-column">
@@ -930,30 +1242,44 @@
           {{exception?.attachedEmail == null || exception?.attachedEmail == undefined || exception?.attachedEmail == '' ? 'No Attachment' : 'File Attached'}}
         </td>
         <td>
-          <p-tag [value]="getExceptionStatusLabel(exception.exceptionStatus)"
+          <status [value]="getExceptionStatusLabel(exception.exceptionStatus)"
                 [severity]="colorExceptionStatus(exception.exceptionStatus)">
-          </p-tag>
+          </status>
         </td>
         <td>
-          <p-tag [value]="getExceptionSeverityToLabel(exception.severity)"
+          <status [value]="getExceptionSeverityToLabel(exception.severity)"
                 [severity]="colorExceptionSeverity(exception.severity)">
-          </p-tag>
+          </status>
         </td>
-        <td>{{exception.dateCreated | date:'medium'}}</td>
+        <td>{{exception.dateCreated | date:'MMM dd, yyyy HH:mm:ss'}}</td>
+        <td>{{exception.exceptionRaiserName}}</td>
       </tr>
     </ng-template>
     <ng-template pTemplate="rowexpansion" let-exception>
       <tr>
-        <td colspan="8">
+        <td colspan="9">
           <div class="p-3">
             <div class="grid">
               <div class="col-6">
                 <h6>Internal Note</h6>
-                <p>{{exception.internalNote}}</p>
+                  <p [style.maxHeight]="'225px'" class="overflow-auto"
+                     [innerHTML]="exception.internalNote">
+                  </p>
+                <!-- <p-editor
+                          [style]="{height: '160px', width: '100%'}"
+                          [ngModel]="exception.internalNote"
+                          [readonly]="true"></p-editor> -->
               </div>
               <div class="col-6">
                 <h6>Client Note</h6>
-                <p>{{exception.clientNote}}</p>
+                  <p [style.maxHeight]="'225px'" class="overflow-auto"
+                     [innerHTML]="exception.clientNote">
+                  </p>
+                <!-- <p-editor
+                          [style]="{height: '160px', width: '100%'}"
+                          [ngModel]="exception.clientNote"
+                          [readonly]="true"></p-editor> -->
+
               </div>
               <div class="col-6">
                 <h6>Related Documents</h6>
@@ -1010,8 +1336,8 @@
       </div>
 
       <!-- Internal Note -->
-      <div class="col-12 mb-3">
-        <span class="p-float-label">
+      <div class="col-12">
+        <!-- <span class="p-float-label">
           <textarea pInputTextarea
                    formControlName="internalNote"
                    [rows]="4"
@@ -1019,7 +1345,30 @@
                    autoResize="true">
           </textarea>
           <label>Internal Note</label>
-        </span>
+        </span> -->
+         <label>Internal Note</label>
+         <p-editor #internalNoteEditorForUpdateExceptionStatus
+                   formControlName="internalNote"
+                   [style]="{ height: '200px' }">
+                   <ng-template pTemplate="header">
+                     <span class="ql-formats">
+                          <select class="ql-size">
+                            <option value="small">Small</option>
+                            <option value="large">Large</option>
+                            <option value="huge">Big</option>
+                          </select>
+                        </span>
+                  <span class="ql-formats">
+                    <button type="button" class="ql-bold" aria-label="Bold"></button>
+                    <button type="button" class="ql-italic" aria-label="Italic"></button>
+                    <button type="button" class="ql-underline" aria-label="Underline"></button>
+                  </span>
+                  <span class="ql-formats">
+                    <button type="button" class="ql-list" value="ordered" aria-label="Ordered List"></button>
+                    <button type="button" class="ql-list" value="bullet" aria-label="Unordered List"></button>
+                  </span>
+                </ng-template>
+         </p-editor>
       </div>
 
       <!-- File Attachment -->
@@ -1063,30 +1412,29 @@
                      responsiveLayout="scroll">
               <ng-template pTemplate="header">
                 <tr>
-                  <th>Document Name</th>
+                  <th style="width: 250px; min-width: 250px;">Document Name</th>
                   <th>Review Note</th>
-                  <th style="width: 200px">Status</th>
-                  <th style="width: 200px">Document Submission Option </th>
+                  <th style="width: 220px; min-width: 270px;" >Status</th>
+                  <th style="width: 250px; min-width: 220px;">Document Submission Option </th>
                 </tr>
               </ng-template>
               <ng-template pTemplate="body" let-doc>
                 <tr>
                   <td>{{doc.documentName}}</td>
                     <td>
-                    <div [style.maxHeight]="'60px'" class="overflow-auto">
-                      {{doc.reviewNote || 'No review note'}}
-                    </div>
+                    <p [style.maxHeight]="'60px'" class="overflow-auto" [innerHTML]="doc.reviewNote || 'No review note'">
+                    </p>
                   </td>
                   <td>
-                    <p-tag [value]="getFileStatusLabel(doc.exportationFileStatus)"
+                    <status [value]="getFileStatusLabel(doc.exportationFileStatus)"
                           [severity]="getStatusSeverity(doc.exportationFileStatus)">
-                    </p-tag>
+                    </status>
                   </td>
 
                   <td>
-                    <p-tag [value]="getDocumentSubmissionStatusLabel(doc.documentSubmissionOption)"
+                    <status [value]="getDocumentSubmissionStatusLabel(doc.documentSubmissionOption)"
                           [severity]="getDocumentSubmissionSeverity(doc.documentSubmissionOption)">
-                    </p-tag>
+                    </status>
                   </td>
 
                 </tr>
@@ -1106,5 +1454,63 @@
               </button>
             </ng-template>
           </p-dialog>
+ <!-- Search DE Dialog -->
+          <p-dialog [(visible)]="searchDEDialog"
+            [style]="{width: '50vw', height: '60vh'}"
+            header="Search DE"
+            [modal]="true">
+            <form [formGroup]="searchDEForm">
+              <div class="grid p-fluid">
+                <!-- DE Reference Search -->
+                <div class="col-12">
+                <br/> <br/>
+                  <span class="p-float-label">
+                    <input pInputText formControlName="eForceReference" />
+                    <label>eForce Reference</label>
+                  </span>
+                </div>
 
+                <!-- Search Button -->
+                <div class="col-12 mt-3">
+                  <button pButton type="button"
+                    label="Search"
+                    class="p-button-outlined"
+                    (click)="searchDE()"
+                    [disabled]="!searchDEForm.valid">
+                  </button>
+                </div>
+
+                <!-- DE Details Display -->
+                <div class="col-12 mt-3" *ngIf="selectedDEDetails">
+                  <p-fieldset header="DE Details">
+                    <div class="grid">
+                      <div class="col-6"><strong>Docmiciliation Number:</strong> {{selectedDEDetails.domiciliationReference}}</div>
+                      <div class="col-6"><strong>Docmiciliation Date:</strong> {{selectedDEDetails.domiciliationDate | date}}</div>
+                      <div class="col-6"><strong>File Number:</strong> {{selectedDEDetails.fileNumber}}</div>
+                      <div class="col-6"><strong>Place of Destination:</strong> {{selectedDEDetails.placeOfDestination}}</div>
+                      <div class="col-6"><strong>Provider:</strong> {{selectedDEDetails.provider}}</div>
+                      <div class="col-6"><strong>Buyer:</strong> {{selectedDEDetails.buyer}}</div>
+                      <div class="col-6"><strong>Request Date:</strong> {{selectedDEDetails.requestDate | date}}</div>
+                      <div class="col-6"><strong>Bank:</strong> {{selectedDEDetails.bank}}</div>
+                      <div class="col-6"><strong>FOB Value:</strong> {{selectedDEDetails.fobValueCfa | number}} CFA</div>
+                    </div>
+                  </p-fieldset>
+                </div>
+              </div>
+            </form>
+
+            <ng-template pTemplate="footer">
+              <button pButton type="button"
+                label="Cancel"
+                class="p-button-outlined p-button-secondary"
+                (click)="searchDEDialog = false">
+              </button>
+              <button pButton type="button"
+                label="Confirm"
+                class="p-button-outlined p-button-success ml-2"
+                [disabled]="!selectedDEDetails"
+                (click)="matchDESelection()">
+              </button>
+            </ng-template>
+          </p-dialog>
 </div>

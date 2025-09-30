@@ -45,24 +45,24 @@
                   <div class="col-3">{{transaction.transactionTypeName}}</div>
                   <div class="col-3"><b>Status:</b></div>
                   <div class="col-3">
-                    <p-tag [value]="getStatusString(transaction.status)"
+                    <status [value]="getStatusString(transaction.status)"
                           [severity]="colorStatus(transaction.status)">
-                    </p-tag>
+                    </status>
                   </div>
 
 
                   <div class="col-3"><b>Initiation Method:</b></div>
                   <div class="col-3">
-                    <p-tag [value]="getInitiationMethodString(transaction.initiationMethod)"
+                    <status [value]="getInitiationMethodString(transaction.initiationMethod)"
                           severity="info">
-                    </p-tag>
+                    </status>
                   </div>
 
                   <div class="col-3"><b>Sent For Correction:</b></div>
                   <div class="col-3">
-                    <p-tag [value]="transaction.isCorrected == true ? 'Yes' : 'No'"
+                    <status [value]="transaction.isCorrected == true ? 'Yes' : 'No'"
                            [severity]="transaction.isCorrected == true ? 'danger' : 'success'">
-                    </p-tag>
+                    </status>
                   </div>
 
                 </div>
@@ -120,24 +120,24 @@
 
                    <div class="col-3"><b>Processing Type:</b></div>
                   <div class="col-3">
-                    <p-tag [value]="getProcessingTypeString(transaction.processingType)"
+                    <status [value]="getProcessingTypeString(transaction.processingType)"
                           [severity]="colorProcessingType(transaction.processingType)">
-                    </p-tag>
+                    </status>
                   </div>
                     <div class="col-3"><b>Processing Date:</b></div>
                     <div class="col-3">{{transaction.processingDate | date:'medium'}}</div>
 
                   <div class="col-3"><b>Amount Provision Status:</b></div>
                   <div class="col-3">
-                    <p-tag [value]="getTransactionProvisionStatusString(transaction.transactionProvisionStatus)"
+                    <status [value]="getTransactionProvisionStatusString(transaction.transactionProvisionStatus)"
                           [severity]="getTransactionProvisionStatusColor(transaction.transactionProvisionStatus)">
-                    </p-tag>
+                    </status>
                   </div>
                   <div class="col-3"><b>Apurement Status:</b></div>
                   <div class="col-3">
-                    <p-tag [value]="getApurementStatusString(transaction.transactionApurementStatus)"
+                    <status [value]="getApurementStatusString(transaction.transactionApurementStatus)"
                           [severity]="colorApurementStatus(transaction.transactionApurementStatus)">
-                    </p-tag>
+                    </status>
                   </div>
                     <div class="col-3"><b>MT228 Reference:</b></div>
                     <div class="col-3">
@@ -160,16 +160,16 @@
                     <div class="col-3"><b>Transaction Exception Count:</b></div>
                     <div class="col-3">
                         <a *ngIf="!transaction.transactionExceptionsPendingCount || transaction.transactionExceptionsPendingCount === 0" >
-                          <p-tag value="0 Exception(0) pending" severity="success"></p-tag>
+                          <status value="0 Exception(0) pending" severity="success"></status>
                         </a>
                         <a *ngIf="transaction.transactionExceptionsPendingCount > 0">
-                          <p-tag [value]="transaction.transactionExceptionsPendingCount.toString() + ' Exception(s) pending'" severity="danger"></p-tag>
+                          <status [value]="transaction.transactionExceptionsPendingCount.toString() + ' Exception(s) pending'" severity="danger"></status>
                         </a>
                     </div>
 
                     <div class="col-3"><b>DI Imputation:</b></div>
                     <div class="col-3">
-                         <p-tag [value]="getTranDIStatusString(transaction.transactionDIStatus)" [severity]="getTranDIStatusColor(transaction.transactionDIStatus)"></p-tag>
+                         <status [value]="getTranDIStatusString(transaction.transactionDIStatus)" [severity]="getTranDIStatusColor(transaction.transactionDIStatus)"></status>
                     </div>
 
                     <div class="col-3"><b>Transaction Debit Advice:</b></div>
@@ -184,10 +184,14 @@
                                 UserRoles.TradeOperationAuthorizer.toString()
                                 ]">Delete</a>
                     </div>
-
                     <div class="col-3"><b>Transaction Amount Lien Status:</b></div>
                     <div class="col-3">
-                         <p-tag [value]="getTransactionAmountLienStatusString(transaction.transactionAmountLienStatus)" [severity]="getTransactionAmountLienStatusColor(transaction.transactionAmountLienStatus)"></p-tag>
+                         <status [value]="getTransactionAmountLienStatusString(transaction.transactionAmountLienStatus)" [severity]="getTransactionAmountLienStatusColor(transaction.transactionAmountLienStatus)"></status>
+                    </div>
+                     <div class="col-3"><b>Corresponding Bank:</b></div>
+                    <div class="col-3">
+                         <status [value]="getCorrespondingBankBic()"
+                         [severity]="getCorrespondingBankBicColor()"></status>
                     </div>
                 </div>
               </p-fieldset>
@@ -270,6 +274,16 @@
                             style="margin-right: 8px">
                  </button>
 
+                  <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-file" iconPos="left"
+                            label="Corresponding Bank"
+                            (click)="openCorrespondingBankInfoDialog()"
+                               appAdminRole
+                                [Roles]="[
+                                UserRoles.TreasuryAuthorizer.toString()]"
+                            style="margin-right: 8px">
+                 </button>
                  <button pButton type="button"
                             class="p-button-outlined"
                             icon="pi pi-upload" iconPos="left"
@@ -331,7 +345,7 @@
                  <button pButton type="button"
                             class="p-button-outlined"
                             icon="pi pi-upload" iconPos="left"
-                            label="Upload Debit Advice"
+                            label="Upload Booking Memo"
                             (click)="uploadTransactionDebitAdviceFile()"
                              appAdminRole
                                 [Roles]="[
@@ -341,6 +355,19 @@
                             style="margin-right: 8px">
                  </button>
 
+
+                 <button pButton type="button"
+                            class="p-button-outlined"
+                            icon="pi pi-paperclip" iconPos="left"
+                            label="Generate Booking Memo"
+                            (click)="generateBookingMemo()"
+                             appAdminRole
+                                [Roles]="[
+                                UserRoles.TreasuryOperationAuthorizer.toString(),
+                                UserRoles.TradeOperationAuthorizer.toString()
+                                ]"
+                            style="margin-right: 8px">
+                 </button>
                  </div>
 
                </div>
@@ -391,9 +418,9 @@
                     {{doc.documentName}}
                     <br/>
                     <span style="color: #444;">
-                      <p-tag [value]="getFileStatusLabel(doc.transactionFileStatus)"
+                      <status [value]="getFileStatusLabel(doc.transactionFileStatus)"
                              [severity]="getStatusSeverity(doc.transactionFileStatus)">
-                      </p-tag>
+                      </status>
                     </span>
                   </div>
                 </div>
@@ -430,10 +457,10 @@
                     <div class="col-5">
                       <h4 class="title">
                         <b>Document Status :</b>
-                        <p-tag styleClass="mr-2"
-                               [severity]="getStatusSeverity(selectedDocument.transactionFileStatus)">
-                          {{ getFileStatusLabel(selectedDocument.transactionFileStatus) }}
-                        </p-tag>
+                        <status styleClass="mr-2"
+                               [severity]="getStatusSeverity(selectedDocument.transactionFileStatus)"
+                               [value]="getFileStatusLabel(selectedDocument.transactionFileStatus)">
+                        </status>
                       </h4>
                     </div>
                     <div class="col-2">
@@ -477,18 +504,18 @@
                           <h4 *ngIf="documentControls?.length != 0" class="title"  style="color: #D32F2F;">Controls to perform : </h4>
 
                           <ol>
-                              <li *ngFor="let control of documentControls" style="padding:1rem;font-size:medium">
+                              <li *ngFor="let control of documentControls" style="padding:0.1rem;font-size:medium">
                                   <div class="grid">
                                       <div class="col-8" style="cursor: pointer; color:#D32F2F" (click)="viewControlDetails(control)">
                                           {{control.documentControlName}}
                                       </div>
                                       <div class="col-3">
-                                          <p-tag styleClass="mr-2"
+                                          <status styleClass="mr-1"
                                                 [severity]="colorDocumentControlType(control.documentControlType)"
                                                 [value]="getDocumentControlType(control.documentControlType)">
-                                          </p-tag>
+                                          </status>
                                       </div>
-                                      <div class="col-1" style="float: left;">
+                                      <div class="col-1" style="float: left;padding-right: 0; margin-right: 0;">
                                           <p-checkbox name="groupcontrol" *ngIf="control"
                                                      [value]="control"
                                                      [(ngModel)]="selectedControls"
@@ -530,7 +557,7 @@
                             <div style="position: absolute;left:2em;font-weight: bold;top: 1em;display: block;font-family: 'Roboto', sans-serif;font-weight: 700;font-size: .885rem;color: brown;">
                                 {{item.createdDate | date :'medium'}} - By {{item.createdBy}}
                             </div>
-                            <h5 style="margin-top: 0;"><p-tag [value]="getTransctionMessageType(item.transactionMessageType)" [severity]="'info'" ></p-tag> -  <p-tag [value]="getTransactionMessageTypeName(item.messageType)" [severity]="getTransactionMessageTypeColor(item.messageType)" ></p-tag></h5>
+                            <h5 style="margin-top: 0;"><status [value]="getTransctionMessageType(item.transactionMessageType)" [severity]="'info'" ></status> -  <status [value]="getTransactionMessageTypeName(item.messageType)" [severity]="getTransactionMessageTypeColor(item.messageType)" ></status></h5>
                             <p [innerHTML]="item.message">
                             </p>
                         </div>
@@ -634,15 +661,36 @@
 
                 <!-- Review Note -->
                 <div class="col-12 mb-3">
-                  <span class="p-float-label">
+               <!--    <span class="p-float-label">
                     <textarea pInputTextarea
                              formControlName="reviewerNote"
                              [rows]="4"
                              [style]="{'width':'100%','font-size':'1.2em'}"
                              autoResize="true">
                     </textarea>
-                    <label>Review Notes</label>
-                  </span>
+
+                  </span> -->
+                  <label>Review Notes</label>
+                   <p-editor formControlName="reviewerNote"[style]="{ height: '200px' }">
+                        <ng-template pTemplate="header">
+                            <span class="ql-formats">
+                          <select class="ql-size">
+                            <option value="small">Small</option>
+                            <option value="large">Large</option>
+                            <option value="huge">Big</option>
+                          </select>
+                        </span>
+                        <span class="ql-formats">
+                          <button type="button" class="ql-bold" aria-label="Bold"></button>
+                          <button type="button" class="ql-italic" aria-label="Italic"></button>
+                          <button type="button" class="ql-underline" aria-label="Underline"></button>
+                        </span>
+                        <span class="ql-formats">
+                          <button type="button" class="ql-list" value="ordered" aria-label="Ordered List"></button>
+                          <button type="button" class="ql-list" value="bullet" aria-label="Unordered List"></button>
+                        </span>
+                      </ng-template>
+                   </p-editor>
                 </div>
 
                 <!-- Submit Button -->
@@ -687,15 +735,15 @@
                     </div>
                   </td>
                   <td>
-                    <p-tag [value]="getFileStatusLabel(doc.transactionFileStatus)"
+                    <status [value]="getFileStatusLabel(doc.transactionFileStatus)"
                           [severity]="getStatusSeverity(doc.transactionFileStatus)">
-                    </p-tag>
+                    </status>
                   </td>
 
                   <td>
-                    <p-tag [value]="getDocumentSubmissionStatusLabel(doc.documentSubmissionOption)"
+                    <status [value]="getDocumentSubmissionStatusLabel(doc.documentSubmissionOption)"
                           [severity]="colorDocumentSubmissionStatus(doc.documentSubmissionOption)">
-                    </p-tag>
+                    </status>
                   </td>
 
                 </tr>
@@ -786,9 +834,9 @@
                       <ng-template let-doc pTemplate="item">
                         <div class="flex align-items-center gap-2">
                           <div>{{doc.documentName}}</div>
-                          <p-tag [value]="getFileStatusLabel(doc.transactionFileStatus)"
+                          <status [value]="getFileStatusLabel(doc.transactionFileStatus)"
                                 [severity]="getStatusSeverity(doc.transactionFileStatus)">
-                          </p-tag>
+                          </status>
                         </div>
                       </ng-template>
                     </p-multiSelect>
@@ -808,28 +856,52 @@
 
                 <!-- Internal Note -->
                 <div class="col-12 mb-3">
-                  <span class="p-float-label">
-                    <textarea pInputTextarea
-                             formControlName="internalNote"
-                             [rows]="3"
-                             [style]="{'width':'100%'}"
-                             autoResize="true">
-                    </textarea>
-                    <label>Internal Note</label>
-                  </span>
+                  <label>Internal Note</label>
+                  <p-editor formControlName="internalNote" [style]="{ height: '160px' }">
+                      <ng-template pTemplate="header">
+                        <span class="ql-formats">
+                          <select class="ql-size">
+                            <option value="small">Small</option>
+                            <option value="large">Large</option>
+                            <option value="huge">Big</option>
+                          </select>
+                        </span>
+                        <span class="ql-formats">
+                          <button type="button" class="ql-bold" aria-label="Bold"></button>
+                          <button type="button" class="ql-italic" aria-label="Italic"></button>
+                          <button type="button" class="ql-underline" aria-label="Underline"></button>
+                        </span>
+                        <span class="ql-formats">
+                          <button type="button" class="ql-list" value="ordered" aria-label="Ordered List"></button>
+                          <button type="button" class="ql-list" value="bullet" aria-label="Unordered List"></button>
+                        </span>
+                      </ng-template>
+                  </p-editor>
                 </div>
 
                 <!-- Client Note -->
                 <div class="col-12 mb-3">
-                  <span class="p-float-label">
-                    <textarea pInputTextarea
-                             formControlName="clientNote"
-                             [rows]="3"
-                              [style]="{'width':'100%'}"
-                             autoResize="true">
-                    </textarea>
-                    <label>Client Note</label>
-                  </span>
+                  <label>Client Note</label>
+                  <p-editor formControlName="clientNote" [style]="{ height: '160px' }">
+                    <ng-template pTemplate="header">
+                        <span class="ql-formats">
+                          <select class="ql-size">
+                            <option value="small">Small</option>
+                            <option value="large">Large</option>
+                            <option value="huge">Big</option>
+                          </select>
+                        </span>
+                        <span class="ql-formats">
+                          <button type="button" class="ql-bold" aria-label="Bold"></button>
+                          <button type="button" class="ql-italic" aria-label="Italic"></button>
+                          <button type="button" class="ql-underline" aria-label="Underline"></button>
+                        </span>
+                        <span class="ql-formats">
+                          <button type="button" class="ql-list" value="ordered" aria-label="Ordered List"></button>
+                          <button type="button" class="ql-list" value="bullet" aria-label="Unordered List"></button>
+                        </span>
+                      </ng-template>
+                  </p-editor>
                 </div>
 
                 <!-- Submit Button -->
@@ -883,9 +955,9 @@
                   <td> E- {{exception.exceptionSerialNumber}}</td>
 
                   <td>
-                    <p-tag [value]="getExceptionDirectedToLabel(exception.exceptionDirectedTo)"
+                    <status [value]="getExceptionDirectedToLabel(exception.exceptionDirectedTo)"
                           severity="info">
-                    </p-tag>
+                    </status>
                   </td>
                     <td>
                     <div class="flex flex-column">
@@ -898,14 +970,14 @@
                    {{ exception?.attachedEmail == null ||  exception?.attachedEmail == undefined ||  exception?.attachedEmail == '' ? 'No Attachment' : 'File Attached'}}
                   </td>
                   <td>
-                    <p-tag [value]="getExceptionStatusLabel(exception.exceptionStatus)"
+                    <status [value]="getExceptionStatusLabel(exception.exceptionStatus)"
                           [severity]="colorExceptionStatus(exception.exceptionStatus)">
-                    </p-tag>
+                    </status>
                   </td>
                   <td>
-                    <p-tag [value]="getExceptionSeverityToLabel(exception.severity)"
+                    <status [value]="getExceptionSeverityToLabel(exception.severity)"
                           [severity]="colorExceptionSeverity(exception.severity)">
-                    </p-tag>
+                    </status>
                   </td>
                   <td>{{exception.rm}}</td>
 
@@ -919,11 +991,15 @@
                       <div class="grid">
                         <div class="col-6">
                           <h6>Internal Note</h6>
-                          <p>{{exception.internalNote}}</p>
+                           <p [style.maxHeight]="'225px'" class="overflow-auto"
+                            [innerHTML]="exception.internalNote">
+                          </p>
                         </div>
                          <div class="col-6">
                           <h6>Client Note</h6>
-                          <p>{{exception.clientNote}}</p>
+                          <p [style.maxHeight]="'225px'" class="overflow-auto"
+                            [innerHTML]="exception.clientNote">
+                          </p>
                         </div>
                         <div class="col-6">
                           <h6>Related Documents</h6>
@@ -1002,15 +1078,8 @@
 
       <!-- Internal Note -->
       <div class="col-12 mb-3">
-        <span class="p-float-label">
-          <textarea pInputTextarea
-                   formControlName="internalNote"
-                   [rows]="4"
-                   [style]="{'width':'100%'}"
-                   autoResize="true">
-          </textarea>
-          <label>Internal Note</label>
-        </span>
+        <label>Internal Note</label>
+        <p-editor formControlName="internalNote" [style]="{ height: '160px' }"></p-editor>
       </div>
 
       <!-- File Attachment -->
@@ -1100,7 +1169,7 @@
 </p-dialog>
 
 <p-dialog [(visible)]="diImputationDialog"
-          [style]="{width: '70vw', 'max-width': '100vw'}"
+          [style]="{width: '70vw', 'max-width': '100vw', 'height': '65vh'}"
           [header]="'DI Imputation'"
           [modal]="true">
            <br/><br/>
@@ -1114,13 +1183,14 @@
                      [style]="{'width':'100%'}"
                      optionLabel="referenceDi"
                      placeholder="Select DIs"
+                     (onFilter)="onDIsFilter($event)"
                      (onChange)="onDIsSelect($event)">
             <ng-template let-di pTemplate="item">
               <div>{{di.referenceDi}} - Amount : {{di.diAmount}} {{di.diCurrency}}
                 - Balance : {{di.soldeInCurrency}} {{di.diCurrency}} - Status :
-                <p-tag [value]="getDIStatusString(di.diStatus)"
+                <status [value]="getDIStatusString(di.diStatus)"
                         [severity]="colorDIStatus(di.diStatus)">
-                </p-tag>
+                </status> - DI Additional Info : <b [style.color]="di.diComplementaryInfoIsUpdated ? 'green' : 'red'">{{di.diComplementaryInfoIsUpdated ? 'Updated' : 'Not Updated'}}</b>
               </div>
             </ng-template>
           </p-multiSelect>
@@ -1134,15 +1204,15 @@
           <div class="grid">
             <div class="col-6"><b>Domiciliation Date :</b> {{di.dateCreationDiInEforce | date:'medium' }}</div>
              <div class="col-6"><b>DI Modification Status:</b>
-              <p-tag [value]="di.hasDataBeingModified ? 'Data being modified' : 'Data not modified'"
+              <status [value]="di.hasDataBeingModified ? 'Data being modified' : 'Data not modified'"
                     [severity]="di.hasDataBeingModified ? 'warning' : 'success'">
-              </p-tag>
+              </status>
             </div>
             <div class="col-6"><b>Reference:</b> {{di.referenceDi}}</div>
             <div class="col-6"><b>DI Status:</b>
-              <p-tag [value]="getDIStatusString(di.diStatus)"
+              <status [value]="getDIStatusString(di.diStatus)"
                     [severity]="colorDIStatus(di.diStatus)">
-              </p-tag>
+              </status>
             </div>
 
             <div class="col-6"><b>Amount:</b> {{di.diAmount}}</div>
@@ -1154,7 +1224,11 @@
             <div class="col-6"><b>Bank Reference:</b> {{di.domiciliationNumberInBank || 'N/A'}}</div>
             <div class="col-6"><b>SGS Reference:</b> {{di.referenceSgs || 'N/A'}}</div>
 
-            <div class="col-12"><b>Provider:</b> {{di.providerName || 'N/A'}}</div>
+            <div class="col-6"><b>Provider:</b> {{di.providerName || 'N/A'}}</div>
+            <div class="col-6"><b>DI Complementary Info Updated:</b> <status [value]="di.diComplementaryInfoIsUpdated ? 'Updated' : 'Not Updated'"
+                                                                        [severity]="di.diComplementaryInfoIsUpdated ? 'success' : 'danger'">
+                                                                  </status>
+            </div>
              <!-- imputation comm -->
       <div class="col-12 mt-3">
          <textarea pInputTextarea
@@ -1219,9 +1293,9 @@
         <td>{{imputation.imputationAmount}}</td>
         <td>{{imputation.imputationCurrency}}</td>
         <td>
-          <p-tag [value]="getDIImputationStatusString(imputation.imputationStatus)"
+          <status [value]="getDIImputationStatusString(imputation.imputationStatus)"
                 [severity]="colorDISImputationtatus(imputation.imputationStatus)">
-          </p-tag>
+          </status>
         </td>
         <td>{{imputation.imputationDate | date:'medium'  }}</td>
         <td>{{imputation.comment}}</td>
@@ -1254,9 +1328,9 @@
                 {{item.lastUpdatedDate | date :'medium'}} - {{item.lastUpdatedBy}}
             </div>
             <h5 style="margin-top: 0;">
-                <p-tag [value]="getExceptionStatusLabel(item.exceptionStatus)"
+                <status [value]="getExceptionStatusLabel(item.exceptionStatus)"
                       [severity]="colorExceptionStatus(item.exceptionStatus)">
-                </p-tag>
+                </status>
             </h5>
             <p>
                 <strong>Internal Note:</strong><br/>
@@ -1287,9 +1361,9 @@
                 {{item.lastUpdatedDate | date :'medium'}} - {{item.lastUpdateBy}}
             </div>
             <h5 style="margin-top: 0;">
-                <p-tag [value]="getDocumentHistoryStatus(item.transactionFileStatus)"
+                <status [value]="getDocumentHistoryStatus(item.transactionFileStatus)"
                       [severity]="colorDocumentHistoryStatus(item.transactionFileStatus)">
-                </p-tag>
+                </status>
             </h5>
             <p>
                 <strong>Document Name:</strong><br/>
@@ -1391,6 +1465,71 @@
 </p-dialog>
 
 
+<p-dialog [(visible)]="correspondingBankDialog"
+          [style]="{width: '60vw', height: '50vh'}"
+          [header]="'Set Corresponding Bank Info'"
+          [modal]="true">
+     <br/> <br/>
+  <div class="grid">
+      <div class="col-12">
+        <span class="p-float-label">
+          <p-dropdown [(ngModel)]="selectedNostroAccount"
+                      [options]="nostroAccounts"
+                      optionLabel="accountName"
+                      [filter]="true"
+                      placeholder="Select Nostro Account"
+                      [showClear]="true"
+                      [style]="{width: '100%'}"
+                      [virtualScroll]="true"
+                      [itemSize]="35"
+                      [autoDisplayFirst]="false"
+                      [panelStyle]="{maxHeight: '300px'}"
+                      [dropdownIcon]="'pi pi-chevron-down'">
+            <ng-template let-account pTemplate="item">
+              <div class="p-d-flex p-ai-center p-jc-between" style="width:100%">
+                <span><b>{{account.accountNumber}}</b> - {{account.accountName}}</span>
+                <span style="color: #991b05">-{{account.currency}}</span>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="selectedItem" let-account>
+              <span *ngIf="account">{{account.accountNumber}} - {{account.accountName}} ({{account.currency}})</span>
+              <span *ngIf="!account">Select Nostro Account</span>
+            </ng-template>
+          </p-dropdown>
+          <label>Corresponding / Nostro Account</label>
+        </span>
+      </div>
+      <div class="col-12" *ngIf="selectedNostroAccount">
+        <p-fieldset legend="Account Details">
+          <div class="grid">
+            <div class="col-3"><b>Account Number:</b></div>
+            <div class="col-3">{{selectedNostroAccount.accountNumber}}</div>
+            <div class="col-3"><b>Account Name:</b></div>
+            <div class="col-3">{{selectedNostroAccount.accountName}}</div>
+            <div class="col-3"><b>Currency:</b></div>
+            <div class="col-3">{{selectedNostroAccount.currency}}</div>
+            <div class="col-3"><b>Bank BIC:</b></div>
+            <div class="col-3">{{selectedNostroAccount.bankBic}}</div>
+          </div>
+        </p-fieldset>
+      </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton type="button"
+                label="Submit"
+                class="p-button-outlined"
+                [disabled]="!selectedNostroAccount"
+                (click)="submitCorrespondingBankInfo()">
+        </button>
+        <button pButton type="button"
+                label="Close"
+                class="p-button-outlined"
+                (click)="correspondingBankDialog = false">
+        </button>
+    </ng-template>
+</p-dialog>
+
+
 <p-dialog [(visible)]="provisionTransfertsDialog"
           [style]="{width: '70vw'}"
           [header]="'Provision Details'"
@@ -1418,9 +1557,9 @@
         <td>{{provision.amount | number:'1.2-2'}}</td>
         <td>{{provision.dateCreated | date:'medium'}}</td>
         <td>
-          <p-tag [value]="getProvisionTransferStatusString(provision.provisionTransferStatus)"
+          <status [value]="getProvisionTransferStatusString(provision.provisionTransferStatus)"
                  [severity]="getProvisionTransferStatusColor(provision.provisionTransferStatus)">
-          </p-tag>
+          </status>
         </td>
         <td>{{provision.dateProcessed | date:'medium'}}</td>
         <td>
@@ -1498,7 +1637,11 @@
 
   <!-- Message Section -->
   <div class="message-container">
-    <p class="message" [innerHTML]="((provisionVerificationResponse?.financialOutcome?.amountToLienLocalCurrency ?? 0) > (provisionVerificationResponse?.balance ?? 0)) ? 'Lien amount exceeds balance' : 'Lien amount is within balance'"></p>
+    <p class="message">
+      <b [style.color]="((provisionVerificationResponse?.financialOutcome?.amountToLienLocalCurrency ?? 0) > (provisionVerificationResponse?.balance ?? 0)) ? 'red' : 'green'">
+        {{ ((provisionVerificationResponse?.financialOutcome?.amountToLienLocalCurrency ?? 0) > (provisionVerificationResponse?.balance ?? 0)) ? 'Lien amount exceeds balance' : 'Lien amount is within balance' }}
+      </b>
+    </p>
   </div>
 </p-dialog>
 

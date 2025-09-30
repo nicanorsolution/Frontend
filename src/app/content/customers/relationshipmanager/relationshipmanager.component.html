@@ -55,7 +55,7 @@
 
               <ng-template pTemplate="header">
                 <tr>
-                  <th scope="col" style="width: 3rem"></th>
+                  <th scope="col" style="width: 4rem"></th>
                   <th scope="col">Name</th>
                   <th scope="col">Email</th>
                   <th scope="col">Status</th>
@@ -75,9 +75,9 @@
                   <td>{{manager.name}}</td>
                   <td>{{manager.email}}</td>
                   <td>
-                    <p-tag [value]="getStatusString(manager.relationshipManagerStatus)"
+                    <status [value]="getStatusString(manager.relationshipManagerStatus)"
                       [severity]="colorStatus(manager.relationshipManagerStatus)">
-                    </p-tag>
+                    </status>
                   </td>
                   <td>{{manager.lastUpdatedBy}}</td>
                   <td>{{manager.lastUpdatedDate | date:'medium'}}</td>
@@ -114,9 +114,9 @@
                           </div>
                           <div class="col-4">
                           <div class="text-left p-3">
-                            <p-tag [value]="getStatusString(manager.relationshipManagerStatus)"
+                            <status [value]="getStatusString(manager.relationshipManagerStatus)"
                             [severity]="colorStatus(manager.relationshipManagerStatus)">
-                            </p-tag>
+                            </status>
                           </div>
                           </div>
 
@@ -262,6 +262,6 @@
 
 <swal
   #dialog_operation_swal
-  
+
   >
 </swal>

@@ -2,41 +2,41 @@
   <div class="container-fluid dashboard-container">
     <div class="row">
       <div class="col-md-12">
-        <div class="card main-card shadow-2">
+        <div class="card">
           <div class="header">
-            <h4 class="title">Dashboard</h4>
+             <h3 class="title">Dashboard</h3>
           </div>
           <div class="content p-3">
                 <!-- Stats Cards -->
                 <div class="grid row">
-                    <div class="col-3">
+                    <div class="col-3" >
                         <div class="surface-card shadow-2 p-3 border-round h-100">
                             <div class="flex justify-content-between mb-2">
                                 <div>
-                                    <span class="block text-500 font-medium mb-2">Total DIs/DEs</span>
-                                    <div class="text-900 font-medium text-xl">{{bankDashboard?.dideReport?.totalDIDE || 0}}</div>
+                                    <span class="block text-500 font-medium mb-2">Total Domiciliations Imports/Exports</span>
+                                    <div class="text-900 font-medium text-xl">{{bankDashboard?.dideReport?.totalDI || 0}} / {{bankDashboard?.dideReport?.totalDE || 0}}</div>
                                 </div>
                                 <div class="flex align-items-center justify-content-center bg-primary-100 border-round" style="width:2.5rem;height:2.5rem">
                                     <i class="fa fa-file-text text-primary fa-lg"></i>
                                 </div>
                             </div>
-                            <span class="text-green-500 font-medium">24 new </span>
-                            <span class="text-500">since 48 hours</span>
+                            <span class="text-green-500 font-medium">{{bankDashboard?.dideReport?.totalDIInLast48Hours}} / {{bankDashboard?.dideReport?.totalDEInLast48Hours}} new </span>
+                            <span class="text-500">in the last 48 hours</span>
                         </div>
                     </div>
                     <div class="col-3">
                         <div class="surface-card shadow-2 p-3 border-round h-100">
                             <div class="flex justify-content-between mb-2">
                                 <div>
-                                    <span class="block text-500 font-medium mb-2">Total Customers</span>
-                                    <div class="text-900 font-medium text-xl">{{stats?.totalCustomers || 0}}</div>
+                                    <span class="block text-500 font-medium mb-2">Total Active Customers</span>
+                                    <div class="text-900 font-medium text-xl">{{bankDashboard?.customerReport?.totalCustomers || 0}}</div>
                                 </div>
                                 <div class="flex align-items-center justify-content-center bg-success-100 border-round" style="width:2.5rem;height:2.5rem">
                                     <i class="fa fa-users text-success fa-lg"></i>
                                 </div>
                             </div>
-                            <span class="text-green-500 font-medium">5 new </span>
-                            <span class="text-500">this week</span>
+                            <span class="text-green-500 font-medium">{{bankDashboard?.customerReport?.totalCustomersInLastWeek || 0}} new </span>
+                            <span class="text-500">this last 7 days</span>
                         </div>
                     </div>
                     <div class="col-3">
@@ -44,31 +44,31 @@
                             <div class="flex justify-content-between mb-2">
                                 <div>
                                     <span class="block text-500 font-medium mb-2">Total Imports/Exports Transactions</span>
-                                    <div class="text-900 font-medium text-xl">{{stats?.totalTransactions || 0}}</div>
+                                    <div class="text-900 font-medium text-xl">{{bankDashboard?.importsExportsReport?.totalImports || 0}} / {{bankDashboard?.importsExportsReport?.totalExports || 0}}</div>
                                 </div>
                                 <div class="flex align-items-center justify-content-center bg-warning-100 border-round" style="width:2.5rem;height:2.5rem">
                                     <i class="fa fa-exchange text-warning fa-lg"></i>
                                 </div>
                             </div>
-                            <span class="text-green-500 font-medium">18 new </span>
-                            <span class="text-500">since last 48 hours</span>
+                            <span class="text-green-500 font-medium">{{bankDashboard?.importsExportsReport?.totalImportsIn48Hours}} new </span>
+                            <span class="text-500">in the last 48 hours</span>
                         </div>
                     </div>
                     <div class="col-3">
                         <div class="surface-card shadow-2 p-3 border-round h-100">
                             <div class="flex justify-content-between mb-2">
                                 <div>
-                                    <span class="block text-500 font-medium mb-2">Total System Users</span>
-                                    <div class="text-900 font-medium text-xl">{{stats?.totalPendingDocuments || 0}}</div>
+                                    <span class="block text-500 font-medium mb-2">Total Users</span>
+                                    <div class="text-900 font-medium text-xl">{{bankDashboard?.usersReport?.totalUsers || 0}}</div>
                                 </div>
                                 <div class="flex align-items-center justify-content-center bg-danger-100 border-round" style="width:2.5rem;height:2.5rem">
                                     <i class="fa fa-clock-o text-danger fa-lg"></i>
                                 </div>
                             </div>
-                            <span class="text-danger-500 font-medium">7 deleted </span>
-                            <span class="text-500">users</span>
+                            <span class="text-danger-500 font-medium"> {{bankDashboard?.usersReport?.totalUsersPendingApproval}} pending </span>
+                            <span class="text-500">Approval </span>
                         </div>
-                    </div>                   
+                    </div>
                 </div>
                 <!-- End Stats Cards -->
                 <!-- Transaction Cards -->
@@ -77,46 +77,63 @@
                         <div class="surface-card shadow-2 p-3 border-round">
                             <div class="card-header bg-transparent border-0 pb-0">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title text-900 font-medium mb-0">Recent Transactions</h5>
+                                    <h3 class="card-title text-900 font-medium mb-0">Recent Imports/Exports</h3>
                                 </div>
                             </div>
                             <div class="card-body px-0 pb-0 pt-3">
-                                <div class="table-container">
-                                    <table class="table table-hover transactions-table mb-0">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th width="10%">ID</th>
-                                                <th width="20%">Customer</th>
-                                                <th width="15%">Amount</th>
-                                                <th width="15%">Type</th>
-                                                <th width="20%">Status</th>
-                                                <th width="20%">Date</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr *ngFor="let transaction of recentTransactions">
-                                                <td><span class="fw-medium">#{{transaction.id}}</span></td>
-                                                <td class="text-truncate" style="max-width: 120px;">{{transaction.customerName}}</td>
-                                                <td><span class="fw-medium">{{transaction.amount | currency}}</span></td>
-                                                <td>{{transaction.type}}</td>
-                                                <td>
-                                                    <span class="badge rounded-pill px-3 py-2"
-                                                        [ngClass]="{
-                                                            'bg-success-subtle text-success': transaction.status === 'Completed',
-                                                            'bg-warning-subtle text-warning': transaction.status === 'Processing',
-                                                            'bg-info-subtle text-info': transaction.status === 'Pending'
-                                                        }">
-                                                        {{transaction.status}}
-                                                    </span>
-                                                </td>
-                                                <td>{{transaction.date | date:'short'}}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
+                                <!-- PrimeNG Table -->
+                                <p-table [value]="recentImportExports"
+                                         styleClass="p-datatable-striped p-datatable-gridlines dashboard-transactions-table"
+                                         [scrollable]="true"
+                                         scrollHeight="340px"
+                                         [autoLayout]="false">
+                                    <ng-template pTemplate="header">
+                                        <tr>
+                                            <th scope="col" style="width: 20%; min-width: 120px;">Reference</th>
+                                            <th scope="col" style="width: 15%; min-width: 120px;">Currency</th>
+                                            <th scope="col" style="width: 15%; min-width: 100px;">Amount</th>
+                                            <th scope="col" style="width: 13%; min-width: 100px;">Type</th>
+                                            <th scope="col" style="width: 18%; min-width: 120px;">Status</th>
+                                            <th scope="col" style="width: 20%; min-width: 120px;">Date</th>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="body" let-transaction>
+                                        <tr>
+                                            <td style="white-space: nowrap;">
+                                                <span class="fw-medium">{{transaction.transactionId}}</span>
+                                            </td>
+                                            <td style="word-wrap: break-word; white-space: normal;">
+                                                {{transaction.currency}}
+                                            </td>
+                                            <td style="white-space: nowrap;">
+                                                <span class="fw-medium">{{transaction.amount | number}}</span>
+                                            </td>
+                                            <td style="word-wrap: break-word; white-space: normal;">
+                                                {{transaction.transactionType}}
+                                            </td>
+                                            <td style="text-align: center;">
+                                                <status
+                                                    [value]="transaction.status"
+                                                    [severity]="getTransactionStatusSeverity(transaction.status)"
+                                                    size="small">
+                                                </status>
+                                            </td>
+                                            <td style="white-space: nowrap;">
+                                                {{transaction.date | date:'medium'}}
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="emptymessage">
+                                        <tr>
+                                            <td colspan="6" class="text-center p-4">
+                                                <i class="fa fa-info-circle text-muted me-2"></i>
+                                                No recent transactions found
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+                                </p-table>
+                                <!-- End PrimeNG Table -->
                                  <br/>
-                                 <button class="btn btn-sm btn-primary px-3">View All Import transaction</button>
-                                <button class="btn btn-sm btn-primary px-3" style="margin-left: .5rem;">View All Export transaction</button>
 
                             </div>
                         </div>
@@ -126,8 +143,7 @@
                            <!-- currencies exchanges rates widget -->
                            <div class="widget-header">
                                <div class="widget-title">
-                                   <i class="fa fa-money me-2"></i>
-                                   <p style="margin: 5px;">Currencies Exchange Rates</p>
+                                   <h3 class="card-title text-900 font-medium mb-0">Top Currencies Exchange Rates</h3>
                                </div>
                                <div class="widget-controls">
                                    <button class="control-button" title="Refresh">
@@ -135,132 +151,63 @@
                                    </button>
                                </div>
                            </div>
-                           
+
                            <div class="widget-body">
-                               <div class="currency-row">
+                               <div class="currency-row" *ngFor="let exchangeRate of topCurrenciesExchangeRates">
                                    <div class="currency-pair">
                                        <div class="currency-flag">
-                                           <span>$</span>
+                                           <span>{{exchangeRate.currencySymbol}}</span>
                                        </div>
                                        <div class="currency-info">
-                                           <div class="currency-name">US Dollar</div>
-                                           <div class="currency-code">XAF/USD</div>
+                                           <div class="currency-name">{{exchangeRate.fullCurrencyName}}</div>
+                                           <div class="currency-code">{{exchangeRate.baseCurrency}}/{{exchangeRate.targetCurrency}}</div>
                                        </div>
                                    </div>
                                    <div class="exchange-info">
-                                       <span class="exchange-rate">621.43</span>
-                                       <span class="rate-change down">
-                                           <i class="fa fa-caret-down"></i>
-                                           0.48%
+                                       <span class="exchange-rate">{{exchangeRate.rate}}</span>
+                                       <span class="rate-change" [ngClass]="getVariationClass(exchangeRate.variation)">
+                                           <i class="fa" [ngClass]="getVariationIcon(exchangeRate.variation)"></i>
+                                           {{getFormattedVariation(exchangeRate.variation)}}%
                                        </span>
+                                       <span class="currency-code"><i>Last updated on {{exchangeRate.date | date: 'short'}}</i></span>
                                    </div>
                                </div>
-                               
-                               <div class="currency-row">
-                                   <div class="currency-pair">
-                                       <div class="currency-flag">
-                                           <span>€</span>
-                                       </div>
-                                       <div class="currency-info">
-                                           <div class="currency-name">Euro</div>
-                                           <div class="currency-code">XAF/EUR</div>
-                                       </div>
-                                   </div>
-                                   <div class="exchange-info">
-                                       <span class="exchange-rate">655.96</span>
-                                       <span class="rate-change up">
-                                           <i class="fa fa-caret-up"></i>
-                                           0.12%
-                                       </span>
-                                   </div>
-                               </div>
-                               
-                               <div class="currency-row">
-                                   <div class="currency-pair">
-                                       <div class="currency-flag">
-                                           <span>£</span>
-                                       </div>
-                                       <div class="currency-info">
-                                           <div class="currency-name">British Pound</div>
-                                           <div class="currency-code">XAF/GBP</div>
-                                       </div>
-                                   </div>
-                                   <div class="exchange-info">
-                                       <span class="exchange-rate">788.80</span>
-                                       <span class="rate-change down">
-                                           <i class="fa fa-caret-down"></i>
-                                           0.26%
-                                       </span>
-                                   </div>
-                               </div>
-                               
-                               <div class="currency-row">
-                                   <div class="currency-pair">
-                                       <div class="currency-flag">
-                                           <span>¥</span>
-                                       </div>
-                                       <div class="currency-info">
-                                           <div class="currency-name">Japanese Yen</div>
-                                           <div class="currency-code">XAF/JPY</div>
-                                       </div>
-                                   </div>
-                                   <div class="exchange-info">
-                                       <span class="exchange-rate">4.03</span>
-                                       <span class="rate-change up">
-                                           <i class="fa fa-caret-up"></i>
-                                           0.33%
-                                       </span>
-                                   </div>
-                               </div>
-                               
-                               <div class="currency-row">
-                                   <div class="currency-pair">
-                                       <div class="currency-flag">
-                                           <span>Fr</span>
-                                       </div>
-                                       <div class="currency-info">
-                                           <div class="currency-name">Swiss Franc</div>
-                                           <div class="currency-code">XAF/CHF</div>
-                                       </div>
-                                   </div>
-                                   <div class="exchange-info">
-                                       <span class="exchange-rate">693.60</span>
-                                       <span class="rate-change up">
-                                           <i class="fa fa-caret-up"></i>
-                                           0.15%
-                                       </span>
+                               <div class="widget-footer-info" *ngIf="topCurrenciesExchangeRates.length === 0">
+                                   <div class="text-center p-3">
+                                       <i class="fa fa-info-circle text-muted me-2"></i>
+                                       No exchange rates available
                                    </div>
                                </div>
                            </div>
-                           
-                           <div class="widget-footer">
-                               <div class="last-updated">Last updated: Apr 25, 2025</div>
+
+                          <!--  <div class="widget-footer">
+                               <div class="last-updated">Last updated: {{getLastUpdateDate()}}</div>
                                <button class="action-button">View All Rates</button>
-                           </div>
+                           </div> -->
                            <!-- end currencies exchanges rates widget -->
                         </div>
                     </div>
-                    
+
                 </div>
 
                 <!-- Document Status and Recent Transactions -->
                 <div class="grid row">
-                   
+
                     <div class="col-8">
                         <div class="surface-card shadow-2 p-3 border-round">
                             <div class="card-header bg-transparent border-0 pb-0">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title text-900 font-medium mb-0">Transactions Trends</h5>
-                                    <div class="chart-actions">
+                                    <h3 class="card-title text-900 font-medium mb-0">Importations - Exportations Volumes in XAF</h3>
+                                    <!-- <div class="chart-actions">
                                         <button class="btn btn-sm btn-outline-secondary me-2">Weekly</button>
                                         <button class="btn btn-sm btn-outline-secondary">Monthly</button>
-                                    </div>
+                                    </div> -->
                                 </div>
                             </div>
                             <div class="card-body pt-3">
                                 <canvas baseChart
                                     [options]="lineChartOptions"
-                                    [data]="lineChartData"
+                                    [data]="importExportLineChartData"
                                     [type]="'line'"
                                     height="300">
                                 </canvas>
@@ -271,37 +218,38 @@
                         <div class="surface-card shadow-2 p-3 border-round">
                             <div class="card-header bg-transparent border-0 pb-0">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title text-900 font-medium mb-0">Transactions Status</h5>
-                                    <button class="btn btn-sm btn-light" title="Refresh">
+                                    <h3 class="card-title text-900 font-medium mb-0">Importations - Exportations Count Split</h3>
+                                   <!--  <button class="btn btn-sm btn-light" title="Refresh">
                                         <i class="fa fa-refresh"></i>
-                                    </button>
+                                    </button> -->
                                 </div>
                             </div>
                             <div class="card-body pt-3">
                              <div class="d-flex justify-content-between align-items-center mb-2">
                                 <div class="d-flex align-items-center">
-                                        <span class="text-success  align-items-center" >Import Transactions</span>
-                                </div>    
+                                    <h4 class="card-title text-900 font-medium mb-0 text-success">Importations</h4>
+
+                                </div>
                                 <canvas baseChart
                                     [type]="'pie'"
-                                    [data]="documentStatusChartData"
+                                    [data]="importationStatusChartData"
                                     height="260">
                                 </canvas>
                             </div>
                              <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="text-danger">Export Transactions</span>
+                                    <h4 class="card-title text-900 font-medium mb-0 text-danger">Exportations</h4>
                                 <canvas baseChart
                                     [type]="'pie'"
-                                    [data]="documentStatusChartData"
+                                    [data]="exportationStatusChartData"
                                     height="260">
                                 </canvas>
                             </div>
                         </div>
                     </div>
-                    
+
                 </div>
-            
-            
+
+
          </div>
         </div>
       </div>
@@ -407,7 +355,7 @@
   padding: 1rem;
 }
 
-.transactions-table th, 
+.transactions-table th,
 .transactions-table td {
   padding: 0.75rem 0.5rem;
   vertical-align: middle;
@@ -457,7 +405,7 @@
 
 .widget-title {
   font-size: 16px;
-  /* font-weight: 600; */
+  font-weight: 600;
   display: flex;
   align-items: center;
 }
@@ -606,44 +554,51 @@
   overflow: hidden;
 }
 
-/* Transaction table styling */
-.table-container {
-  max-height: 340px;
-  overflow-y: auto;
-  scrollbar-width: thin;
+/* PrimeNG Dashboard Table Styling */
+.dashboard-transactions-table {
+  font-size: 0.875rem;
 }
 
-.table-container::-webkit-scrollbar {
-  width: 6px;
+.dashboard-transactions-table .p-datatable-thead > tr > th {
+  background-color: #f8f9fa !important;
+  color: #495057;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #dee2e6;
 }
 
-.table-container::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-.table-container::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
-}
-
-.transactions-table {
-  width: 100%;
-  table-layout: fixed;
-}
-
-.transactions-table th, 
-.transactions-table td {
+.dashboard-transactions-table .p-datatable-tbody > tr > td {
   padding: 0.75rem 1rem;
   vertical-align: middle;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.text-truncate {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: block;
+.dashboard-transactions-table .p-datatable-tbody > tr:hover {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+.fw-medium {
+  font-weight: 500 !important;
+}
+
+.text-center {
+  text-align: center !important;
+}
+
+.text-muted {
+  color: #6c757d !important;
+}
+
+.me-2 {
+  margin-right: 0.5rem !important;
+}
+
+.p-4 {
+  padding: 1.5rem !important;
+}
+
+.widget-footer-info {
+  background-color: rgba(0,0,0,0.02);
+  border-top: 1px solid rgba(0,0,0,0.05);
 }
 </style>

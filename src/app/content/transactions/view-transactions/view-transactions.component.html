@@ -65,7 +65,7 @@
 
               <ng-template pTemplate="header">
                 <tr>
-                  <th style="width: 3rem"></th>
+                  <th style="width: 4rem"></th>
                   <th>Reference</th>
                   <th>Customer</th>
                   <th>Account</th>
@@ -90,9 +90,9 @@
                   <td>{{transaction.transactionAmount | number:'1.2-2'}}</td>
                   <td>{{transaction.transactionCurrency}}</td>
                   <td>
-                    <p-tag [value]="getStatusString(transaction.status)"
+                    <status [value]="getStatusString(transaction.status)"
                           [severity]="colorStatus(transaction.status)">
-                    </p-tag>
+                    </status>
                   </td>
                   <td>{{transaction.transactionDate | date:'medium'}}</td>
                 </tr>
@@ -112,15 +112,15 @@
 
                             <div class="col-3"><b>Processing Type:</b></div>
                             <div class="col-3">
-                              <p-tag [value]="getProcessingTypeString(transaction.processingType)"
+                              <status [value]="getProcessingTypeString(transaction.processingType)"
                                     [severity]="colorProcessingType(transaction.processingType)">
-                              </p-tag>
+                              </status>
                             </div>
                             <div class="col-3"><b>Initiation Method:</b></div>
                             <div class="col-3">
-                               <p-tag [value]="getInitiationMethodString(transaction.initiationMethod)"
+                               <status [value]="getInitiationMethodString(transaction.initiationMethod)"
                                      severity="info">
-                              </p-tag>
+                              </status>
                             </div>
 
                             <div class="col-3"><b>Amount (Local):</b></div>
@@ -155,9 +155,9 @@
                           <div class="grid">
                             <div class="col-3"><b>Apurement Status:</b></div>
                             <div class="col-3">
-                              <p-tag [value]="getApurementStatusString(transaction.transactionApurementStatus)"
+                              <status [value]="getApurementStatusString(transaction.transactionApurementStatus)"
                                     [severity]="colorApurementStatus(transaction.transactionApurementStatus)">
-                              </p-tag>
+                              </status>
                             </div>
                             <div class="col-3"><b>Processing Date:</b></div>
                             <div class="col-3">{{transaction.processingDate | date:'medium'}}</div>
@@ -195,7 +195,7 @@
                           <button pButton type="button"
                             class="p-button-outlined"
                             icon="pi pi-file-pdf" iconPos="left"
-                            label="Documentation"
+                            label="View Details"
                             (click)="redirectToDocumentationPage(transaction)"
                             style="margin-right: 10px">
                           </button>

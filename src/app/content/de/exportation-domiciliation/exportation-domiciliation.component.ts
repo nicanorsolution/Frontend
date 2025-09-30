@@ -1,17 +1,19 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { DEResponse, DEStatus } from '../models/de.models';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { DEResponse, DEStatus, UpdateDEComplementaryInfoCommand, ExportationType } from '../models/de.models';
 import { DEService } from '../services/de.services';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { UserRoleEnum, UserType } from 'src/app/helpers/UserRoleEnum';
 
 @Component({
   selector: 'app-exportation-domiciliation',
-  templateUrl: './exportation-domiciliation.component.html'
+  templateUrl: './exportation-domiciliation.component.html',
+  styleUrls: ['./exportation-domiciliation.component.scss']
 })
 export class ExportationDomiciliationComponent implements OnInit {
   UserRoleEnum = UserRoleEnum;
   UserType = UserType;
+  ExportationType = ExportationType;
   des: DEResponse[] = [];
   loading = false;
   totalRecords = 0;
@@ -19,16 +21,28 @@ export class ExportationDomiciliationComponent implements OnInit {
   pageNumber = 1;
   expandedRows: { [key: string]: boolean } = {};
 
+  // Dialog properties
+  editComplementaryInfoDialog = false;
+  selectedDE: DEResponse | null = null;
+  editComplementaryInfoForm!: FormGroup;
+  isSubmitting = false;
+
+  exportationTypeOptions = [
+    { label: 'Bien', value: ExportationType.Bien },
+    { label: 'Service', value: ExportationType.Service }
+  ];
+
   @ViewChild('dialog_operation_swal')
-  private dialogOperationSwal!: SwalComponent;
+  private readonly dialogOperationSwal!: SwalComponent;
 
   searchForm!: FormGroup;
 
   constructor(
-    private deService: DEService,
-    private fb: FormBuilder
+    private readonly deService: DEService,
+    private readonly fb: FormBuilder
   ) {
     this.initializeSearchForm();
+    this.initializeEditComplementaryInfoForm();
   }
 
   ngOnInit(): void {
@@ -89,7 +103,14 @@ export class ExportationDomiciliationComponent implements OnInit {
   }
 
   getDEStatusString(status: DEStatus): string {
-    return DEStatus[status];
+    switch (status) {
+      case DEStatus.NotUsedForCreatingExport:
+        return 'Not Used';
+      case DEStatus.UsedToCreateExport:
+        return 'Used';
+      default:
+        return 'info';
+    }
   }
 
   colorStatus(status: DEStatus): string {
@@ -121,6 +142,103 @@ export class ExportationDomiciliationComponent implements OnInit {
           this.dialogOperationSwal.fire();
         }
       });
+    }
+  }
+
+  deleteDE(de: DEResponse) {
+    this.deService.deleteDE(de.eForceReference).subscribe({
+      next: () => {
+        this.loadDEs();
+        this.dialogOperationSwal.fire();
+      },
+      error: (error) => {
+        console.error('Error deleting DE:', error);
+        this.dialogOperationSwal.update({
+          icon: 'error',
+          title: `${error?.error?.title}`,
+          text:  `${error?.error?.status} : ${error?.error?.detail}`,
+        });
+        this.dialogOperationSwal.fire();
+      }
+    });
+  }
+
+  private initializeEditComplementaryInfoForm() {
+    this.editComplementaryInfoForm = this.fb.group({
+      bankDEDomiciliationDate: [null, Validators.required],
+      domiciliationValidityPeriodInDays: [30, [Validators.required, Validators.min(1), Validators.max(365)]],
+      deEmissionDate: [null, Validators.required],
+      deValidityPeriodInDays: [30, [Validators.required, Validators.min(1), Validators.max(365)]],
+      exportationType: [ExportationType.Bien, Validators.required],
+      goodOrServiceNature : [null, Validators.required],
+    });
+  }
+
+  openEditComplementaryInfoDialog(de: DEResponse) {
+    this.selectedDE = de;
+    this.editComplementaryInfoForm.patchValue({
+      bankDEDomiciliationDate: new Date(),
+      deValidityPeriodInDays: 180,
+      domiciliationValidityPeriodInDays : 150,
+      exportationType: ExportationType.Bien
+    });
+    this.editComplementaryInfoDialog = true;
+  }
+
+  closeEditComplementaryInfoDialog() {
+    this.editComplementaryInfoDialog = false;
+    this.selectedDE = null;
+    this.editComplementaryInfoForm.reset();
+    this.isSubmitting = false;
+  }
+
+  submitEditComplementaryInfo() {
+    if (this.editComplementaryInfoForm.valid && this.selectedDE) {
+      this.isSubmitting = true;
+
+      const command: UpdateDEComplementaryInfoCommand = {
+        eForceReference: this.selectedDE.eForceReference,
+        bankDEDomiciliationDate: this.editComplementaryInfoForm.value.bankDEDomiciliationDate,
+        domiciliationValidityPeriodInDays : this.editComplementaryInfoForm.value.domiciliationValidityPeriodInDays,
+        deEmissionDate: this.editComplementaryInfoForm.value.deEmissionDate,
+        deValidityPeriodInDays: this.editComplementaryInfoForm.value.deValidityPeriodInDays,
+        exportationType: this.editComplementaryInfoForm.value.exportationType,
+        goodOrServiceNature : this.editComplementaryInfoForm.value.goodOrServiceNature
+      };
+
+      this.deService.updateDEComplementaryInfo(command).subscribe({
+        next: () => {
+          this.loadDEs();
+          this.closeEditComplementaryInfoDialog();
+          this.dialogOperationSwal.update({
+            icon: 'success',
+            title: 'Success',
+            text: 'Complementary information updated successfully'
+          });
+          this.dialogOperationSwal.fire();
+        },
+        error: (error) => {
+          this.isSubmitting = false;
+          console.error('Error updating complementary info:', error);
+          this.dialogOperationSwal.update({
+            icon: 'error',
+            title: `${error?.error?.title || 'Error'}`,
+            text: `${error?.error?.status} : ${error?.error?.detail || 'Failed to update complementary information'}`,
+          });
+          this.dialogOperationSwal.fire();
+        }
+      });
+    }
+  }
+
+  getExportationTypeString(exportationType: ExportationType): string {
+    switch (exportationType) {
+      case ExportationType.Bien:
+        return 'Bien';
+      case ExportationType.Service:
+        return 'Service';
+      default:
+        return 'Unknown';
     }
   }
 }

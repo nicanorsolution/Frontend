@@ -33,8 +33,10 @@ export interface RecentTransaction {
 // Dashboard
 
 export interface DIDEReport {
-  totalDIDE: number;
-  totalDIDEInLast48Hours: number;
+  totalDI: number;
+  totalDIInLast48Hours: number;
+  totalDE: number;
+  totalDEInLast48Hours: number;
 }
 
 export interface CustomerReport {
@@ -63,10 +65,13 @@ export interface RecentImportExportReport {
 }
 
 export interface ExchangeRateReport {
-  currency: string;
+  currencySymbol: string; // $, €, £ etc.
+  fullCurrencyName: string; // US Dollar, Euro etc.
+  baseCurrency: string; // XAF
+  targetCurrency: string; // USD, EUR, GBP etc.
   rate: string;
-  variation: number;
-  date: Date;
+  variation: number; // Positive or negative variation
+  date: Date; // Date of the rate last update
 }
 
 export interface ImportStatusReport {

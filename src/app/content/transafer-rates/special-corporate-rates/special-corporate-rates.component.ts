@@ -83,10 +83,11 @@ export class SpecialCorporateRatesComponent implements OnInit {
   }
 
   searchSpecialRates(): void {
-    if (!this.selectedCorporate) return;
-    console.log('searchSpecialRates', this.selectedCorporate);
+    let corporateId = 'all';
+    if (this.selectedCorporate) corporateId = this.selectedCorporate.corporateId;
+    console.log('searchSpecialRates', corporateId);
     this.loading = true;
-    this.transferRatesService.getSpecialPricingForCorporates(this.selectedCorporate.corporateId)
+    this.transferRatesService.getSpecialPricingForCorporates(corporateId)
       .subscribe({
         next: (data) => {
           this.specialRates = data;

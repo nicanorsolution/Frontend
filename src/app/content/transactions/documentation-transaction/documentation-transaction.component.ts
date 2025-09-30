@@ -1,4 +1,4 @@
-import { DocumentSubmissionOption, ProcessingOption, ProvisionBeforeInitiationResponse, ProvisionTransferStatus, RoleToSendBackTransactionResponse, TransactionAmountLienStatus, TransactionApprovalFlowCommand, TransactionDecisionAction, TransactionDIStatus, TransactionExceptionHistoryResponse, TransactionMessageResponse, TransactionMessageType, TransactionProvisionStatus, TransactionProvisionTransferResponse } from './../models/transactions.model';
+import { DocumentSubmissionOption, ProcessingOption, ProvisionBeforeInitiationResponse, ProvisionTransferStatus, RoleToSendBackTransactionResponse, TransactionAmountLienStatus, TransactionApprovalFlowCommand, TransactionDecisionAction, TransactionDIStatus, TransactionExceptionHistoryResponse, TransactionMessageResponse, TransactionMessageType, TransactionProvisionStatus, TransactionProvisionTransferResponse, NostroAccountResponse, SetCorrespondingBankInfoRequest } from './../models/transactions.model';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -116,6 +116,11 @@ export class DocumentationTransactionComponent implements OnInit {
     { label: 'Apured', value: TransactionApurementStatus.Apured },
     { label: 'Apured Partially', value: TransactionApurementStatus.ApuredPartially }
   ];
+
+  // Corresponding Bank (Nostro) Info
+  correspondingBankDialog = false;
+  nostroAccounts: NostroAccountResponse[] = [];
+  selectedNostroAccount?: NostroAccountResponse | null;
 
   sendForCorrectionForm: FormGroup;
 
@@ -549,6 +554,8 @@ getDocumentSubmissionStatusLabel(status: DocumentSubmissionOption): string {
             title: 'Success',
             text: 'Exception raised successfully',
             icon: 'success'
+          }).then(() => {
+            window.location.reload();
           });
         },
         error: (error) => {
@@ -872,6 +879,29 @@ getDocumentSubmissionStatusLabel(status: DocumentSubmissionOption): string {
     }
   }
 
+  generateBookingMemo() {
+    if (!this.transaction) return;
+    this.transactionService.generateBookingMemo(this.transaction.id).subscribe({
+      next: (blob) => {
+       /// console.log(blob);
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `booking-memo-${this.transaction?.id}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (error) => {
+        console.log(error);
+        Swal.fire({
+          title: 'Error',
+          text: error?.error?.detail || 'Failed to generate booking memo',
+          icon: 'error'
+        });
+      }
+    });
+  }
+
   uploadTransactionDebitAdviceFile() {
     if (!this.transaction) return;
 
@@ -968,6 +998,13 @@ getDocumentSubmissionStatusLabel(status: DocumentSubmissionOption): string {
 
   onDIsSelect(event: any) {
     this.selectedDIs = event.value;
+  }
+  onDIsFilter(event : any){
+    let diRef = event.originalEvent.data;
+
+    if (diRef && diRef.trim() !== '' && diRef.length >= 3) {
+
+    }
   }
 
   getDIStatusString(status: DIStatus): string {
@@ -1393,6 +1430,69 @@ getDocumentSubmissionStatusLabel(status: DocumentSubmissionOption): string {
     this.apurementTransactionOptionDialog = true;
   }
 
+  openCorrespondingBankInfoDialog(){
+    if(!this.transaction) return;
+    // Load nostro accounts based on transaction currency if available
+    const currency = this.transaction.transactionCurrency;
+    this.transactionService.getNostroAccounts(currency)
+      .subscribe({
+        next: (accounts) => {
+          this.nostroAccounts = accounts;
+          this.correspondingBankDialog = true;
+        },
+        error: (error) => {
+          Swal.fire({
+            title: 'Error',
+            text: error?.error?.detail || 'Failed to load corresponding bank accounts',
+            icon: 'error'
+          });
+        }
+      });
+  }
+
+  getCorrespondingBankBic(): string {
+    if(this.transaction && this.transaction.correspondingBankBic !=='' && this.transaction.correspondingBankBic !== null){
+      return this.transaction.correspondingBankBic +' ' + this.transaction.correspondingBankAccountNumber + ' ' + this.transaction.correspondingBankAccountName;
+    }
+    else
+      return 'Not Set';
+  }
+ getCorrespondingBankBicColor(): string {
+    if(this.transaction && this.transaction.correspondingBankBic !=='' && this.transaction.correspondingBankBic !== null){
+      return 'success';
+    }
+    else
+      return 'danger';
+  }
+  submitCorrespondingBankInfo(){
+    if(!this.transaction || !this.selectedNostroAccount) return;
+
+    const request: SetCorrespondingBankInfoRequest = {
+      transactionId: this.transaction.id,
+      accountNumber: this.selectedNostroAccount.accountNumber
+    };
+
+    this.transactionService.setTransactionCorrespondingBankInfo(request)
+      .subscribe({
+        next: () => {
+          this.correspondingBankDialog = false;
+          Swal.fire({
+            title: 'Success',
+            text: 'Corresponding bank info updated successfully',
+            icon: 'success'
+          }).then(()=> window.location.reload());
+        },
+        error: (error) => {
+          console.log(error);
+          Swal.fire({
+            title: 'Error',
+            text: error?.error?.detail || 'Failed to update corresponding bank info',
+            icon: 'error'
+          });
+        }
+      });
+  }
+
   submitProcessingOption(){
     if (!this.selectedProcessingOption || !this.transaction) return;
     console.log("🚀 submitProcessingOption => this.selectedProcessingOption", this.selectedProcessingOption);
@@ -1747,9 +1847,9 @@ getDocumentSubmissionStatusLabel(status: DocumentSubmissionOption): string {
   getTransactionAmountLienStatusColor(transactionAmountLienStatus : TransactionAmountLienStatus){
     switch (transactionAmountLienStatus) {
       case TransactionAmountLienStatus.AmountNotLien:
-        return 'success';
-      case TransactionAmountLienStatus.AmountLien:
         return 'danger';
+      case TransactionAmountLienStatus.AmountLien:
+        return 'success';
       default:
         return 'info';
     }

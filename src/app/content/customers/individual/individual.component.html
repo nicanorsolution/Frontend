@@ -64,14 +64,15 @@
 
               <ng-template pTemplate="header">
                 <tr>
-                  <th style="width: 3rem"></th>
+                  <th style="width: 4rem"></th>
                   <th>Name</th>
                   <th>NIU</th>
                   <th>Email</th>
                   <th>Phone</th>
                   <th>City</th>
                   <th>Relationship Manager</th>
-                  <th>Status Mise En Demeure</th>
+                  <th>Status Mise En Demeure Export</th>
+                  <th>Status Mise En Demeure Import</th>
                   <th>Status</th>
                 </tr>
               </ng-template>
@@ -90,22 +91,28 @@
                   <td>{{individual.phone}}</td>
                   <td>{{individual.city}}</td>
                   <td>
-                     <p-tag
+                     <status
                       [value]="individual.relationshipManagerName || 'Not Assigned'"
                       severity="info">
-                    </p-tag>
+                    </status>
                   </td>
                   <td>
-                    <p-tag
-                      [value]="getMiseEndemeureStatusString(individual.miseEnDemeureStatus)"
-                      [severity]="colorMiseEnDemeureStatus(individual.miseEnDemeureStatus)">
-                     </p-tag>
+                    <status
+                      [value]="getMiseEndemeureStatusString(individual.miseEnDemeureStatusForExport)"
+                      [severity]="colorMiseEnDemeureStatus(individual.miseEnDemeureStatusForExport)">
+                     </status>
+                  </td>
+                   <td>
+                    <status
+                      [value]="getMiseEndemeureStatusString(individual.miseEnDemeureStatusForImport)"
+                      [severity]="colorMiseEnDemeureStatus(individual.miseEnDemeureStatusForImport)">
+                     </status>
                   </td>
                   <td>
-                    <p-tag
+                    <status
                       [value]="getStatusString(individual.individualStatus)"
                       [severity]="colorStatus(individual.individualStatus)">
-                    </p-tag>
+                    </status>
                   </td>
                 </tr>
               </ng-template>
@@ -202,14 +209,25 @@
                                 <div class="text-left p-3">{{individual.lastUpdatedDate | date:'medium'}}</div>
                               </div>
                                  <div class="col-2">
-                                  <div class="text-left p-3 font-bold">Mise En Demeure</div>
+                                  <div class="text-left p-3 font-bold">Mise En Demeure Import</div>
                                 </div>
                                 <div class="col-4">
                                   <div class="text-left p-3">
-                                    <p-tag
-                                      [value]="getMiseEndemeureStatusString(individual.miseEnDemeureStatus)"
-                                      [severity]="colorMiseEnDemeureStatus(individual.miseEnDemeureStatus)">
-                                    </p-tag>
+                                    <status
+                                      [value]="getMiseEndemeureStatusString(individual.miseEnDemeureStatusForImport)"
+                                      [severity]="colorMiseEnDemeureStatus(individual.miseEnDemeureStatusForImport)">
+                                    </status>
+                                  </div>
+                                </div>
+                                   <div class="col-2">
+                                  <div class="text-left p-3 font-bold">Mise En Demeure Export</div>
+                                </div>
+                                <div class="col-4">
+                                  <div class="text-left p-3">
+                                    <status
+                                      [value]="getMiseEndemeureStatusString(individual.miseEnDemeureStatusForExport)"
+                                      [severity]="colorMiseEnDemeureStatus(individual.miseEnDemeureStatusForExport)">
+                                    </status>
                                   </div>
                                 </div>
                                   <div class="col-2">
@@ -217,10 +235,10 @@
                                 </div>
                                 <div class="col-4">
                                   <div class="text-left p-3">
-                                    <p-tag
+                                    <status
                                       [value]="getadnaReportStatusString(individual.adnaReportStatus)"
                                       [severity]="coloradnaReportStatus(individual.adnaReportStatus)">
-                                    </p-tag>
+                                    </status>
                                   </div>
                                 </div>
                               </div>

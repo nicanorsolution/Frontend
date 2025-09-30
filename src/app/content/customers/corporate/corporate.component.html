@@ -64,13 +64,14 @@
 
               <ng-template pTemplate="header">
                 <tr>
-                  <th style="width: 3rem"></th>
+                  <th style="width: 4rem"></th>
                   <th>Name</th>
                   <th>NIU</th>
                   <th>Address</th>
                   <th>Registration Number</th>
                   <th>Relationship Manager</th>
-                  <th>Status Mise Demeure</th>
+                  <th>Status Mise Demeure Export</th>
+                  <th>Status Mise Demeure Import</th>
                   <th>Status</th>
                 </tr>
               </ng-template>
@@ -88,31 +89,36 @@
                   <td>{{corporate.address}}</td>
                   <td>{{corporate.registrationNumber}}</td>
                   <td>
-                    <p-tag
+                    <status
                       [value]="corporate.relationshipManagerName || 'Not Assigned'"
                       severity="info">
-                    </p-tag>
+                    </status>
 
                   </td>
                   <td>
-                      <p-tag
-                       [value]="getMiseEndemeureStatusString(corporate.miseEnDemeureStatus)"
-                       [severity]="colorMiseEnDemeureStatus(corporate.miseEnDemeureStatus)">
-                     </p-tag>
+                      <status
+                       [value]="getMiseEndemeureStatusString(corporate.miseEnDemeureStatusForExport)"
+                       [severity]="colorMiseEnDemeureStatus(corporate.miseEnDemeureStatusForExport)">
+                     </status>
                   </td>
-
                   <td>
-                    <p-tag
+                      <status
+                       [value]="getMiseEndemeureStatusString(corporate.miseEnDemeureStatusForImport)"
+                       [severity]="colorMiseEnDemeureStatus(corporate.miseEnDemeureStatusForImport)">
+                     </status>
+                  </td>
+                  <td>
+                    <status
                       [value]="getStatusString(corporate.corporateStatus)"
                       [severity]="colorStatus(corporate.corporateStatus)">
-                    </p-tag>
+                    </status>
                   </td>
                 </tr>
               </ng-template>
 
               <ng-template pTemplate="rowexpansion" let-corporate>
                 <tr>
-                  <td colspan="8">
+                  <td colspan="9">
                     <div class="p-grid p-nogutter">
                       <div class="p-col-12">
                         <div class="grid">
@@ -170,14 +176,26 @@
                                 </div>
 
                                 <div class="col-2">
+                                  <div class="text-left p-3 font-bold">Mise En Demeure Export</div>
+                                </div>
+                                <div class="col-2">
+                                  <div class="text-left p-3">
+                                    <status
+                                      [value]="getMiseEndemeureStatusString(corporate.miseEnDemeureStatusForExport)"
+                                      [severity]="colorMiseEnDemeureStatus(corporate.miseEnDemeureStatusForExport)">
+                                    </status>
+                                  </div>
+                                </div>
+
+                                 <div class="col-2">
                                   <div class="text-left p-3 font-bold">Mise En Demeure</div>
                                 </div>
                                 <div class="col-2">
                                   <div class="text-left p-3">
-                                    <p-tag
-                                      [value]="getMiseEndemeureStatusString(corporate.miseEnDemeureStatus)"
-                                      [severity]="colorMiseEnDemeureStatus(corporate.miseEnDemeureStatus)">
-                                    </p-tag>
+                                    <status
+                                      [value]="getMiseEndemeureStatusString(corporate.miseEnDemeureStatusForImport)"
+                                      [severity]="colorMiseEnDemeureStatus(corporate.miseEnDemeureStatusForImport)">
+                                    </status>
                                   </div>
                                 </div>
                                   <div class="col-2">
@@ -185,10 +203,10 @@
                                 </div>
                                 <div class="col-2">
                                   <div class="text-left p-3">
-                                    <p-tag
+                                    <status
                                       [value]="getadnaReportStatusString(corporate.adnaReportStatus)"
                                       [severity]="coloradnaReportStatus(corporate.adnaReportStatus)">
-                                    </p-tag>
+                                    </status>
                                   </div>
                                 </div>
                                 </div>
@@ -342,7 +360,7 @@
                                     [requiredUserTypes]="[UserType.InternalUser]"
                             class="p-button-outlined"
                             icon="pi pi-sync" iconPos="left"
-                            label="Refresh"
+                            label="Refresh Corporate Info"
                             (click)="updateCorporate(corporate)"
                             style="margin-right: 10px">
                           </button>

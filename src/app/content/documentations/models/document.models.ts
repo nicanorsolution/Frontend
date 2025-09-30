@@ -11,6 +11,7 @@ export interface DocumentResponse {
   documentSubmissionOption: DocumentSubmissionOption;
   documentOriginalRequired: boolean;
   documentControls: DocumentControl[];
+  complemetaryInformationRequiredFor: ComplemetaryInformationRequiredFor
   lastModifyBy: string;
   lastUpdatedDate: Date;
 }
@@ -27,6 +28,7 @@ export interface DocumentControl {
   documentControlName: string;
   documentControlDetail: string;
   documentControlType: DocumentControlType;
+  complemetaryInformationRequiredFor: ComplemetaryInformationRequiredFor;
 }
 
 export interface DocumentControlRequest {
@@ -53,4 +55,11 @@ export enum DocumentSubmissionOption {
     SubmissionForPartialApurement = 3,// mise en demeure lettre dechargé
     SubmissionForFailureToApurement = 4, // mise en demeure lettre dechargé
     DoNotMatters = 5
+}
+
+export enum ComplemetaryInformationRequiredFor
+{
+    NoComplementaryInformation = 1,
+    FinalInvoice = 2,
+    GoodForEmbacation = 3
 }

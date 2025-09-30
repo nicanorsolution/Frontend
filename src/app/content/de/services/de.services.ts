@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { DEResponse } from '../models/de.models';
+import { DEResponse, UpdateDEComplementaryInfoCommand } from '../models/de.models';
 import { PaginatedList } from '../../../helpers/pagination';
 
 @Injectable({
@@ -34,5 +34,13 @@ export class DEService {
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post<void>(`${this.baseUrl}/read`, formData);
+  }
+
+  deleteDE(eForceReference: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/des/${eForceReference}`);
+  }
+
+  updateDEComplementaryInfo(command: UpdateDEComplementaryInfoCommand): Observable<void> {
+    return this.http.put<void>(`${this.baseUrl}/des`, command);
   }
 }

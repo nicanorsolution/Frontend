@@ -1,0 +1,83 @@
+// Fixed table layout to prevent column shifting during row expansion
+:host ::ng-deep {
+  .p-datatable {
+    table-layout: fixed;
+    width: 100%;
+
+    .p-datatable-table {
+      table-layout: fixed;
+      width: 100%;
+    }
+
+    // Ensure header columns maintain their widths
+    .p-datatable-thead > tr > th {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      position: relative;
+    }
+
+    // Ensure body columns maintain their widths
+    .p-datatable-tbody > tr > td {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      word-wrap: break-word;
+    }
+
+    // Special handling for the expansion row to not affect column widths
+    .p-datatable-tbody > tr.p-datatable-row-expansion {
+      .p-datatable-rowexpansion {
+        table-layout: auto;
+
+        .p-4 {
+          width: 100%;
+          box-sizing: border-box;
+
+          .p-grid {
+            width: 100%;
+            margin: 0;
+          }
+
+          .grid {
+            width: 100%;
+
+            .col-2, .col-4 {
+              word-wrap: break-word;
+              overflow-wrap: break-word;
+            }
+          }
+        }
+      }
+    }
+
+    // Ensure the expand/collapse button column has consistent width
+    .p-datatable-tbody > tr > td:first-child,
+    .p-datatable-thead > tr > th:first-child {
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    // Status column styling
+    td:nth-child(8), td:nth-child(9) {
+      text-align: center;
+
+      app-status {
+        display: inline-block;
+        width: fit-content;
+      }
+    }
+  }
+
+  // Additional scrollable table styles
+  .p-datatable-scrollable {
+    .p-datatable-scrollable-table {
+      table-layout: fixed;
+    }
+
+    .p-datatable-scrollable-header-table,
+    .p-datatable-scrollable-body-table {
+      table-layout: fixed;
+    }
+  }
+}

@@ -20,7 +20,7 @@ export class ViewExportationsComponent implements OnInit {
   searchForm!: FormGroup;
 
   totalRows = 0;
-  pageSize = 10;
+  pageSize = 50;
   pageNumber = 1;
   expandedRows: { [key: string]: boolean } = {};
 

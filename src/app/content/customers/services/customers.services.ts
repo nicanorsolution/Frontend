@@ -242,14 +242,14 @@ export class CustomersService {
 
   //* ANDA
   requestIndividualAnda(individualId: string): Observable<void> {
-    return this.http.put<void>(
+    return this.http.post<void>(
       `${this.baseUrl}/individual/${individualId}/anda`,
       {}
     );
   }
 
   requestCorporateAnda(corporateId: string): Observable<void> {
-    return this.http.put<void>(
+    return this.http.post<void>(
       `${this.baseUrl}/corporate/${corporateId}/anda`,
       {}
     );

@@ -17,7 +17,7 @@
 
               <ng-template pTemplate="header">
                 <tr>
-                  <th scope="col" style="width: 3rem"></th>
+                  <th scope="col" style="width: 4rem"></th>
                   <th scope="col">Base Currency</th>
                   <th scope="col">Quote Currency</th>
                   <th scope="col">Base Sell Rate</th>
@@ -41,9 +41,9 @@
                   <td>{{rate.baseBuyRate | number:'1.4-4'}}</td>
                   <td>{{rate.transferRateDate | date:'medium'}}</td>
                   <td>
-                    <p-tag [severity]="isCurrentRate(rate.transferRateDate) ? 'success' : 'danger'"
-                           [value]="isCurrentRate(rate.transferRateDate) ? 'Current' : 'Old'">
-                    </p-tag>
+                    <status [severity]="isCurrentRate(rate.transferRateDate) ? 'success' : 'danger'"
+                           [value]="isCurrentRate(rate.transferRateDate) ? 'Current Pricing' : 'Outdated Pricing'">
+                    </status>
                   </td>
                 </tr>
               </ng-template>

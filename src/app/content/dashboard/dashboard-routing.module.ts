@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { DashboardResolver } from './resolvers/dashboard.resolver';
 import { AuthGuard } from '../../helpers/auth-guard';
 import { UserRoleEnum, UserType } from '../../helpers/UserRoleEnum';
 
@@ -10,6 +11,9 @@ const routes: Routes = [
         path: '',
         component: DashboardComponent,
         canActivate: [AuthGuard],
+        resolve: {
+          dashboardData: DashboardResolver
+        },
         data: {
           roles: [UserRoleEnum.Admin, UserRoleEnum.SuperAdmin, UserRoleEnum.TradeInitiator,
                   UserRoleEnum.Verifier, UserRoleEnum.TradeAuthorizer, UserRoleEnum.TreasuryAuthorizer,
@@ -18,10 +22,10 @@ const routes: Routes = [
           userType: [UserType.InternalUser, UserType.ExternalUser]
         }
     }
-]; 
+];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class DashboardRoutingModule { } 
+export class DashboardRoutingModule { }

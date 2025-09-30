@@ -377,6 +377,8 @@ export class IndividualComponent implements OnInit {
             return 'No';
           case MiseEnDemeureStatus.Yes:
             return 'Yes';
+          default:
+            return 'Unknown';
         }
       }
       colorMiseEnDemeureStatus(status: MiseEnDemeureStatus): string {

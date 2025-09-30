@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { CreateExportationCommand, CreateExportationIncomingCommand, ExceptionDirectedTo, ExportationApurementStatus, ExportationExceptionResponse, ExportationFileHistoryResponse, ExportationFileResponse, ExportationMessageResponse, ExportationResponse, GetExportationsQuery, RaiseExportationExceptionCommand, ReviewExportationFileCommand, UpdateExportationExceptionCommand } from '../models/exportation.models';
+import { CreateExportationCommand, CreateExportationIncomingCommand, CreateExportationIncomingRetrocessionCommand, ExceptionDirectedTo, ExportationApurementStatus, ExportationExceptionResponse, ExportationFileHistoryResponse, ExportationFileResponse, ExportationMessageResponse, ExportationResponse, GetExportationsQuery, RaiseExportationExceptionCommand, ReviewExportationFileCommand, UpdateExportationBonForEmbarquementCommand, UpdateExportationExceptionCommand, UpdateExportationFactureDefinitiveCommand } from '../models/exportation.models';
 import { PaginatedList } from 'src/app/helpers/pagination';
 import { DEService } from '../../de/services/de.services';
 import { DEResponse } from '../../de/models/de.models';
@@ -15,7 +15,6 @@ import { ExceptionResolverContactResponse } from '../../transactions/models/tran
 })
 export class ExportationService {
 
-    
     private readonly baseUrl = `${environment.apiUrl}/v1/api/exportations`;
 
     constructor(private http: HttpClient, private deService : DEService, private transactionService: TransactionService) {}
@@ -32,8 +31,9 @@ export class ExportationService {
     return this.http.post<void>(`${this.baseUrl}/${exportationId}/submit`, null);
 
     }
-   
+
     getExportations(query: GetExportationsQuery): Observable<PaginatedList<ExportationResponse>> {
+        console.log('GetExportationsQuery', query);
         let params = new HttpParams()
             .set('pageNumber', query.pageNumber.toString())
             .set('pageSize', query.pageSize.toString());
@@ -51,7 +51,7 @@ export class ExportationService {
             params = params.set('end', query.endDate.toISOString());
         }
 
-        return this.http.get<PaginatedList<ExportationResponse>>(this.baseUrl, { params });        
+        return this.http.get<PaginatedList<ExportationResponse>>(this.baseUrl, { params });
     }
 
     getDEDetailsByEForceReference(eForceReference: string): Observable<DEResponse[]> {
@@ -61,7 +61,12 @@ export class ExportationService {
             })
         );
     }
-
+    matchDEWithExportation(exportationId: string,eforceReference : string): Observable<void> {
+       return this.http.post<void>(`${this.baseUrl}/${exportationId}/${eforceReference}/match-de`, {});
+    }
+    unMatchDEWithExportation(exportationId: string): Observable<void> {
+       return this.http.post<void>(`${this.baseUrl}/${exportationId}/unmatch-de`, {});
+    }
     getExportationFiles(exportationId: string): Observable<ExportationFileResponse[]> {
         return this.http.get<ExportationFileResponse[]>(`${this.baseUrl}/${exportationId}/files`);
     }
@@ -85,29 +90,30 @@ export class ExportationService {
     }
 
     getExportationFileBlob(exportationId: string | undefined  , exportationFileId: string): Observable<Blob> {
+        let random = Math.random().toString(36).substring(10);
         return this.http.get(
-        `${this.baseUrl}/${exportationId}/file/${exportationFileId}`,
+        `${this.baseUrl}/${exportationId}/file/${exportationFileId}/${random}`,
         { responseType: 'blob' }
         );
     }
-  
+
     getExportationFileHistory(exportationId: string, exportationFileId: string): Observable<ExportationFileHistoryResponse[]> {
         return this.http.get<ExportationFileHistoryResponse[]>(`${this.baseUrl}/${exportationId}/file-history/${exportationFileId}`);
     }
-    
+
     getExportationFileHistoryDownload(exportationId: string, transactionFileId: string, history: string|null): Observable<Blob> {
         return this.http.get(
           `${this.baseUrl}/${exportationId}/file/${transactionFileId}/history/${history}`,
           { responseType: 'blob' }
         );
     }
-   downloadZipDocs(exportationId: string): Observable<Blob> {
+   downloadZipDocs(exportationId: string): Observable<Blob|any> {
         return this.http.get(
         `${this.baseUrl}/${exportationId}/document-zip`,
         { responseType: 'blob' }
         );
     }
-  
+
     setExportationApurement(exportationId: string, exportationApurementStatus: ExportationApurementStatus): Observable<void> {
         return this.http.post<void>(`${this.baseUrl}/${exportationId}/apurement/${exportationApurementStatus}`, null);
     }
@@ -127,7 +133,7 @@ export class ExportationService {
         formData.append('corporateId', command.corporateId || '');
         formData.append('individualId', command.individualId || '');
         formData.append('accountNumber', command.accountNumber);
-       
+
         formData.append('valueDate', command.valueDate.toString());
         formData.append('amount', command.amount.toString());
         formData.append('currency', command.currency);
@@ -141,9 +147,31 @@ export class ExportationService {
         return this.http.delete<void>(`${this.baseUrl}/${exportationId}/incomings/${incomingId}`);
     }
 
+    createExportationIncomingRetrocession(command: CreateExportationIncomingRetrocessionCommand): Observable<void> {
+        const formData = new FormData();
+        formData.append('exportationId', command.exportationId.toString());
+        formData.append('amountThatShouldBeRefund', command.amountThatShouldBeRefund.toString());
+        formData.append('refundReference', command.refundReference);
+        formData.append('file', command.swiftFile);
+
+        return this.http.post<void>(`${this.baseUrl}/incoming-retrocession`, formData);
+    }
+
+    deleteExportationIncomingRetrocession(exportationId: string, incomingRetrocessionId: string): Observable<void> {
+        return this.http.delete<void>(`${this.baseUrl}/${exportationId}/incoming-retrocessions/${incomingRetrocessionId}`);
+    }
+
+
     getExportationIncomingSwiftDownload(exportationId: string, incomingId: string): Observable<Blob> {
         return this.http.get(
             `${this.baseUrl}/${exportationId}/incoming/${incomingId}`,
+            { responseType: 'blob' }
+        );
+    }
+
+    getExportationIncomingRetrocessionSwiftDownload(exportationId: string, incomingRetrocessionId: string): Observable<Blob> {
+        return this.http.get(
+            `${this.baseUrl}/${exportationId}/incoming-retrocession/${incomingRetrocessionId}`,
             { responseType: 'blob' }
         );
     }
@@ -152,6 +180,21 @@ export class ExportationService {
         return this.http.post<void>(`${this.baseUrl}/file-review`, review);
     }
 
+    updateExportationFactureDefinitive(command: UpdateExportationFactureDefinitiveCommand): Observable<void> {
+        return this.http.post<void>(`${this.baseUrl}/facture-definitive`, command);
+    }
+
+    updateExportationBonForEmbarquement(command: UpdateExportationBonForEmbarquementCommand): Observable<void> {
+        return this.http.post<void>(`${this.baseUrl}/bon-embarquement`, command);
+    }
+
+    clearExportationFactureDefinitive(exportationId: string): Observable<void> {
+      return this.http.post<void>(`${this.baseUrl}/${exportationId}/facture-definitive/clear`, null);
+    }
+
+    clearExportationBonForEmbarquement(exportationId: string): Observable<void> {
+      return this.http.post<void>(`${this.baseUrl}/${exportationId}/bon-embarquement/clear`, null);
+    }
     raiseException(command: RaiseExportationExceptionCommand): Observable<void> {
         return this.http.post<void>(`${this.baseUrl}/exceptions`, command);
       }
@@ -162,12 +205,12 @@ export class ExportationService {
         if (file) {
           formData.append('file', file);
         }
-            
+
         console.log('formData', formData);
-    
+
         return this.http.put<void>(`${this.baseUrl}/exceptions`, formData);
       }
-          
+
     getExportationExceptionResolverMail(exportationId: string | undefined, exceptionDirectedTo: ExceptionDirectedTo): Observable<ExceptionResolverContactResponse[]> {
         return this.http.get<ExceptionResolverContactResponse[]>(
           `${this.baseUrl}/${exportationId}/exception-directed-to/${exceptionDirectedTo}`

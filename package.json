@@ -33,6 +33,7 @@
     "googleapis": "66.0.0",
     "jquery": "3.5.1",
     "ng2-charts": "^4.1.1",
+    "ngx-editor": "^16.0.1",
     "ngx-extended-pdf-viewer": "^21.4.6",
     "ngx-jwt-handler": "^1.0.6",
     "ngx-mask": "^14.2.0",

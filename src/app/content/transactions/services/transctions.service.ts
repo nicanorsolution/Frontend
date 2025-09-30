@@ -24,7 +24,10 @@ import {
   TransactionProvisionTransferResponse,
   ProvisionBeforeInitiationResponse,
   TransactionAmountLienStatus,
-  RoleToSendBackTransactionResponse
+  RoleToSendBackTransactionResponse,
+  NostroAccountResponse,
+  NostroPurpose,
+  SetCorrespondingBankInfoRequest
 } from '../models/transactions.model';
 import { PaginatedList } from '../../../helpers/pagination';
 import { DocumentResponse } from '../../documentations/models/document.models';
@@ -175,6 +178,18 @@ export class TransactionService {
     return this.http.get<any>(`${this.baseUrl}/dis/${transactionId}`);
   }
 
+  setTransactionCorrespondingBankInfo(request:  SetCorrespondingBankInfoRequest): Observable<void> {
+    return this.http.put<void>(`${this.baseUrl}/corresponding-bank`, request);
+  }
+
+  getNostroAccounts(currency?: string, purpose?: NostroPurpose): Observable<NostroAccountResponse[]> {
+    let params = new HttpParams();
+    if (currency) params = params.set('currency', currency);
+    if (purpose !== undefined && purpose !== null) params = params.set('purpose', purpose.toString());
+
+    return this.http.get<NostroAccountResponse[]>(`${this.baseUrl}/nostros`, { params });
+  }
+
   ImputeDI(command : ImputeDICommand) {
     return  this.diService.imputeDI(command);
   }
@@ -242,6 +257,14 @@ export class TransactionService {
       { responseType: 'blob' }
     );
   }
+
+  generateBookingMemo(transactionId: string): Observable<Blob> {
+    return this.http.get(
+      `${this.baseUrl}/${transactionId}/booking-memo`,
+      { responseType: 'blob' }
+    );
+  }
+
   setTransactionAmountLienStatus(transactionId: string, transactionAmountLienStatus: TransactionAmountLienStatus): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/${transactionId}/amount-lien/${transactionAmountLienStatus}`, null);
   }

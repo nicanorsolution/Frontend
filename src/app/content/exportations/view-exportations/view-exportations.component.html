@@ -35,8 +35,8 @@
                   </span>
                 </div>
                 <div class="col-2">
-                  <button pButton type="submit" 
-                    label="Search" 
+                  <button pButton type="submit"
+                    label="Search"
                     icon="pi pi-search"
                     class="p-button-outlined">
                   </button>
@@ -59,7 +59,7 @@
 
               <ng-template pTemplate="header">
                 <tr>
-                  <th style="width: 3rem"></th>
+                  <th style="width: 4rem"></th>
                   <th>Reference</th>
                   <th>Customer</th>
                   <th>DE Reference</th>
@@ -81,14 +81,14 @@
                   <td>{{exportation.customerName}}</td>
                   <td>{{exportation.deDetails.eForceReference}}</td>
                   <td>
-                    <p-tag [value]="getStatusString(exportation.exportationStatus)"
+                    <status [value]="getStatusString(exportation.exportationStatus)"
                           [severity]="colorStatus(exportation.exportationStatus)">
-                    </p-tag>
+                    </status>
                   </td>
                   <td>
-                    <p-tag [value]="getApurementStatusString(exportation.exportationApurementStatus)"
+                    <status [value]="getApurementStatusString(exportation.exportationApurementStatus)"
                           [severity]="colorApurementStatus(exportation.exportationApurementStatus)">
-                    </p-tag>
+                    </status>
                   </td>
                   <td>{{exportation.exportationCreatedDate | date:'medium'}}</td>
                 </tr>
@@ -127,10 +127,16 @@
                           <div class="grid">
                             <div class="col-3"><b>Fee Status:</b></div>
                             <div class="col-3">
-                              <p-tag [value]="getDEFeeStatusString(exportation.deFeeStatus)"
+                              <status [value]="getDEFeeStatusString(exportation.deFeeStatus)"
                                     [severity]="colorDEFeeStatus(exportation.deFeeStatus)">
-                              </p-tag>
+                              </status>
                             </div>
+
+                             <div class="col-3"><b>Amount:</b></div>
+                            <div class="col-3">
+                             {{exportation.dEFeeAmount | number:'1.2-2'}}
+                            </div>
+
                             <div class="col-3"><b>Collection Date:</b></div>
                             <div class="col-3">{{exportation.deFeeCollectionDate | date:'medium'}}</div>
 
@@ -156,7 +162,7 @@
                           <button pButton type="button"
                             class="p-button-outlined"
                             icon="pi pi-file-pdf" iconPos="left"
-                            label="Documentation"
+                            label="View Details"
                             (click)="redirectToExportationDocumentationPage(exportation)"
                             style="margin-right: 10px">
                           </button>
@@ -172,7 +178,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Approval History Dialog -->
   <p-dialog [(visible)]="approvalHistoryDialog"
     [style]="{width: '70vw'}"

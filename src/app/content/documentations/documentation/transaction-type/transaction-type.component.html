@@ -36,7 +36,7 @@
             >
               <ng-template pTemplate="header">
                 <tr>
-                  <th style="width: 3rem"></th>
+                  <th style="width: 4rem"></th>
                   <th>Name (FR)</th>
                   <th>Name (EN)</th>
                   <th>Direction</th>
@@ -64,20 +64,20 @@
                   <td>{{ type.transactionTypeNameFr }}</td>
                   <td>{{ type.transactionTypeNameEn }}</td>
                   <td>
-                    <p-tag [value]="getTransactionDirectionString(type.transactionDirection)"
+                    <status [value]="getTransactionDirectionString(type.transactionDirection)"
                     [severity]="colorDirection(type.transactionDirection)">
-                    </p-tag>
+                    </status>
                   </td>
                   <td>
-                    <p-tag [value]="getAppurementRequiredString(type.appurementRequired)"
-                    [severity]="colorAppurement(type.appurementRequired)"></p-tag>
+                    <status [value]="getAppurementRequiredString(type.appurementRequired)"
+                    [severity]="colorAppurement(type.appurementRequired)"></status>
                   </td>
                   <td>
-                    <p-tag
+                    <status
                       [value]="getStatusString(type.transactionTypeStatus)"
                       [severity]="colorStatus(type.transactionTypeStatus)"
                     >
-                    </p-tag>
+                    </status>
                   </td>
                   <td>{{ type.lastModifyBy }}</td>
                   <td>{{ type.lastUpdatedDate | date : "medium" }}</td>
@@ -113,7 +113,7 @@
                           </div>
                           <div class="col-2">
                             <div class="text-left p-3">
-                              <p-tag
+                              <status
                                 [value]="
                                   getStatusString(type.transactionTypeStatus)
                                 "
@@ -121,7 +121,7 @@
                                   colorStatus(type.transactionTypeStatus)
                                 "
                               >
-                              </p-tag>
+                              </status>
                             </div>
                           </div>
                           <div class="col-2">
@@ -379,16 +379,16 @@
                   <td>{{ doc.documentNameFr }}</td>
                   <td>{{ doc.documentNameEn }}</td>
                   <td>
-                   <p-tag
+                   <status
                       [value]="getSubmissionOptionString(doc.documentSubmissionOption)"
                       [severity]="colorSubmissionOption(doc.documentSubmissionOption)">
-                    </p-tag>
+                    </status>
                   </td>
                   <td>
-                     <p-tag
+                     <status
                       [value]="getDocumentStatusString(doc.documentStatus)"
                       [severity]="colorDocumentStatus(doc.documentStatus)">
-                    </p-tag>
+                    </status>
                   </td>
                 </tr>
               </ng-template>
@@ -401,6 +401,7 @@
             <div class="flex justify-content-end mt-3">
               <button
                 pButton
+                icon="pi pi-times"
                 type="button"
                 (click)="viewDocumentsDialog = false"
                 label="Close"

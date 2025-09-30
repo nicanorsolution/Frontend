@@ -199,6 +199,7 @@ B70i9Ku7K7hkcNbf/QIDAQAB
 
   logout() {
     this.authService.logout().subscribe({
+      
       complete: () => {
         this.route.navigate(['/login']);
       }

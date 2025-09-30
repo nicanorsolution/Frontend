@@ -24,14 +24,14 @@
                 <td>{{doc.documentOriginalName}}</td>
 
                 <td>
-                    <p-tag [value]="getFileStatusLabel(doc.transactionFileStatus)"
+                    <status [value]="getFileStatusLabel(doc.transactionFileStatus)"
                            [severity]="colorFileStatus(doc.transactionFileStatus)">
-                    </p-tag>
+                    </status>
                 </td>
                 <td>
-                  <p-tag [value]="getSubmissionTypeLabel(doc.documentSubmissionOption)"
+                  <status [value]="getSubmissionTypeLabel(doc.documentSubmissionOption)"
                          [severity]="colorSubmissionType(doc.documentSubmissionOption)">
-                  </p-tag>
+                  </status>
                 </td>
                 <td>{{doc.documentSize | fileSize}}</td>
                 <td>

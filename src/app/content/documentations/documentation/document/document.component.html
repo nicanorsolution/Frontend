@@ -22,56 +22,58 @@
             <br />
             <hr />
             <p-table [value]="documents"
-              styleClass="p-datatable-striped p-datatable-gridlines"
+              styleClass="p-datatable-striped p-datatable-gridlines document-table"
               [expandedRowKeys]="expandedRows"
               dataKey="documentId"
               [paginator]="true"
               [rows]="15"
               [showCurrentPageReport]="true"
+              [autoLayout]="false"
+              [scrollable]="true"
               currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
               [totalRecords]="totalRows">
 
               <ng-template pTemplate="header">
                 <tr>
-                  <th style="width: 3rem"></th>
-                  <th>Name (FR)</th>
-                  <th>Name (EN)</th>
-                  <th>Status</th>
-                  <th>Submission Option</th>
-                  <th>Last Modified By</th>
-                  <th>Last Updated</th>
+                  <th scope="col" style="width: 40px; min-width: 40px;"></th>
+                  <th scope="col" style="width: 180px; min-width: 180px;">Name (FR)</th>
+                  <th scope="col" style="width: 180px; min-width: 180px;">Name (EN)</th>
+                  <th scope="col" style="width: 80px; min-width: 80px;">Status</th>
+                  <th scope="col" style="width: 150px; min-width: 150px;">Submission Option</th>
+                  <th scope="col" style="width: 130px; min-width: 130px;">Last Modified By</th>
+                  <th scope="col" style="width: 130px; min-width: 130px;">Last Updated</th>
                 </tr>
               </ng-template>
 
               <ng-template pTemplate="body" let-doc let-expanded="expanded">
                 <tr>
-                  <td>
+                  <td style="text-align: center; white-space: nowrap;">
                     <button type="button" pButton pRipple [pRowToggler]="doc"
                       class="p-button-text p-button-rounded p-button-plain"
                       [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
                     </button>
                   </td>
-                  <td>{{doc.documentNameFr}}</td>
-                  <td>{{doc.documentNameEn}}</td>
-                  <td>
-                    <p-tag [value]="getStatusString(doc.documentStatus)"
+                  <td style="word-wrap: break-word; white-space: normal;">{{doc.documentNameFr}}</td>
+                  <td style="word-wrap: break-word; white-space: normal;">{{doc.documentNameEn}}</td>
+                  <td style="text-align: center;">
+                    <status [value]="getStatusString(doc.documentStatus)"
                       [severity]="colorStatus(doc.documentStatus)">
-                    </p-tag>
+                    </status>
                   </td>
-                  <td>
-                      <p-tag [value]="getSubmissionOptionString(doc.documentSubmissionOption)"
+                  <td style="text-align: center;">
+                      <status [value]="getSubmissionOptionString(doc.documentSubmissionOption)"
                       [severity]="colorSubmissionOption(doc.documentSubmissionOption)">
-                    </p-tag>
+                    </status>
                   </td>
-                  <td>{{doc.lastModifyBy}}</td>
-                  <td>{{doc.lastUpdatedDate | date:'medium'}}</td>
+                  <td style="word-wrap: break-word; white-space: normal;">{{doc.lastModifyBy}}</td>
+                  <td style="word-wrap: break-word; white-space: normal;">{{doc.lastUpdatedDate | date:'MMM dd, yyyy HH:mm:ss'}}</td>
 
                 </tr>
               </ng-template>
 
               <ng-template pTemplate="rowexpansion" let-doc>
                 <tr>
-                  <td colspan="8">
+                  <td colspan="7">
                     <div class="p-grid p-nogutter">
                       <br/>
                       <div class="p-col-12">
@@ -87,9 +89,9 @@
                           </div>
                           <div class="col-2">
                             <div class="text-left p-3">
-                              <p-tag [value]="getStatusString(doc.documentStatus)"
+                              <status [value]="getStatusString(doc.documentStatus)"
                                 [severity]="colorStatus(doc.documentStatus)">
-                              </p-tag>
+                              </status>
                             </div>
                           </div>
                           <div class="col-2">
@@ -234,9 +236,9 @@
                   <td>{{ control.documentControlName }}</td>
                   <td>{{ control.documentControlDetail }}</td>
                   <td>
-                    <p-tag [value]="getDocumentControlTypeString(control.documentControlType)"
+                    <status [value]="getDocumentControlTypeString(control.documentControlType)"
                       [severity]="getControlTypeSeverity(control.documentControlType)">
-                    </p-tag>
+                    </status>
                   </td>
                   <td  appRoleVisibility [requiredUserTypes]="[UserType.InternalUser]">
                     <button pButton type="button"
@@ -257,7 +259,7 @@
             </p-table>
 
             <div class="flex justify-content-end mt-3">
-              <button pButton type="button" label="Close" icon="pi pi-times" (click)="documentControlsDialog = false" class="p-button-outlined"></button>
+              <button pButton type="button" label="Close" icon="pi pi-times" (click)="documentControlsDialog = false" class="p-button-outlined p-button-danger"></button>
             </div>
           </p-dialog>
 
