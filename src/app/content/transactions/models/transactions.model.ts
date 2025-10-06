@@ -132,8 +132,6 @@ export interface TransactionResponse {
   customerAccountNumber: string;
   transactionAmount: number;
   transactionCurrency: string;
-  transactionAmountLocalCurrency: number;
-  transactionAmountToLienLocalCurrency: number;
   transactionTypeName?: string;
   status: TransactionStatus;
   processingType?: ProcessingType;

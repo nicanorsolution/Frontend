@@ -95,6 +95,7 @@ export interface Account {
 }
 
 export interface CorporateQuery {
+  corporateId?:string | null;
   name?: string;
   niu?: string;
   pageNumber: number;
@@ -102,6 +103,7 @@ export interface CorporateQuery {
 }
 
 export interface IndividualQuery {
+  individualId ?:string | null;
   name?: string;
   niu?: string;
   pageNumber: number;

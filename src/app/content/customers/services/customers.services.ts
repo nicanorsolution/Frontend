@@ -55,6 +55,9 @@ export class CustomersService {
     if (query.niu) {
       params = params.append('niu', query.niu);
     }
+    if (query.corporateId) {
+      params = params.append('corporateId', query.corporateId);
+    }
 
     return this.http.get<PaginatedList<CorporateResponse>>(`${this.baseUrl}/corporates`, { params });
   }
@@ -181,6 +184,9 @@ export class CustomersService {
     }
     if (query.niu) {
       params = params.append('niu', query.niu);
+    }
+    if (query.individualId) {
+      params = params.append('individualId', query.individualId);
     }
 
     return this.http.get<PaginatedList<IndividualResponse>>(`${this.baseUrl}/individuals`, { params });

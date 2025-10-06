@@ -152,7 +152,10 @@ export class DashboardComponent implements OnInit {
         console.log('Processed exportation status chart data:', this.exportationStatusChartData);
 
         // Import/Export Line Chart
-        if (response.importNumberByMonthReports?.length > 0 && response.exportNumberByMonthReports?.length > 0) {
+        console.log('ImportNumberByMonthReports:', response.importNumberByMonthReports);
+        console.log('ExportNumberByMonthReports:', response.exportNumberByMonthReports);
+       // if (response.importNumberByMonthReports?.length > 0 && response.exportNumberByMonthReports?.length > 0) {
+        if (response.importNumberByMonthReports?.length > 0) {
             this.importExportLineChartData.labels = response.importNumberByMonthReports.map(d => d.month);
             this.importExportLineChartData.datasets[0].data = response.importNumberByMonthReports.map(d => d.value);
             this.importExportLineChartData.datasets[1].data = response.exportNumberByMonthReports.map(d => d.value);

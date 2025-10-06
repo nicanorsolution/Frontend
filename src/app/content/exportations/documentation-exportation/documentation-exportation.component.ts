@@ -424,6 +424,12 @@ export class DocumentationExportationComponent implements OnInit {
           this.fileBLob = null;
           this.fileBase64 = null;
           this.pdfLoadingError = 'Failed to load document from server';
+
+          Swal.fire({
+            title: 'Error',
+            text: error?.error?.detail || 'Failed to load document',
+            icon: 'error'
+          });
         }
       });
       // Load document controls

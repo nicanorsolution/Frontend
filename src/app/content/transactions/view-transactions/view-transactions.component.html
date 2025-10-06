@@ -123,10 +123,8 @@
                               </status>
                             </div>
 
-                            <div class="col-3"><b>Amount (Local):</b></div>
-                            <div class="col-3">{{transaction.transactionAmountLocalCurrency | number:'1.2-2'}}</div>
-                            <div class="col-3"><b>Lien Amount (Local):</b></div>
-                            <div class="col-3">{{transaction.transactionAmountToLienLocalCurrency | number:'1.2-2'}}</div>
+                            <div class="col-3"><b>Amount (In Base Currency):</b></div>
+                            <div class="col-3">XAF {{transaction.principalAmountInBaseCurrency | number:'1.2-2'}}</div>
                             <div class="col-3"><b>Payment Details:</b></div>
                             <div class="col-3">{{transaction.paymentDetails}}</div>
                           </div>

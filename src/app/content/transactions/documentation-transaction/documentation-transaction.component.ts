@@ -243,6 +243,11 @@ export class DocumentationTransactionComponent implements OnInit {
         error: (error) => {
           console.error('Error loading document:', error);
           this.fileBLob = null;
+          Swal.fire({
+            title: 'Error',
+            text: error?.error?.detail || 'Failed to load document',
+            icon: 'error'
+          });
         }
       });
 

@@ -23,7 +23,7 @@
                       *ngIf="userType == UserTypeEnum.InternalUser"
                       (click)="openSelectCustomerDialog()">
                       </button>
-                     
+
                       <button pButton
                       type="button"
                       class="ml-auto p-button-outlined p-button-success"
@@ -276,6 +276,98 @@
               </button>
             </ng-template>
 
+          </p-dialog>
+
+          <!-- External User Account Selection Dialog -->
+          <p-dialog [(visible)]="selectAccountDialog"
+            [style]="{width: '60vw'}"
+            [header]="'Select Your Account'"
+            [modal]="true">
+            <br/>
+            <br/>
+
+            <!-- Loading indicator -->
+            <div class="text-center" *ngIf="isLoadingExternalCustomer">
+              <i class="pi pi-spinner pi-spin" style="font-size: 2rem"></i>
+              <p>Loading your accounts...</p>
+            </div>
+
+            <!-- Customer and Account Details -->
+            <div *ngIf="!isLoadingExternalCustomer && externalCustomer">
+              <div class="grid p-fluid">
+                <!-- Customer Information -->
+                <div class="col-12">
+                  <p-fieldset legend="Customer Information">
+                    <div class="grid">
+                      <div class="col-6">
+                        <strong>Name:</strong> {{externalCustomer.name}}
+                      </div>
+                      <div class="col-6">
+                        <strong>NIU:</strong> {{externalCustomer.niu}}
+                      </div>
+                      <div class="col-12" *ngIf="externalCustomer.address">
+                        <strong>Address:</strong> {{externalCustomer.address}}
+                      </div>
+                    </div>
+                  </p-fieldset>
+                </div>
+
+                <!-- Account Selection -->
+                <div class="col-12 mt-3">
+                  <span class="p-float-label">
+                    <p-dropdown [(ngModel)]="selectedExternalAccount"
+                      [options]="externalCustomerAccounts"
+                      [style]="{'width':'100%'}"
+                      optionLabel="accountName"
+                      [showClear]="true"
+                      placeholder="Select account">
+                      <ng-template let-account pTemplate="item">
+                        <div>
+                          <div><strong>{{account.accountNumber}}</strong></div>
+                          <div class="text-sm">{{account.accountName}}</div>
+                        </div>
+                      </ng-template>
+                      <ng-template pTemplate="selectedItem" let-account>
+                        <span *ngIf="account">{{account.accountNumber}} - {{account.accountName}}</span>
+                        <span *ngIf="!account">Select Account</span>
+                      </ng-template>
+                    </p-dropdown>
+                    <label>Select Account</label>
+                  </span>
+                </div>
+
+                <!-- Selected Account Details -->
+                <div class="col-12 mt-3" *ngIf="selectedExternalAccount">
+                  <p-fieldset legend="Selected Account Details">
+                    <div class="grid">
+                      <div class="col-6">
+                        <strong>Account Number:</strong> {{selectedExternalAccount.accountNumber}}
+                      </div>
+                      <div class="col-6">
+                        <strong>Account Name:</strong> {{selectedExternalAccount.accountName}}
+                      </div>
+                      <div class="col-12">
+                        <strong>Branch Code:</strong> {{selectedExternalAccount.branchCode}}
+                      </div>
+                    </div>
+                  </p-fieldset>
+                </div>
+              </div>
+            </div>
+
+            <ng-template pTemplate="footer">
+              <button pButton type="button"
+                label="Cancel"
+                class="p-button-outlined p-button-secondary"
+                (click)="selectAccountDialog = false">
+              </button>
+              <button pButton type="button"
+                label="Select"
+                class="p-button-outlined p-button-success ml-2"
+                [disabled]="!selectedExternalAccount"
+                (click)="confirmExternalAccountSelection()">
+              </button>
+            </ng-template>
           </p-dialog>
 
           <!-- Transaction Documents Dialog -->

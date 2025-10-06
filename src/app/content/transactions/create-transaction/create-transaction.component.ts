@@ -42,6 +42,13 @@ export class CreateTransactionComponent implements OnInit {
   userEntityId: string | null = null;
   userEntityName: string | null = null;
 
+  // External user account selection
+  selectAccountDialog = false;
+  externalCustomer: CorporateResponse | IndividualResponse | null = null;
+  externalCustomerAccounts: any[] = [];
+  selectedExternalAccount: any = null;
+  isLoadingExternalCustomer = false;
+
   constructor(
     private fb: FormBuilder,
     private transactionService: TransactionService,
@@ -124,11 +131,109 @@ export class CreateTransactionComponent implements OnInit {
   }
 
   openSelectAccountDialog() {
-    //TODO fix this external user config
-  /*   this.selectAccountDialog = true;
-    this.searchAccountForm.reset();
-    this.filteredAccounts = [];
-    this.selectedAccount = null; */
+    if (!this.userEntityId) {
+      Swal.fire({
+        title: 'Error',
+        text: 'User entity ID not found',
+        icon: 'error'
+      });
+      return;
+    }
+
+    this.selectAccountDialog = true;
+    this.isLoadingExternalCustomer = true;
+    this.externalCustomer = null;
+    this.externalCustomerAccounts = [];
+    this.selectedExternalAccount = null;
+
+    // Fetch customer data based on user type (assuming ExternalUser is Corporate by default)
+    // You can adjust this logic based on your actual user type determination
+    this.customersService.getCorporates({
+      corporateId: this.userEntityId,
+      name: '',
+      pageNumber: 1,
+      pageSize: 100
+    }).subscribe({
+      next: (response) => {
+        const customer = response.items.find(c => c.id === this.userEntityId);
+        if (customer) {
+          this.externalCustomer = customer;
+          this.externalCustomerAccounts = customer.bankAccounts || [];
+          this.isLoadingExternalCustomer = false;
+
+          if (this.externalCustomerAccounts.length === 0) {
+            Swal.fire({
+              title: 'No Accounts',
+              text: 'No bank accounts found for this corporate',
+              icon: 'info'
+            });
+            this.selectAccountDialog = false;
+          }
+        } else {
+          // Try searching as individual
+          this.customersService.getIndividuals({
+            individualId: this.userEntityId,
+            name: '',
+            pageNumber: 1,
+            pageSize: 100
+          }).subscribe({
+            next: (indResponse) => {
+              const individual = indResponse.items.find(i => i.id === this.userEntityId);
+              if (individual) {
+                this.externalCustomer = individual;
+                this.externalCustomerAccounts = individual.bankAccount ? [individual.bankAccount] : [];
+                this.isLoadingExternalCustomer = false;
+
+                if (this.externalCustomerAccounts.length === 0) {
+                  Swal.fire({
+                    title: 'No Accounts',
+                    text: 'No bank account found for this individual',
+                    icon: 'info'
+                  });
+                  this.selectAccountDialog = false;
+                }
+              } else {
+                this.isLoadingExternalCustomer = false;
+                this.selectAccountDialog = false;
+                Swal.fire({
+                  title: 'Error',
+                  text: 'Customer not found',
+                  icon: 'error'
+                });
+              }
+            },
+            error: (error) => {
+              this.isLoadingExternalCustomer = false;
+              this.selectAccountDialog = false;
+              this.handleError(error);
+            }
+          });
+        }
+      },
+      error: (error) => {
+        this.isLoadingExternalCustomer = false;
+        this.selectAccountDialog = false;
+        this.handleError(error);
+      }
+    });
+  }
+
+  confirmExternalAccountSelection() {
+    if (!this.selectedExternalAccount || !this.externalCustomer) return;
+
+    const isCorporate = 'bankAccounts' in this.externalCustomer;
+
+    this.createTransactionForm.patchValue({
+      corporateOrIndividual: isCorporate
+        ? CorporateOrIndividual.Corporate
+        : CorporateOrIndividual.Individual,
+      corporateId: isCorporate ? this.externalCustomer.id : '',
+      individualId: !isCorporate ? this.externalCustomer.id : '',
+      customerName: this.externalCustomer.name,
+      customerAccount: this.selectedExternalAccount.accountNumber
+    });
+
+    this.selectAccountDialog = false;
   }
 
   searchCustomer(event: { query: string }) {
