@@ -103,7 +103,7 @@
                   <th scope="col">SGS Reference</th>
                   <th scope="col">Domiciliation Date</th>
                   <th scope="col">DI Amount</th>
-                  <th scope="col">DI Amount Used</th>
+                  <th scope="col">DI Balance</th>
                   <th scope="col">Status</th>
                   <th scope="col">Additional Info Provided</th>
                   <th scope="col">Sgs Updated</th>
@@ -438,14 +438,19 @@
   <form [formGroup]="updateDescriptionForm" (ngSubmit)="updateDescription()">
     <div class="grid p-fluid mt-3">
 
-       <div class="field col-8">
+       <div class="field col-6">
         <span class="p-float-label p-input-filled">
-          <input
+       <!--    <input
             formControlName="amountInCurrency"
+
             type="text"
             id="amountInCurrency"
-            pInputText  readonly
-          />
+            pInputText
+
+          /> -->
+          <p-inputNumber formControlName="amountInCurrency"
+
+                         [minFractionDigits]="2" />
           <label for="amountInCurrency">Amount In Currency </label>
           <small
             *ngIf="updateDescriptionForm.get('amountInCurrency')?.invalid &&
@@ -454,14 +459,17 @@
                 class="p-error">Amount reference is required.</small>      </span>
        </div>
 
-       <div class="field col-4">
+       <div class="field col-6">
         <span class="p-float-label p-input-filled">
-          <input
-            formControlName="currency"
-            type="text"
+
+           <p-dropdown
             id="currency"
-            pInputText  readonly
-          />
+            [options]="currencies"
+            formControlName="currency"
+            optionLabel="CurrencyLabel"
+            optionValue="CurrencyLabel"
+            [showClear]="true"
+          ></p-dropdown>
           <label for="currency">Currency </label>
           <small
             *ngIf="updateDescriptionForm.get('currency')?.invalid &&
@@ -488,10 +496,13 @@
         </span>
       </div>
 
+
+
       <div class="field col-6">
         <span class="p-float-label">
           <p-calendar
             formControlName="billExpiringDate"
+
             id="billExpiringDate"
           ></p-calendar>
           <label for="billExpiringDate">Bill Expiring Date</label>
@@ -537,8 +548,18 @@
             class="p-error">Goods Unit is required.</small>
         </span>
       </div>
-
-          <div class="field col-12">
+      <div class="field col-6">
+        <span class="p-float-label p-input-filled">
+          <input
+            formControlName="domiciliationNumberInBank"
+            type="text"
+            id="domiciliationNumberInBank"
+            pInputText
+          />
+          <label for="domiciliationNumberInBank">Domiciliation Number In Bank</label>
+        </span>
+      </div>
+          <div class="field col-6">
         <span class="p-float-label p-input-filled">
           <input
             formControlName="goodsDescription"

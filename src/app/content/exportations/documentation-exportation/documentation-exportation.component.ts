@@ -524,8 +524,8 @@ export class DocumentationExportationComponent implements OnInit {
     return this.getStatusSeverity(status);
   }
 
-  downloadHistoryDocument(exportationId: string, exportationFileId: string, history: string | null, docName: string) {
-    this.exportationService.getExportationFileHistoryDownload(exportationId, exportationFileId, history)
+  downloadHistoryDocument(historyId : string, docName: string) {
+    this.exportationService.getExportationFileHistoryDownload(historyId)
       .subscribe({
         next: (blob) => {
           const url = window.URL.createObjectURL(blob);

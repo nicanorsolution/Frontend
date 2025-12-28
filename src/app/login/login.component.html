@@ -65,7 +65,13 @@
 
       <h6 style="color: red;">{{errorMessages}}</h6>
 
-      <button type="submit" style="cursor: pointer;" >Log in</button>
+      <button type="submit" [disabled]="isLoading" [style.cursor]="isLoading ? 'not-allowed' : 'pointer'">
+        <span *ngIf="!isLoading">Log in</span>
+        <span *ngIf="isLoading">
+          <span class="custom-spinner"></span>
+          <span class="loading-text">Logging in...</span>
+        </span>
+      </button>
 
 
     </form>

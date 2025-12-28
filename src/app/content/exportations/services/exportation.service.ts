@@ -101,9 +101,9 @@ export class ExportationService {
         return this.http.get<ExportationFileHistoryResponse[]>(`${this.baseUrl}/${exportationId}/file-history/${exportationFileId}`);
     }
 
-    getExportationFileHistoryDownload(exportationId: string, transactionFileId: string, history: string|null): Observable<Blob> {
+    getExportationFileHistoryDownload(historyId: string): Observable<Blob> {
         return this.http.get(
-          `${this.baseUrl}/${exportationId}/file/${transactionFileId}/history/${history}`,
+          `${this.baseUrl}/file/history/${historyId}`,
           { responseType: 'blob' }
         );
     }

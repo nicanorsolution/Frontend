@@ -37,6 +37,8 @@ export class ImportationDomiciliationComponent implements OnInit {
 
   goodUnits: DIGoodsUnit[] = [];
 
+  currencies : {CurrencyLabel: string}[] =[];
+
   constructor(
     private diService: DIService,
     private fb: FormBuilder
@@ -47,6 +49,7 @@ export class ImportationDomiciliationComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadGoodUnits();
+    this.loadCUrrencies();
   }
 
   private loadGoodUnits() {
@@ -56,7 +59,13 @@ export class ImportationDomiciliationComponent implements OnInit {
       }
     });
   }
-
+  private loadCUrrencies() {
+    this.diService.getCurrencies().subscribe({
+      next: (units) => {
+        this.currencies = units.map(x=> {return {CurrencyLabel :x}});
+      }
+    });
+  }
   private initializeSearchForm() {
     this.searchForm = this.fb.group({
       referenceDi: [''],
@@ -73,10 +82,11 @@ export class ImportationDomiciliationComponent implements OnInit {
       currency : [''],
       goodsDescription: [''],
       goodQuantity: [null],
-      goodsUnit: [null], // Changed to null to work better with dropdown
+      goodsUnit: [null], //! Changed to null to work better with dropdown
       valeurTotalInDevise: [null],
       billReference: [''],
-      billExpiringDate: [null]
+      billExpiringDate: [null],
+      domiciliationNumberInBank: ['']
     });
   }
 
@@ -235,8 +245,11 @@ export class ImportationDomiciliationComponent implements OnInit {
       goodsUnit: di.goodsUnit,
       valeurTotalInDevise: di.valeurTotalInDevise,
       billReference: di.billReference,
-      billExpiringDate: di.billExpiringDate
+      billExpiringDate: di.billExpiringDate ? new Date(di.billExpiringDate) : null
+      ,
+      domiciliationNumberInBank: di.domiciliationNumberInBank || ''
     });
+    console.log(this.updateDescriptionForm.value);
   }
 
   updateDescription() {
@@ -254,8 +267,9 @@ export class ImportationDomiciliationComponent implements OnInit {
           this.isSubmitted = false;
           this.dialogOperationSwal.fire();
         },
-        error: () => {
+        error: (error) => {
           this.isSubmitted = false;
+          this.handleError(error);
         }
       });
     }

@@ -148,9 +148,9 @@ export class TransactionService {
     return this.http.get<TransactionFileHistoryResponse[]>(`${this.baseUrl}/${transactionId}/file-history/${transactionFileId}`);
   }
 
-  getTransactionFileHistoryDownload(transactionId: string, transactionFileId: string, history: string): Observable<Blob> {
+  getTransactionFileHistoryDownload( historyId: string): Observable<Blob> {
     return this.http.get(
-      `${this.baseUrl}/${transactionId}/file/${transactionFileId}/history/${history}`,
+      `${this.baseUrl}/file/history/${historyId}`,
       { responseType: 'blob' }
     );
   }

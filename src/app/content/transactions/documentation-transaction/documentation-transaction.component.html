@@ -1332,9 +1332,10 @@
                       [severity]="colorExceptionStatus(item.exceptionStatus)">
                 </status>
             </h5>
-            <p>
-                <strong>Internal Note:</strong><br/>
-                {{item.internalNote || 'No internal note'}}
+             <strong>Internal Note:</strong><br/>
+
+            <p [style.maxHeight]="'225px'" class="overflow-auto"
+                            [innerHTML]="item.internalNote">
             </p>
             <p *ngIf="item.attachedEmail">
                 <strong>Attached Email:</strong><br/>
@@ -1375,7 +1376,7 @@
             </p>
             <p *ngIf="item.documentPath && item.documentPath.length > 0">
                 <strong>Attached Document :</strong><br/>
-                <a (click)="downloadHistoryDocument(item.transactionId, item.id, item.history, item.documentName)"
+                <a (click)="downloadHistoryDocument(item.id, item.documentName)"
                    style="cursor: pointer;" >Download</a>
             </p>
         </div>

@@ -11,6 +11,7 @@ import {
   DIGoodsUnit
 } from '../models/di.models';
 import { PaginatedList } from '../../../helpers/pagination';
+import { SwiftCodeService } from '../../transafer-rates/services/swiftcode.services';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +19,7 @@ import { PaginatedList } from '../../../helpers/pagination';
 export class DIService {
   private readonly baseUrl = `${environment.apiUrl}/v1/api/importdomiciliation`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient,private swift : SwiftCodeService) {}
 
   imputeDI(command: ImputeDICommand): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/impute`, command);
@@ -72,5 +73,8 @@ export class DIService {
     return this.http.get<DIGoodsUnit[]>(`${this.baseUrl}/good-units`);
   }
 
+  getCurrencies(){
+    return this.swift.getCurrencies()
+  }
 
 }

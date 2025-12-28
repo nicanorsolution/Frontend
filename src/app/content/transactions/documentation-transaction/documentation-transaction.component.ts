@@ -1404,9 +1404,9 @@ getDocumentSubmissionStatusLabel(status: DocumentSubmissionOption): string {
     return this.getStatusSeverity(status);
   }
 
-  downloadHistoryDocument(transactionId :string, transactionFileid : string, history : string, docName : string){
+  downloadHistoryDocument(historyId: string, docName: string) {
 
-    this.transactionService.getTransactionFileHistoryDownload(transactionId, transactionFileid,history)
+    this.transactionService.getTransactionFileHistoryDownload(historyId)
       .subscribe({
         next: (blob) => {
           const url = window.URL.createObjectURL(blob);

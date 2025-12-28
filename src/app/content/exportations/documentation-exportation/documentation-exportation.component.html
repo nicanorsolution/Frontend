@@ -1041,7 +1041,7 @@
             <div [innerHTML]="item.reviewNote || 'No notes'"></div>
             <p *ngIf="item.documentPath && item.documentPath.length > 0">
                 <strong>Attached Document:</strong><br/>
-                <a (click)="downloadHistoryDocument(item.exportationId, item.id, item.history, item.documentName)"
+                <a (click)="downloadHistoryDocument(item.id, item.documentName)"
                    style="cursor: pointer;">Download</a>
             </p>
         </div>

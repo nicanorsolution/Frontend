@@ -15,12 +15,14 @@ export interface DIToImpute {
 export interface UpdateGoodsDescriptionCommand {
   dIId: string;
   amountInCurrency: number;
+  currency : string;
   goodsDescription?: string;
   goodQuantity?: number;
   goodsUnit?: string;
   valeurTotalInDevise?: number;
   billReference?: string;
   billExpiringDate?: Date;
+  domiciliationNumberInBank?: string;
 }
 
 export interface DIGoodsUnit {

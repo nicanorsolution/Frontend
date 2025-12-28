@@ -25,6 +25,7 @@ B70i9Ku7K7hkcNbf/QIDAQAB
 
   errorMessages = "";
   showPassword = false;
+  isLoading = false;
 
   constructor(private readonly route: Router, private readonly fb: FormBuilder, private readonly authService: AuthService) { }
 
@@ -44,6 +45,7 @@ B70i9Ku7K7hkcNbf/QIDAQAB
       return;
     }
 
+    this.isLoading = true;
     this.authService.loginAppUser({
       userName: this.encryptValue(this.loginForm.value.email),
       password: this.encryptValue( this.loginForm.value.password),
@@ -51,6 +53,7 @@ B70i9Ku7K7hkcNbf/QIDAQAB
     }).subscribe({
       next: (res) => {
         console.log('login success then renavigate', res);
+        this.isLoading = false;
         // Use setTimeout to ensure token is stored before navigation
        /*  setTimeout(() => {
           // Check if user needs to reset password
@@ -76,6 +79,7 @@ B70i9Ku7K7hkcNbf/QIDAQAB
           }
       },
       error: (error) => {
+        this.isLoading = false;
         this.errorMessages = "Invalid Username or password or token";
       }
     });
